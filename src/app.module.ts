@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MyConfigModule } from './config/config.module';
 import { MyConfigService } from './config/db';
 import { CamppingModule } from './campping/campping.module';
-import { CamppingModule } from './campping/campping.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 @Module({
