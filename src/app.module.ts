@@ -16,7 +16,8 @@ dotenv.config();
       useClass: MyConfigService,
       inject: [MyConfigService],
     }),
-    CamppingModule,  ],
+    CamppingModule,  
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
