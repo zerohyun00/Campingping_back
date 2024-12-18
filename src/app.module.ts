@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MyConfigModule } from './config/config.module';
 import { MyConfigService } from './config/db';
+import { CamppingModule } from './campping/campping.module';
+import { CamppingModule } from './campping/campping.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 @Module({
@@ -14,7 +16,8 @@ dotenv.config();
       imports: [MyConfigModule],
       useClass: MyConfigService,
       inject: [MyConfigService],
-    }),  ],
+    }),
+    CamppingModule,  ],
   controllers: [AppController],
   providers: [AppService],
 })
