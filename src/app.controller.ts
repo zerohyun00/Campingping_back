@@ -1,12 +1,19 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { DataSource } from 'typeorm';
 
-@Controller()
+@Controller('test-db')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private dataSource: DataSource) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  async testDBConnection() {
+    try {
+      await this.dataSource.query('SELECT 1'); // 간단한 쿼리 실행
+      console.log('DB 연결 성공!!!',await this.dataSource.query('SELECT 1'));
+      return { message: 'DB 연결 성공!!!' };
+    } catch (error) {
+      console.error('DB 연결 실패:', error);
+      return { message: 'DB 연결 실패!', error: error.message };
+    }
   }
 }
