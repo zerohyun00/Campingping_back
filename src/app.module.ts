@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as ioRedisStore from 'cache-manager-ioredis';
 import { MyConfigModule } from './config/config.module';
 import { MyConfigService } from './config/db';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -16,6 +19,17 @@ dotenv.config();
       imports: [MyConfigModule],
       useClass: MyConfigService,
       inject: [MyConfigService],
+    }),
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: ioRedisStore,
+        host: configService.get<string>('REDIS_HOST', 'localhost'),
+        port: configService.get<number>('REDIS_PORT', 6379),
+        ttl: 300,
+      }),
+      inject: [ConfigService],
+      isGlobal: true,
     }),
     AuthModule,
     UserModule,
