@@ -7,9 +7,11 @@ import { CacheModule } from '@nestjs/cache-manager';
 import * as ioRedisStore from 'cache-manager-ioredis';
 import { MyConfigModule } from './config/config.module';
 import { MyConfigService } from './config/db';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
+import { CamppingModule } from './campping/campping.module';
 import * as dotenv from 'dotenv';
+import { UserModule } from './user/user.module';
+import { ImageModule } from './image/image.module';
+import { AuthModule } from './auth/auth.module';
 dotenv.config();
 
 @Module({
@@ -33,6 +35,8 @@ dotenv.config();
     }),
     AuthModule,
     UserModule,
+    CamppingModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
