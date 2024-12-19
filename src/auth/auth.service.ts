@@ -9,11 +9,12 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Role, User } from 'src/user/entities/user.entity';
+import { LoginType, Role, User } from 'src/user/entities/user.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as nodemailer from 'nodemailer';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -122,6 +123,33 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
+    }
+
+    const accessToken = await this.issueToken(user, false);
+    const refreshToken = await this.issueToken(user, true);
+
+    return { accessToken, refreshToken };
+  }
+
+  async OAuthLogin(
+    socialLoginDto: SocialLoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    console.log('OAuthLogin 실행, socialLoginDto:', socialLoginDto);
+    const { email, nickname, type } = socialLoginDto;
+
+    let user = await this.userRepository.findOne({ where: { email } });
+    console.log('DB에서 찾은 유저:', user);
+
+    if (!user) {
+      user = this.userRepository.create({
+        email,
+        nickname,
+        type, // LoginType.KAKAO
+        role: Role.user, // 기본 Role 설정
+      });
+
+      console.log('새로운 유저 생성:', user);
+      await this.userRepository.save(user);
     }
 
     const accessToken = await this.issueToken(user, false);

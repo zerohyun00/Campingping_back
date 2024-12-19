@@ -21,11 +21,13 @@ export class User extends BaseTable {
   })
   email: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   @Exclude({
     toPlainOnly: true, // 응답을 할 때 적용
   })
-  password: string;
+  password?: string;
 
   @Column({
     enum: Role,

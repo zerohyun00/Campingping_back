@@ -1,9 +1,21 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Req,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Response as ExpressResponse } from 'express';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
+import { KakaoAuthGuard } from './guard/auth.guard';
+import { SocialUser, SocialUserAfterAuth } from './decorator/user.decorator';
+import { SocialLoginDto } from './dto/social-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -51,5 +63,20 @@ export class AuthController {
     });
 
     return res.json({ message: '로그인 성공' });
+  }
+
+  @UseGuards(KakaoAuthGuard)
+  @Get('kakao-login')
+  async kakaoLogin(
+    @SocialUser() socialUser: SocialLoginDto,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ): Promise<void> {
+    const { accessToken, refreshToken } =
+      await this.authService.OAuthLogin(socialUser);
+
+    res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('accessToken', accessToken, { httpOnly: true });
+
+    res.redirect('/');
   }
 }
