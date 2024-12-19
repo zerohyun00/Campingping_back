@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/user/entities/user.entity';
+import { Role, User } from 'src/user/entities/user.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as nodemailer from 'nodemailer';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -99,6 +99,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       nickname,
+      role: Role.user,
     });
 
     await this.userRepository.save(newUser);
@@ -130,7 +131,7 @@ export class AuthService {
   }
 
   async issueToken(
-    user: { id: string; email: string },
+    user: { id: string; email: string; role: Role },
     isRefreshToken: boolean,
   ): Promise<string> {
     const secret = isRefreshToken
@@ -142,6 +143,7 @@ export class AuthService {
         sub: user.id,
         email: user.email,
         type: isRefreshToken ? 'refresh' : 'access',
+        role: user.role,
       },
       {
         secret,
