@@ -20,7 +20,10 @@ export class Community extends BaseTable{
     people: string;
     
     @Column({ type: 'timestamp'})    
-    schedule: Date;
+    startDate: Date;
+
+    @Column({ type: 'timestamp'})    
+    endDate: Date;
 
     @Column({default: 0})
     view: number;
