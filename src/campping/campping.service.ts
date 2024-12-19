@@ -91,7 +91,9 @@ export class CamppingService {
   async findAll(){
     return await this.camppingRepository.findAll()
   }
-
+  async camppingList(){
+    
+  }
   async findOne(id: number){
     return await this.camppingRepository.findOne(id);
   }
