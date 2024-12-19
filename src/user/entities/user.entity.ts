@@ -1,6 +1,9 @@
 import { Exclude } from 'class-transformer';
+import { Comment } from 'src/comment/entites/comment.entity';
 import { BaseTable } from 'src/common/entities/base-table.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Community } from 'src/community/entities/community.entity';
+import { Review } from 'src/review/entities/review.entity';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Role {
   admin,
@@ -46,4 +49,13 @@ export class User extends BaseTable {
     default: LoginType.NORMAL,
   })
   type: LoginType;
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comment: Comment[];
+  
+  @OneToMany(() => Community, (community) => community.user)
+  community: Community[];
+
+  @OneToMany(() => Review, (review) => review.user)
+  review: Review[];
 }
