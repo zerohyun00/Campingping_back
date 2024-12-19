@@ -1,26 +1,72 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  // 사용자 생성
   create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    return this.userRepository.save(createUserDto);
   }
 
+  // 전체 사용자 조회
   findAll() {
-    return `This action returns all user`;
+    return this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  // 특정 사용자 조회
+  async findOne(id: string) {
+    // UUID로 string 타입 사용
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('존재하지 않는 사용자입니다!');
+    }
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  // 사용자 정보 수정
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    // UUID로 string 타입 사용
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('존재하지 않는 사용자입니다!');
+    }
+
+    await this.userRepository.update(id, updateUserDto);
+
+    const newUser = await this.userRepository.findOne({
+      where: { id },
+    });
+    return newUser;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  // 사용자 삭제
+  async remove(id: string) {
+    // UUID로 string 타입 사용
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('존재하지 않는 사용자입니다!');
+    }
+
+    await this.userRepository.delete(id);
+
+    return id;
   }
 }

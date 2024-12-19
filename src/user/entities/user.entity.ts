@@ -7,6 +7,10 @@ export enum Role {
   user,
 }
 
+export enum LoginType {
+  NORMAL = 'NORMAL',
+  KAKAO = 'KAKAO',
+}
 @Entity()
 export class User extends BaseTable {
   @PrimaryGeneratedColumn('uuid')
@@ -17,9 +21,29 @@ export class User extends BaseTable {
   })
   email: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   @Exclude({
     toPlainOnly: true, // 응답을 할 때 적용
   })
-  password: string;
+  password?: string;
+
+  @Column({
+    enum: Role,
+    default: Role.user,
+  })
+  role: Role;
+
+  @Column({
+    nullable: true,
+  })
+  nickname: string;
+
+  @Column({
+    type: 'enum',
+    enum: LoginType,
+    default: LoginType.NORMAL,
+  })
+  type: LoginType;
 }

@@ -15,8 +15,8 @@ export class MyConfigService implements TypeOrmOptionsFactory {
       host: this.configService.get<string>('DB_HOST'),
       database: this.configService.get<string>('DB_DATABASE'),
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      // migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-      // migrationsRun: true,
+      migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+      migrationsRun: true,
       synchronize: false,
     };
   }
