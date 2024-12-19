@@ -1,4 +1,7 @@
 import { Exclude } from 'class-transformer';
+import { Comment } from 'src/comment/entites/comment.entity';
+import { Community } from 'src/community/entities/community.entity';
+import { Review } from 'src/review/entities/review.entity';
 import { ChatRoom } from 'src/chat/entities/chat-room.entity';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { BaseTable } from 'src/common/entities/base-table.entity';
@@ -56,6 +59,14 @@ export class User extends BaseTable {
   })
   type: LoginType;
 
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comment: Comment[];
+  
+  @OneToMany(() => Community, (community) => community.user)
+  community: Community[];
+
+  @OneToMany(() => Review, (review) => review.user)
+  review: Review[];
   @OneToMany(() => Chat, (chat) => chat.author)
   chats: Chat[];
 

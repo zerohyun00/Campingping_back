@@ -12,6 +12,9 @@ import * as dotenv from 'dotenv';
 import { UserModule } from './user/user.module';
 import { ImageModule } from './image/image.module';
 import { AuthModule } from './auth/auth.module';
+import { CommentModule } from './comment/comment.module';
+import { ReviewModule } from './review/review.module';
+import { CommunityModule } from './community/community.module';
 import { ChatModule } from './chat/chat.module';
 import { FavoriteModule } from './favorite/favorite.module';
 dotenv.config();
@@ -39,6 +42,9 @@ dotenv.config();
     UserModule,
     CamppingModule,
     ImageModule,
+    CommentModule,
+    ReviewModule,
+    CommunityModule,
     ChatModule,
     FavoriteModule,
   ],
