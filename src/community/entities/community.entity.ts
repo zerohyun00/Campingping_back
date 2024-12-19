@@ -25,6 +25,12 @@ export class Community extends BaseTable {
   people: string;
 
   @Column({ type: 'timestamp' })
+  startDate: Date;
+
+  @Column({ type: 'timestamp' })
+  endDate: Date;
+
+  @Column({ type: 'timestamp' })
   schedule: Date;
 
   @Column({ default: 0 })
