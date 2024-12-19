@@ -155,6 +155,9 @@ export class AuthService {
     const accessToken = await this.issueToken(user, false);
     const refreshToken = await this.issueToken(user, true);
 
+    console.log('AccessToken : ', accessToken);
+    console.log('RefreshToken : ', refreshToken);
+
     return { accessToken, refreshToken };
   }
 

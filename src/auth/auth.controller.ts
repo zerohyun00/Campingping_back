@@ -65,8 +65,8 @@ export class AuthController {
     return res.json({ message: '로그인 성공' });
   }
 
-  @UseGuards(KakaoAuthGuard)
   @Get('kakao-login')
+  @UseGuards(KakaoAuthGuard)
   async kakaoLogin(
     @SocialUser() socialUser: SocialLoginDto,
     @Res({ passthrough: true }) res: ExpressResponse,
