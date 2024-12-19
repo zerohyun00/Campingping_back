@@ -101,4 +101,7 @@ export class Campping extends BaseTable {
   
     @Column({ nullable: true })
     animalCmgCl: string;
+
+    @Column({ unique: true})
+    contentId: string;
 }

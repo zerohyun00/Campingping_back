@@ -7,6 +7,8 @@ import { MyConfigModule } from './config/config.module';
 import { MyConfigService } from './config/db';
 import { CamppingModule } from './campping/campping.module';
 import * as dotenv from 'dotenv';
+import { UserModule } from './user/user.module';
+import { ImageModule } from './image/image.module';
 dotenv.config();
 @Module({
   imports: [
@@ -16,7 +18,9 @@ dotenv.config();
       useClass: MyConfigService,
       inject: [MyConfigService],
     }),
-    CamppingModule,  
+    CamppingModule,
+    UserModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

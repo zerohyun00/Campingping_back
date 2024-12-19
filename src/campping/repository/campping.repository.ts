@@ -9,23 +9,30 @@ export class CamppingRepository {
         this.repository = this.dataSource.getRepository(Campping);
     }
     // 캠핑장 데이터 저장 트랜잭션
-    async saveDataWithTransaction(data: Campping[]) {
-        const entityManager = this.dataSource.createEntityManager();
-    
-        await entityManager.transaction(async (transactionalEntityManager) => {
-            //캠핌장 이름으로 검색
-            const existingData = await transactionalEntityManager.find(Campping, {
-                select: ["factDivNm"],
-            });
-            console.log(existingData.length)
-            const existingFactDivNms = new Set(existingData.map((item) => item.factDivNm));
-    
-            // 중복 제거 후 저장
-            const newData = data.filter(item => !existingFactDivNms.has(item.factDivNm));
-    
-            if (newData.length > 0) {
-                await transactionalEntityManager.save(Campping, newData);
-            }
-        });
+ async saveDataWithTransaction(data: Campping[]) {
+    const entityManager = this.dataSource.createEntityManager();
+
+    await entityManager.transaction(async (transactionalEntityManager) => {
+        // `upsert`를 사용하여 데이터를 저장하거나 업데이트
+        await transactionalEntityManager
+        .createQueryBuilder()
+        .insert()
+        .into(Campping)
+        .values(data)
+        .orUpdate(
+            ["lineIntro", "intro", "manageDivNm", "bizrno", "manageSttus", "hvofBgnde", "hvofEndde", "featureNm", 
+             "induty", "lccl", "doNm", "signguNm", "addr1", "addr2", "mapX", "mapY", "tel", "homepage", 
+             "gplnInnerFclty", "caravnInnerFclty", "operPdCl", "operDeCl", "trlerAcmpnyAt", "caravAcmpnyAt", 
+             "sbrsCl", "toiletCo", "swrmCo", "posblFcltyCl", "themaEnvrnCl", "eqpmnLendCl", "animalCmgCl", "contentId"],
+            ["contentId"]
+        )
+        .execute();
+    });
+    }
+    async findAll() {
+        return await this.repository.find();
+    }
+    async findOne(id: number){
+        return await this.repository.findOne({where: {id}})
     }
 }

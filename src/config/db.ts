@@ -17,7 +17,7 @@ export class MyConfigService implements TypeOrmOptionsFactory {
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       // migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
       // migrationsRun: true,
-      synchronize:false,
+      synchronize: false,
     };
   }
 }

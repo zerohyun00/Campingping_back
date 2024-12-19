@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import axios from 'axios';
 import { CamppingRepository } from './repository/campping.repository';
 import { Campping } from './entities/campping.entity';
@@ -8,32 +7,31 @@ import { Campping } from './entities/campping.entity';
 export class CamppingService {
   constructor(private readonly camppingRepository: CamppingRepository) {}
 
-  @Cron('30 * * * * *')
   async CamppingCronHandler() {
-    const apikey = 'xmrpgObsiAFFR2II2Mr%2BABk2SHPyB21kt%2Ft0Y6g4mMndM3J0b3KDmM2TTsySRE6Cpuo0Q8cBNt2aQ5%2BX1woPyA%3D%3D';
-    const apiurl = 'https://apis.data.go.kr/B551011/GoCamping/basedList';
+    const apikey = 'TapmaDwOM%2FvvIzD2GYx%2F6RfNoMM1ES3NQbgRwQeVG31NEu5JDY7vWU41293qYDR51IrpaKtbgAuYzJseIBhx2A%3D%3D';
+    const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 100;
     let pageNo = 1;
     let allData = [];
-
     while (true) {
-      const url = `${apiurl}?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
+      const url = `${apiurl}/basedList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
       try {
         const response = await axios.get(url);
         const data = response.data.response.body.items.item;
 
         if (!data || data.length === 0) {
+          console.log("데이터가 없습니다. 반복문 종료");
           break;
         }
+        console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${data.length}`);
 
         allData = allData.concat(data);
         pageNo++;
-      } catch (error) {
-        console.error('데이터 요청 중 오류 발생:', error);
-        break;
+      }catch (error) {
+          console.error("데이터 요청 중 오류 발생:", error.message);
+          break;
       }
     }
-
     try {
       const entities = allData.map((item) => this.mapToEntity(item));
       const batchSize = 500; // 한 번에 저장할 데이터 수
@@ -43,15 +41,15 @@ export class CamppingService {
       console.error('데이터 저장 중 오류 발생:', error);
     }
   }
-
-  private async saveDataInBatches(entities: Campping[], batchSize: number): Promise<void> {
+  async saveDataInBatches(entities: Campping[], batchSize: number): Promise<void> {
     for (let i = 0; i < entities.length; i += batchSize) {
       const batch = entities.slice(i, i + batchSize);
       await this.camppingRepository.saveDataWithTransaction(batch);
     }
   }
 
-  private mapToEntity(data: any): Campping {
+  
+  mapToEntity(data: any): Campping {
     const campping = new Campping();
     campping.lineIntro = data.lineIntro || null;
     campping.intro = data.intro || null;
@@ -85,6 +83,16 @@ export class CamppingService {
     campping.themaEnvrnCl = data.themaEnvrnCl || null;
     campping.eqpmnLendCl = data.eqpmnLendCl || null;
     campping.animalCmgCl = data.animalCmgCl || null;
+    campping.contentId = data.contentId || null;
+
     return campping;
+  }
+
+  async findAll(){
+    return await this.camppingRepository.findAll()
+  }
+
+  async findOne(id: number){
+    return await this.camppingRepository.findOne(id);
   }
 }
