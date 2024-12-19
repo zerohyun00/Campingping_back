@@ -15,6 +15,8 @@ import { AuthModule } from './auth/auth.module';
 import { CommentModule } from './comment/comment.module';
 import { ReviewModule } from './review/review.module';
 import { CommunityModule } from './community/community.module';
+import { ChatModule } from './chat/chat.module';
+import { FavoriteModule } from './favorite/favorite.module';
 dotenv.config();
 
 @Module({
@@ -43,6 +45,8 @@ dotenv.config();
     CommentModule,
     ReviewModule,
     CommunityModule,
+    ChatModule,
+    FavoriteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

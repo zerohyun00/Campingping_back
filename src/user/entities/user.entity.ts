@@ -1,9 +1,18 @@
 import { Exclude } from 'class-transformer';
 import { Comment } from 'src/comment/entites/comment.entity';
-import { BaseTable } from 'src/common/entities/base-table.entity';
 import { Community } from 'src/community/entities/community.entity';
 import { Review } from 'src/review/entities/review.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ChatRoom } from 'src/chat/entities/chat-room.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { BaseTable } from 'src/common/entities/base-table.entity';
+import { Favorite } from 'src/favorite/entities/favorite.entity';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum Role {
   admin,
@@ -58,4 +67,12 @@ export class User extends BaseTable {
 
   @OneToMany(() => Review, (review) => review.user)
   review: Review[];
+  @OneToMany(() => Chat, (chat) => chat.author)
+  chats: Chat[];
+
+  @ManyToMany(() => ChatRoom, (chatRoom) => chatRoom.users)
+  chatRooms: ChatRoom[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 }
