@@ -12,6 +12,8 @@ import * as dotenv from 'dotenv';
 import { UserModule } from './user/user.module';
 import { ImageModule } from './image/image.module';
 import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
+import { FavoriteModule } from './favorite/favorite.module';
 dotenv.config();
 
 @Module({
@@ -37,6 +39,8 @@ dotenv.config();
     UserModule,
     CamppingModule,
     ImageModule,
+    ChatModule,
+    FavoriteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,15 @@
 import { Exclude } from 'class-transformer';
+import { ChatRoom } from 'src/chat/entities/chat-room.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
 import { BaseTable } from 'src/common/entities/base-table.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Favorite } from 'src/favorite/entities/favorite.entity';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum Role {
   admin,
@@ -46,4 +55,13 @@ export class User extends BaseTable {
     default: LoginType.NORMAL,
   })
   type: LoginType;
+
+  @OneToMany(() => Chat, (chat) => chat.author)
+  chats: Chat[];
+
+  @ManyToMany(() => ChatRoom, (chatRoom) => chatRoom.users)
+  chatRooms: ChatRoom[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 }
