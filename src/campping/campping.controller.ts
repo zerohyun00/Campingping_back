@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CamppingService } from './campping.service';
 import { CamppingCronHandler } from './capping.cron.provider';
+import { CamppingParamDto } from './dto/find-campping-param.dto';
 
 @Controller('campping')
 export class CamppingController {
@@ -14,5 +15,9 @@ export class CamppingController {
   @Get('list')
   async findCampping(){
     return this.camppingService.findAll();
+  }
+  @Get('/list/:id')
+  async findOneCampping(@Param() paramDto: CamppingParamDto){
+    return this.camppingService.findOne(paramDto)
   }
 }

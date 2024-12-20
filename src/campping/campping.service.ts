@@ -4,6 +4,7 @@ import { CamppingRepository } from './repository/campping.repository';
 import { Campping } from './entities/campping.entity';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { parseStringPromise } from 'xml2js';
+import { CamppingParamDto } from './dto/find-campping-param.dto';
 
 @Injectable()
 export class CamppingService {
@@ -140,10 +141,7 @@ export class CamppingService {
   async findAll(){
     return await this.camppingRepository.findAll();
   }
-  async camppingList(){
-    
-  }
-  async findOne(id: number){
-    return await this.camppingRepository.findOne(id);
+  async findOne(paramDto: CamppingParamDto){
+    return await this.camppingRepository.findOne(paramDto);
   }
 }

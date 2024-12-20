@@ -8,8 +8,11 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp
 @Entity()
 export class Community extends BaseTable{
     @PrimaryGeneratedColumn()
-    title: number;
+    id: number;
 
+    @Column()
+    title: string;
+    
     @Column()
     content: string;
     
