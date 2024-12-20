@@ -13,7 +13,10 @@ import {
 @Entity()
 export class Community extends BaseTable {
   @PrimaryGeneratedColumn()
-  title: number;
+  id: number;
+
+  @Column()
+  title: string;
 
   @Column()
   content: string;
@@ -22,16 +25,13 @@ export class Community extends BaseTable {
   location: string;
 
   @Column()
-  people: string;
+  people: number;
 
   @Column({ type: 'timestamp' })
   startDate: Date;
 
   @Column({ type: 'timestamp' })
   endDate: Date;
-
-  @Column({ type: 'timestamp' })
-  schedule: Date;
 
   @Column({ default: 0 })
   view: number;

@@ -12,7 +12,6 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { Response as ExpressResponse } from 'express';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ConfigService } from '@nestjs/config';
-import { AuthGuard } from '@nestjs/passport';
 import { KakaoAuthGuard } from './guard/auth.guard';
 import { SocialUser, SocialUserAfterAuth } from './decorator/user.decorator';
 import { SocialLoginDto } from './dto/social-login.dto';
@@ -52,14 +51,14 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'strict',
-      maxAge: 3600000, // 1시간
+      maxAge: 3600000,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+      maxAge: 3600000,
     });
 
     return res.json({ message: '로그인 성공' });
