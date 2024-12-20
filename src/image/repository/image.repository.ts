@@ -9,7 +9,7 @@ export class ImageRepository {
         this.repository = this.dataSource.getRepository(Image);
     }
     async createImage(contentId: string, url: string, type: string): Promise<Image>{
-        const imageData = this.repository.create({typeId: contentId, url, type})
+        const imageData = this.repository.create({url, typeId: contentId, type})
         return await this.repository.save(imageData)
     }
     async findOne(contentId: string, imageUrl: string){

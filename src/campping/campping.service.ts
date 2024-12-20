@@ -33,7 +33,7 @@ export class CamppingService {
 
       try {
           const response = await axios.get(url);
-          const responseBody = response.data.response.body.items.item;
+          const responseBody = response.data?.response?.body;
 
           if (!responseBody || !responseBody.items || responseBody.items === '') {
             console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
@@ -70,9 +70,9 @@ export class CamppingService {
             }
             break;
         }
-          console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${responseBody.length}`);
-
-          allData = allData.concat(responseBody);
+          const campData = responseBody.items.item || [];
+          console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${campData.length}`);
+          allData = allData.concat(campData);
           pageNo++;
       } catch (error) {
           console.error("데이터 요청 중 오류 발생:", error.message);
@@ -134,9 +134,11 @@ export class CamppingService {
 
     return campping;
   }
-
+  async findCronFindAll(){
+    return await this.camppingRepository.findCronFindAll();
+  }
   async findAll(){
-    return await this.camppingRepository.findAll()
+    return await this.camppingRepository.findAll();
   }
   async camppingList(){
     

@@ -1,5 +1,6 @@
 import { BaseTable } from "src/common/entities/base-table.entity";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Image } from "src/image/entities/image.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Campping extends BaseTable {
@@ -104,4 +105,7 @@ export class Campping extends BaseTable {
 
     @Column({ unique: true})
     contentId: string;
+
+    @OneToMany(() => Image, image => image.campping)
+    images: Image[];
 }

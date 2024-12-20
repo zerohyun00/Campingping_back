@@ -11,4 +11,8 @@ export class CamppingController {
   async handler(){
     return this.camppingCron.handleCron();
   }
+  @Get('list')
+  async findCampping(){
+    return this.camppingService.findAll();
+  }
 }
