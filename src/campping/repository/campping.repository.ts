@@ -13,6 +13,7 @@ export class CamppingRepository {
     // 캠핑장 데이터 저장 트랜잭션
     // 수정 중 ... 
     async saveDataWithTransaction(data: Campping[]) {
+      console.log(data)
       const entityManager = this.dataSource.createEntityManager();
       await entityManager.transaction(async (transactionalEntityManager) => {
         // `upsert`를 사용하여 데이터를 저장하거나 업데이트
@@ -72,7 +73,7 @@ export class CamppingRepository {
           camp."eqpmnLendCl" AS "camp_eqpmnLendCl", 
           camp."animalCmgCl" AS "camp_animalCmgCl", 
           camp."contentId" AS "camp_contentId", 
-          camp."location",
+          camp."location" AS "camp_location",
           images."id" AS "image_id", 
           images."url" AS "image_url"
         FROM "campping" "camp"
@@ -158,7 +159,7 @@ export class CamppingRepository {
         .createQueryBuilder('campping')
         .select([
           'campping.id',
-          'campping.lineIntro',
+          'campping.factDivNm',
           'ST_AsGeoJSON(campping.location) as location',
           'ST_Distance(campping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) as distance',
         ])
@@ -171,7 +172,7 @@ export class CamppingRepository {
     
       return query.map(camping => ({
         id: camping.campping_id,
-        lineIntro: camping.campping_lineIntro,
+        factDivNm: camping.campping_factDivNm,
         location: JSON.parse(camping.location),
         distance: parseFloat(camping.distance),
       }));

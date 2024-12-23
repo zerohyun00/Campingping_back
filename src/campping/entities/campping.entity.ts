@@ -1,6 +1,6 @@
 import { BaseTable } from "src/common/entities/base-table.entity";
 import { Image } from "src/image/entities/image.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Geometry, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Point } from 'geojson'; // GeoJSON의 Point 타입을 사용
 
 @Entity()
@@ -53,8 +53,8 @@ export class Campping extends BaseTable {
     @Column({ nullable: true })
     addr2: string;
   
-    @Column('geometry', { nullable: true, spatialFeatureType: 'Point', srid: 4326 })
-    location: Point;
+    @Column('geometry', { nullable: true })
+    location: Geometry;
   
     @Column({ nullable: true })
     tel: string;
@@ -106,12 +106,11 @@ export class Campping extends BaseTable {
 
     @OneToMany(() => Image, image => image.campping)
     images: Image[];
-  // 수정 중 ... 
-  setLocation(mapX: number, mapY: number) {
-      const geoJson = JSON.stringify({
+    
+    setLocation(mapX: number, mapY: number) {
+      this.location = {
           type: "Point",
           coordinates: [mapX, mapY]
-      });
-      this.location = `ST_SetSRID(ST_GeomFromGeoJSON('${geoJson}'), 4326)`;
+      };
     }
 }
