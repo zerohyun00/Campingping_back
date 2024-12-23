@@ -68,10 +68,8 @@ export class AuthService {
       throw new BadRequestException('인증번호가 올바르지 않습니다.');
     }
 
-    // 인증 완료 상태를 캐시에 저장 (유효 기간 1시간)
     await this.cacheManager.set(`${email}-verified`, true, 3600);
 
-    // 인증번호 삭제
     await this.cacheManager.del(`VERIFICATION_CODE_${email}`);
 
     return { message: '인증이 완료되었습니다.' };
