@@ -31,8 +31,6 @@ export function mapCamppingData(result: any): CamppingDetailType {
     signguNm: camppingData.campping_signguNm,
     addr1: camppingData.campping_addr1,
     addr2: camppingData.campping_addr2,
-    mapX: camppingData.campping_mapX,
-    mapY: camppingData.campping_mapY,
     tel: camppingData.campping_tel,
     homepage: camppingData.campping_homepage,
     gplnInnerFclty: camppingData.campping_gplnInnerFclty,
@@ -49,15 +47,13 @@ export function mapCamppingData(result: any): CamppingDetailType {
     eqpmnLendCl: camppingData.campping_eqpmnLendCl,
     animalCmgCl: camppingData.campping_animalCmgCl,
     contentId: camppingData.campping_contentId,
+    location: camppingData.campping_location,
   };
 }
 
 export function mapCamppingListData(result: any[]): CamppingListType[] {
     return result.map((camp) => ({
       id: camp.camp_id,
-      createdAt: camp.camp_createdAt,
-      updatedAt: camp.camp_updatedAt,
-      deletedAt: camp.camp_deletedAt,
       lineIntro: camp.camp_lineIntro,
       intro: camp.camp_intro,
       factDivNm: camp.camp_factDivNm,
@@ -73,8 +69,6 @@ export function mapCamppingListData(result: any[]): CamppingListType[] {
       signguNm: camp.camp_signguNm,
       addr1: camp.camp_addr1,
       addr2: camp.camp_addr2,
-      mapX: camp.camp_mapX,
-      mapY: camp.camp_mapY,
       tel: camp.camp_tel,
       homepage: camp.camp_homepage,
       gplnInnerFclty: camp.camp_gplnInnerFclty,
@@ -91,6 +85,7 @@ export function mapCamppingListData(result: any[]): CamppingListType[] {
       eqpmnLendCl: camp.camp_eqpmnLendCl,
       animalCmgCl: camp.camp_animalCmgCl,
       contentId: camp.camp_contentId,
+      location: camp.location,
       images: {
         id: camp.image_id,
         url: camp.image_url,

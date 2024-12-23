@@ -18,8 +18,7 @@ export type CamppingDetailType = {
     signguNm: string;
     addr1: string;
     addr2: string;
-    mapX: string;
-    mapY: string;
+    location: string;
     tel: string;
     homepage: string;
     gplnInnerFclty: string;

@@ -11,25 +11,28 @@ export class CamppingRepository {
         this.repository = this.dataSource.getRepository(Campping);
     }
     // 캠핑장 데이터 저장 트랜잭션
- async saveDataWithTransaction(data: Campping[]) {
-    const entityManager = this.dataSource.createEntityManager();
-
-    await entityManager.transaction(async (transactionalEntityManager) => {
+    // 수정 중 ... 
+    async saveDataWithTransaction(data: Campping[]) {
+      const entityManager = this.dataSource.createEntityManager();
+      await entityManager.transaction(async (transactionalEntityManager) => {
         // `upsert`를 사용하여 데이터를 저장하거나 업데이트
         await transactionalEntityManager
-        .createQueryBuilder()
-        .insert()
-        .into(Campping)
-        .values(data)
-        .orUpdate(
-            ["lineIntro", "intro", "manageDivNm", "bizrno", "manageSttus", "hvofBgnde", "hvofEndde", "featureNm", 
-             "induty", "lccl", "doNm", "signguNm", "addr1", "addr2", "mapX", "mapY", "tel", "homepage", 
-             "gplnInnerFclty", "caravnInnerFclty", "operPdCl", "operDeCl", "trlerAcmpnyAt", "caravAcmpnyAt", 
-             "sbrsCl", "toiletCo", "swrmCo", "posblFcltyCl", "themaEnvrnCl", "eqpmnLendCl", "animalCmgCl", "contentId"],
+          .createQueryBuilder()
+          .insert()
+          .into(Campping)
+          .values(data)
+          .orUpdate(
+            [
+              "lineIntro", "intro", "manageDivNm", "bizrno", "manageSttus", "hvofBgnde", "hvofEndde", 
+              "featureNm", "induty", "lccl", "doNm", "signguNm", "addr1", "addr2", "tel", "homepage", 
+              "gplnInnerFclty", "caravnInnerFclty", "operPdCl", "operDeCl", "trlerAcmpnyAt", "caravAcmpnyAt", 
+              "sbrsCl", "toiletCo", "swrmCo", "posblFcltyCl", "themaEnvrnCl", "eqpmnLendCl", "animalCmgCl", 
+              "contentId", "location"
+            ],
             ["contentId"]
-        )
-        .execute();
-    });
+          )
+          .execute();
+      });
     }
     async findCronFindAll() {
         return await this.repository.find();
@@ -37,9 +40,6 @@ export class CamppingRepository {
     async findAll() {
         const query = `
         SELECT 
-          camp."createdAt" AS "camp_createdAt", 
-          camp."updatedAt" AS "camp_updatedAt", 
-          camp."deletedAt" AS "camp_deletedAt", 
           camp."id" AS "camp_id", 
           camp."lineIntro" AS "camp_lineIntro", 
           camp."intro" AS "camp_intro", 
@@ -56,8 +56,6 @@ export class CamppingRepository {
           camp."signguNm" AS "camp_signguNm", 
           camp."addr1" AS "camp_addr1", 
           camp."addr2" AS "camp_addr2", 
-          camp."mapX" AS "camp_mapX", 
-          camp."mapY" AS "camp_mapY", 
           camp."tel" AS "camp_tel", 
           camp."homepage" AS "camp_homepage", 
           camp."gplnInnerFclty" AS "camp_gplnInnerFclty", 
@@ -74,6 +72,7 @@ export class CamppingRepository {
           camp."eqpmnLendCl" AS "camp_eqpmnLendCl", 
           camp."animalCmgCl" AS "camp_animalCmgCl", 
           camp."contentId" AS "camp_contentId", 
+          camp."location",
           images."id" AS "image_id", 
           images."url" AS "image_url"
         FROM "campping" "camp"
@@ -119,8 +118,6 @@ export class CamppingRepository {
           'campping.signguNm',
           'campping.addr1',
           'campping.addr2',
-          'campping.mapX',
-          'campping.mapY',
           'campping.tel',
           'campping.homepage',
           'campping.gplnInnerFclty',
@@ -137,9 +134,7 @@ export class CamppingRepository {
           'campping.eqpmnLendCl',
           'campping.animalCmgCl',
           'campping.contentId',
-          'image.createdAt AS image_createdAt',
-          'image.updatedAt AS image_updatedAt',
-          'image.deletedAt AS image_deletedAt',
+          'campping.location',
           'image.id AS image_id',
           'image.url AS image_url',
         ]);
@@ -154,5 +149,31 @@ export class CamppingRepository {
       const images = mapImageData(result);
 
       return { ...camppingData, images };
+    }
+
+    // 수정 중 ... 
+
+    async findNearbyCampping(lon: number, lat: number) {
+      const query = await this.repository
+        .createQueryBuilder('campping')
+        .select([
+          'campping.id',
+          'campping.lineIntro',
+          'ST_AsGeoJSON(campping.location) as location',
+          'ST_Distance(campping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) as distance',
+        ])
+        .setParameters({ lat, lon })
+        .where(
+          'ST_DWithin(campping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), 5000)',
+        )
+        .orderBy('distance', 'ASC')
+        .getRawMany();
+    
+      return query.map(camping => ({
+        id: camping.campping_id,
+        lineIntro: camping.campping_lineIntro,
+        location: JSON.parse(camping.location),
+        distance: parseFloat(camping.distance),
+      }));
     }
 }

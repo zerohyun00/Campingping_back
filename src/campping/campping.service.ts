@@ -23,63 +23,65 @@ export class CamppingService {
   }
 
   async CamppingCronHandler() {
-  const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
-  const numOfRows = 100;
-  let pageNo = 1;
-  let allData = [];
-
-  while (true) {
+    const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
+    const numOfRows = 100;
+    let pageNo = 1;
+    let allData = [];
+  
+    while (true) {
       const apikey = this.apiKeyManager.getCurrentApiKey();
       const url = `${apiurl}/basedList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
-
+  
       try {
-          const response = await axios.get(url);
-          const responseBody = response.data?.response?.body;
-
-          if (!responseBody || !responseBody.items || responseBody.items === '') {
-            console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
-            console.log("응답 데이터:", response.data); // 응답 전체 데이터를 로깅하여 확인
-            
-            // 응답이 XML인지 확인
-            if (response.data && typeof response.data === 'string' && response.data.trim().startsWith('<')) {
-                // XML 형식인 경우
-                const errorXml = response.data;
-                console.log(errorXml, "에러 발생 시");
-        
-                try {
-                    const parsedError = await parseStringPromise(errorXml, { explicitArray: false });
-                    const returnReasonCode = parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode;
-        
-                    // 22번 코드 (API 키 초과) 처리
-                    if (returnReasonCode === '22') {
-                        console.warn(`API 키 사용 초과: ${apikey}, 이유: ${parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnAuthMsg}`);
-                        
-                        // API 키 변경 및 재시도
-                        if (!this.apiKeyManager.switchToNextApiKey()) {
-                            console.error("모든 API 키 사용 초과");
-                            break; 
-                        }
-                        console.log(`새로운 API 키로 전환: ${this.apiKeyManager.getCurrentApiKey()}`);
-                        continue;
-                    }
-                } catch (parseError) {
-                    console.error('XML 파싱 오류:', parseError);
+        const response = await axios.get(url);
+        const responseBody = response.data?.response?.body;
+  
+        if (!responseBody || !responseBody.items || responseBody.items === '') {
+          console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
+          console.log("응답 데이터:", response.data); // 응답 전체 데이터를 로깅하여 확인
+  
+          // 응답이 XML인지 확인
+          if (response.data && typeof response.data === 'string' && response.data.trim().startsWith('<')) {
+            // XML 형식인 경우
+            const errorXml = response.data;
+            console.log(errorXml, "에러 발생 시");
+  
+            try {
+              const parsedError = await parseStringPromise(errorXml, { explicitArray: false });
+              const returnReasonCode = parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode;
+  
+              // 22번 코드 (API 키 초과) 처리
+              if (returnReasonCode === '22') {
+                console.warn(`API 키 사용 초과: ${apikey}, 이유: ${parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnAuthMsg}`);
+  
+                // API 키 변경 및 재시도
+                if (!this.apiKeyManager.switchToNextApiKey()) {
+                  console.error("모든 API 키 사용 초과");
+                  break; 
                 }
-            } else {
-                // JSON 형식이거나 다른 응답
-                console.error("응답 데이터가 예상한 XML 형식이 아닙니다.");
+                console.log(`새로운 API 키로 전환: ${this.apiKeyManager.getCurrentApiKey()}`);
+                continue;
+              }
+            } catch (parseError) {
+              console.error('XML 파싱 오류:', parseError);
             }
-            break;
-        }
-          const campData = responseBody.items.item || [];
-          console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${campData.length}`);
-          allData = allData.concat(campData);
-          pageNo++;
-      } catch (error) {
-          console.error("데이터 요청 중 오류 발생:", error.message);
+          } else {
+            // JSON 형식이거나 다른 응답
+            console.error("응답 데이터가 예상한 XML 형식이 아닙니다.");
+          }
           break;
+        }
+  
+        const campData = responseBody.items.item || [];
+        console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${campData.length}`);
+        allData = allData.concat(campData);
+        pageNo++;
+      } catch (error) {
+        console.error("데이터 요청 중 오류 발생:", error.message);
+        break;
       }
-  }
+    }
+  
     try {
       const entities = allData.map((item) => this.mapToEntity(item));
       const batchSize = 500; // 한 번에 저장할 데이터 수
@@ -89,13 +91,13 @@ export class CamppingService {
       console.error('데이터 저장 중 오류 발생:', error);
     }
   }
+  
   async saveDataInBatches(entities: Campping[], batchSize: number): Promise<void> {
     for (let i = 0; i < entities.length; i += batchSize) {
       const batch = entities.slice(i, i + batchSize);
       await this.camppingRepository.saveDataWithTransaction(batch);
     }
   }
-
   
   mapToEntity(data: any): Campping {
     const campping = new Campping();
@@ -114,8 +116,8 @@ export class CamppingService {
     campping.signguNm = data.signguNm || null;
     campping.addr1 = data.addr1 || null;
     campping.addr2 = data.addr2 || null;
-    campping.mapX = data.mapX || null;
-    campping.mapY = data.mapY || null;
+    // 수정 중 ... 
+    campping.setLocation(data.mapX, data.mapY);
     campping.tel = data.tel || null;
     campping.homepage = data.homepage || null;
     campping.gplnInnerFclty = data.gnrlSiteCo || null;
@@ -132,7 +134,7 @@ export class CamppingService {
     campping.eqpmnLendCl = data.eqpmnLendCl || null;
     campping.animalCmgCl = data.animalCmgCl || null;
     campping.contentId = data.contentId || null;
-
+  
     return campping;
   }
   async findCronFindAll(){
@@ -143,5 +145,11 @@ export class CamppingService {
   }
   async findOne(paramDto: CamppingParamDto){
     return await this.camppingRepository.findOne(paramDto);
+  }
+
+  // 수정 중 ... 
+
+  async findNearbyCampping(lon, lat){
+    return await this.camppingRepository.findNearbyCampping(lon, lat);
   }
 }
