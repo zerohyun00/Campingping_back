@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -17,6 +17,7 @@ import { ReviewModule } from './review/review.module';
 import { CommunityModule } from './community/community.module';
 import { ChatModule } from './chat/chat.module';
 import { FavoriteModule } from './favorite/favorite.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 dotenv.config();
 
 @Module({
@@ -49,6 +50,12 @@ dotenv.config();
     FavoriteModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
+  ],
 })
 export class AppModule {}

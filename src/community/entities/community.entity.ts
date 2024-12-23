@@ -1,4 +1,4 @@
-import { Comment } from 'src/comment/entites/comment.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 import { BaseTable } from 'src/common/entities/base-table.entity';
 import { User } from 'src/user/entities/user.entity';
 import {

@@ -14,7 +14,7 @@ import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';
 import { AuthenticatedRequest, JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 
-@Controller('community')
+@Controller('communities')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
