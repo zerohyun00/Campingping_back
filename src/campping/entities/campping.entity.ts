@@ -107,11 +107,10 @@ export class Campping extends BaseTable {
     @OneToMany(() => Image, image => image.campping)
     images: Image[];
   // 수정 중 ... 
-  setLocation(mapX: number, mapY: number) {
-      const geoJson = JSON.stringify({
+    setLocation(mapX: number, mapY: number) {
+      JSON.stringify({
           type: "Point",
           coordinates: [mapX, mapY]
       });
-      this.location = `ST_SetSRID(ST_GeomFromGeoJSON('${geoJson}'), 4326)`;
     }
 }
