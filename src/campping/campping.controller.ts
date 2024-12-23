@@ -12,9 +12,6 @@ export class CamppingController {
   async handler(){
     return await this.camppingCron.handleCron();
   }
-
-  // 수정 중 ... 
-
   @Get('map')
   async findNearbyCampping(  
     @Query('lat') lat: number,

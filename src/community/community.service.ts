@@ -37,7 +37,7 @@ export class CommunityService {
   }
 
   async findAll() {
-    return this.communityRepository.find({
+    return await this.communityRepository.find({
       relations: ['user'],
     });
   }

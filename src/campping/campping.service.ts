@@ -116,8 +116,7 @@ export class CamppingService {
     campping.signguNm = data.signguNm || null;
     campping.addr1 = data.addr1 || null;
     campping.addr2 = data.addr2 || null;
-    // 수정 중 ... 
-    campping.setLocation(data.mapX, data.mapY);
+    campping.setLocation(data.mapX, data.mapY); 
     campping.tel = data.tel || null;
     campping.homepage = data.homepage || null;
     campping.gplnInnerFclty = data.gnrlSiteCo || null;
@@ -147,9 +146,7 @@ export class CamppingService {
     return await this.camppingRepository.findOne(paramDto);
   }
 
-  // 수정 중 ... 
-
-  async findNearbyCampping(lon, lat){
+  async findNearbyCampping(lon: number, lat: number){
     return await this.camppingRepository.findNearbyCampping(lon, lat);
   }
 }

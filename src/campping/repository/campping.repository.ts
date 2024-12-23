@@ -11,7 +11,6 @@ export class CamppingRepository {
         this.repository = this.dataSource.getRepository(Campping);
     }
     // 캠핑장 데이터 저장 트랜잭션
-    // 수정 중 ... 
     async saveDataWithTransaction(data: Campping[]) {
       const entityManager = this.dataSource.createEntityManager();
       await entityManager.transaction(async (transactionalEntityManager) => {
@@ -72,7 +71,7 @@ export class CamppingRepository {
           camp."eqpmnLendCl" AS "camp_eqpmnLendCl", 
           camp."animalCmgCl" AS "camp_animalCmgCl", 
           camp."contentId" AS "camp_contentId", 
-          camp."location",
+          ST_AsGeoJSON(camp."location") AS "camp_location",
           images."id" AS "image_id", 
           images."url" AS "image_url"
         FROM "campping" "camp"
@@ -150,15 +149,12 @@ export class CamppingRepository {
 
       return { ...camppingData, images };
     }
-
-    // 수정 중 ... 
-
     async findNearbyCampping(lon: number, lat: number) {
       const query = await this.repository
         .createQueryBuilder('campping')
         .select([
           'campping.id',
-          'campping.lineIntro',
+          'campping.factDivNm',
           'ST_AsGeoJSON(campping.location) as location',
           'ST_Distance(campping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) as distance',
         ])
@@ -171,7 +167,7 @@ export class CamppingRepository {
     
       return query.map(camping => ({
         id: camping.campping_id,
-        lineIntro: camping.campping_lineIntro,
+        factDivNm: camping.campping_factDivNm,
         location: JSON.parse(camping.location),
         distance: parseFloat(camping.distance),
       }));
