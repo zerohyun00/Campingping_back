@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { Campping } from "../entities/campping.entity";
 import { DataSource, Repository } from "typeorm";
-import { Image } from "src/image/entities/image.entity";
 import { CamppingParamDto } from "../dto/find-campping-param.dto";
+import { mapCamppingData, mapCamppingListData, mapImageData } from "src/common/utils/campping-data-map.util";
 
 @Injectable()
 export class CamppingRepository {
@@ -87,49 +87,9 @@ export class CamppingRepository {
       `;
       const result = await this.repository.query(query);    
      
-    const camppingData = result.map(camp => ({
-        id: camp.camp_id,
-        createdAt: camp.camp_createdAt,
-        updatedAt: camp.camp_updatedAt,
-        deletedAt: camp.camp_deletedAt,
-        lineIntro: camp.camp_lineIntro,
-        intro: camp.camp_intro,
-        factDivNm: camp.camp_factDivNm,
-        manageDivNm: camp.camp_manageDivNm,
-        bizrno: camp.camp_bizrno,
-        manageSttus: camp.camp_manageSttus,
-        hvofBgnde: camp.camp_hvofBgnde,
-        hvofEndde: camp.camp_hvofEndde,
-        featureNm: camp.camp_featureNm,
-        induty: camp.camp_induty,
-        lccl: camp.camp_lccl,
-        doNm: camp.camp_doNm,
-        signguNm: camp.camp_signguNm,
-        addr1: camp.camp_addr1,
-        addr2: camp.camp_addr2,
-        mapX: camp.camp_mapX,
-        mapY: camp.camp_mapY,
-        tel: camp.camp_tel,
-        homepage: camp.camp_homepage,
-        gplnInnerFclty: camp.camp_gplnInnerFclty,
-        caravnInnerFclty: camp.camp_caravnInnerFclty,
-        operPdCl: camp.camp_operPdCl,
-        operDeCl: camp.camp_operDeCl,
-        trlerAcmpnyAt: camp.camp_trlerAcmpnyAt,
-        caravAcmpnyAt: camp.camp_caravAcmpnyAt,
-        sbrsCl: camp.camp_sbrsCl,
-        toiletCo: camp.camp_toiletCo,
-        swrmCo: camp.camp_swrmCo,
-        posblFcltyCl: camp.camp_posblFcltyCl,
-        themaEnvrnCl: camp.camp_themaEnvrnCl,
-        eqpmnLendCl: camp.camp_eqpmnLendCl,
-        animalCmgCl: camp.camp_animalCmgCl,
-        contentId: camp.camp_contentId,
-    
-        images: { id: camp.image_id, url: camp.image_url},
-        }));
+  
 
-        return camppingData
+        return mapCamppingListData(result)
     }
     async findOne(paramDto: CamppingParamDto){
         const query = this.repository
@@ -184,63 +144,18 @@ export class CamppingRepository {
           'image.deletedAt AS image_deletedAt',
           'image.id AS image_id',
           'image.url AS image_url',
-          'image.type AS image_type',
         ]);
     
       const result = await query.getRawMany();
     
-      if (!result || result.length === 0) {
-        return null;
-      }
-    
-      const camppingData = result[0]; 
-    
-      // 이미지를 객체로 변환
-      const images = result.map((row) => ({
-        image_id: row.image_id,
-        image_url: row.image_url,
-        type: row.image_type,
-      }));
-    
-      return {
-        id: camppingData.campping_id,
-        createdAt: camppingData.campping_createdAt,
-        updatedAt: camppingData.campping_updatedAt,
-        deletedAt: camppingData.campping_deletedAt,
-        lineIntro: camppingData.campping_lineIntro,
-        intro: camppingData.campping_intro,
-        factDivNm: camppingData.campping_factDivNm,
-        manageDivNm: camppingData.campping_manageDivNm,
-        bizrno: camppingData.campping_bizrno,
-        manageSttus: camppingData.campping_manageSttus,
-        hvofBgnde: camppingData.campping_hvofBgnde,
-        hvofEndde: camppingData.campping_hvofEndde,
-        featureNm: camppingData.campping_featureNm,
-        induty: camppingData.campping_induty,
-        lccl: camppingData.campping_lccl,
-        doNm: camppingData.campping_doNm,
-        signguNm: camppingData.campping_signguNm,
-        addr1: camppingData.campping_addr1,
-        addr2: camppingData.campping_addr2,
-        mapX: camppingData.campping_mapX,
-        mapY: camppingData.campping_mapY,
-        tel: camppingData.campping_tel,
-        homepage: camppingData.campping_homepage,
-        gplnInnerFclty: camppingData.campping_gplnInnerFclty,
-        caravnInnerFclty: camppingData.campping_caravnInnerFclty,
-        operPdCl: camppingData.campping_operPdCl,
-        operDeCl: camppingData.campping_operDeCl,
-        trlerAcmpnyAt: camppingData.campping_trlerAcmpnyAt,
-        caravAcmpnyAt: camppingData.campping_caravAcmpnyAt,
-        sbrsCl: camppingData.campping_sbrsCl,
-        toiletCo: camppingData.campping_toiletCo,
-        swrmCo: camppingData.campping_swrmCo,
-        posblFcltyCl: camppingData.campping_posblFcltyCl,
-        themaEnvrnCl: camppingData.campping_themaEnvrnCl,
-        eqpmnLendCl: camppingData.campping_eqpmnLendCl,
-        animalCmgCl: camppingData.campping_animalCmgCl,
-        contentId: camppingData.campping_contentId,
-        images, 
-      };
+   
+  if (!result || result.length === 0) {
+    return null;
+  }
+
+  const camppingData = mapCamppingData(result);
+  const images = mapImageData(result);
+
+  return { ...camppingData, images };
     }
 }
