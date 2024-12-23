@@ -26,6 +26,9 @@ export enum LoginType {
 @Entity()
 export class User extends BaseTable {
   @PrimaryGeneratedColumn('uuid')
+  @Exclude({
+    toPlainOnly: true,
+  })
   id: string;
 
   @Column({
