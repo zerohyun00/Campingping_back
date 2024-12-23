@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Comment } from 'src/comment/entites/comment.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 import { Community } from 'src/community/entities/community.entity';
 import { Review } from 'src/review/entities/review.entity';
 import { ChatRoom } from 'src/chat/entities/chat-room.entity';
@@ -26,6 +26,9 @@ export enum LoginType {
 @Entity()
 export class User extends BaseTable {
   @PrimaryGeneratedColumn('uuid')
+  @Exclude({
+    toPlainOnly: true,
+  })
   id: string;
 
   @Column({
@@ -45,6 +48,9 @@ export class User extends BaseTable {
     enum: Role,
     default: Role.user,
   })
+  @Exclude({
+    toPlainOnly: true,
+  })
   role: Role;
 
   @Column({
@@ -57,11 +63,14 @@ export class User extends BaseTable {
     enum: LoginType,
     default: LoginType.NORMAL,
   })
+  @Exclude({
+    toPlainOnly: true,
+  })
   type: LoginType;
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comment: Comment[];
-  
+
   @OneToMany(() => Community, (community) => community.user)
   community: Community[];
 

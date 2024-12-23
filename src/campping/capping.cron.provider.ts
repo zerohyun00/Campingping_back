@@ -9,7 +9,7 @@ export class CamppingCronHandler {
     private readonly camppingService: CamppingService,
     private readonly imageService: ImageService,
   ) {}
-  // @Cron("30 * * * * *")
+  // @Cron('30 * * * * *')
   async handleCron() {
     await this.camppingService.CamppingCronHandler();
     const camppings = await this.camppingService.findCronFindAll();
