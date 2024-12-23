@@ -11,7 +11,6 @@ export class CamppingRepository {
         this.repository = this.dataSource.getRepository(Campping);
     }
     // 캠핑장 데이터 저장 트랜잭션
-    // 수정 중 ... 
     async saveDataWithTransaction(data: Campping[]) {
       const entityManager = this.dataSource.createEntityManager();
       await entityManager.transaction(async (transactionalEntityManager) => {
@@ -150,9 +149,6 @@ export class CamppingRepository {
 
       return { ...camppingData, images };
     }
-
-    // 수정 중 ... 
-
     async findNearbyCampping(lon: number, lat: number) {
       const query = await this.repository
         .createQueryBuilder('campping')
