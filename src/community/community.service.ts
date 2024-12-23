@@ -36,17 +36,22 @@ export class CommunityService {
     return this.communityRepository.save(post);
   }
 
-  findAll() {
-    return this.communityRepository.find({
+  async findAll() {
+    return await this.communityRepository.find({
       relations: ['user'],
     });
   }
 
-  findOne(id: number) {
-    return this.communityRepository.findOne({
+  async findOne(id: number) {
+    const result = await this.communityRepository.findOne({
       where: { id },
       relations: ['user'],
     });
+    if (result) {
+      result.view += 1;
+      await this.communityRepository.save(result);
+    }
+    return result;
   }
 
   async updatePost(
@@ -89,6 +94,6 @@ export class CommunityService {
       );
     }
 
-    return this.communityRepository.delete(post);
+    return this.communityRepository.softDelete(post);
   }
 }

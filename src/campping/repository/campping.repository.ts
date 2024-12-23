@@ -13,7 +13,6 @@ export class CamppingRepository {
     // 캠핑장 데이터 저장 트랜잭션
     // 수정 중 ... 
     async saveDataWithTransaction(data: Campping[]) {
-      console.log(data)
       const entityManager = this.dataSource.createEntityManager();
       await entityManager.transaction(async (transactionalEntityManager) => {
         // `upsert`를 사용하여 데이터를 저장하거나 업데이트
@@ -73,7 +72,7 @@ export class CamppingRepository {
           camp."eqpmnLendCl" AS "camp_eqpmnLendCl", 
           camp."animalCmgCl" AS "camp_animalCmgCl", 
           camp."contentId" AS "camp_contentId", 
-          camp."location" AS "camp_location",
+          ST_AsGeoJSON(camp."location") AS "camp_location",
           images."id" AS "image_id", 
           images."url" AS "image_url"
         FROM "campping" "camp"

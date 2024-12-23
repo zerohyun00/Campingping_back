@@ -85,7 +85,7 @@ export function mapCamppingListData(result: any[]): CamppingListType[] {
       eqpmnLendCl: camp.camp_eqpmnLendCl,
       animalCmgCl: camp.camp_animalCmgCl,
       contentId: camp.camp_contentId,
-      location: camp.camp_location,
+      location: JSON.parse(camp.camp_location),
       images: {
         id: camp.image_id,
         url: camp.image_url,
