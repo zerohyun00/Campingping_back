@@ -109,7 +109,7 @@ export class CommentService {
       );
     }
 
-    await this.commentRepository.delete(commentId);
+    await this.commentRepository.softDelete(commentId);
     console.log(`>>> [Service] Deleted comment with ID: ${commentId}`);
   }
 

@@ -68,6 +68,15 @@ export class User extends BaseTable {
   })
   type: LoginType;
 
+  @Exclude()
+  createdAt: Date;
+
+  @Exclude()
+  updatedAt: Date;
+
+  @Exclude()
+  deletedAt: Date;
+
   @OneToMany(() => Comment, (comment) => comment.user)
   comment: Comment[];
 
