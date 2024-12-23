@@ -31,9 +31,9 @@ dotenv.config();
     CacheModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        store: ioRedisStore,
-        host: configService.get<string>('REDIS_HOST', 'localhost'),
-        port: configService.get<number>('REDIS_PORT', 6379),
+        // store: ioRedisStore,
+        // host: configService.get<string>('REDIS_HOST', 'localhost'),
+        // port: configService.get<number>('REDIS_PORT', 6379),
         ttl: 300,
       }),
       inject: [ConfigService],

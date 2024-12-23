@@ -1,14 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CamppingService } from './campping.service';
 import { CamppingCronHandler } from './capping.cron.provider';
+import { CamppingParamDto } from './dto/find-campping-param.dto';
 
-@Controller('campping')
+@Controller('camppings')
 export class CamppingController {
   constructor(private readonly camppingService: CamppingService,
     private readonly camppingCron: CamppingCronHandler
   ) {}
   @Get()
   async handler(){
-    return this.camppingCron.handleCron();
+    return await this.camppingCron.handleCron();
+  }
+
+  // 수정 중 ... 
+
+  @Get('map')
+  async findNearbyCampping(  
+    @Query('lat') lat: number,
+    @Query('lon') lon: number,){
+    return await this.camppingService.findNearbyCampping(lon, lat)
+  }
+  @Get('list')
+  async findCampping(){
+    return await this.camppingService.findAll();
+  }
+  @Get('/list/:id')
+  async findOneCampping(@Param() paramDto: CamppingParamDto){
+    return await this.camppingService.findOne(paramDto);
   }
 }
