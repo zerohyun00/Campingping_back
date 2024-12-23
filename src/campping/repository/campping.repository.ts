@@ -86,15 +86,13 @@ export class CamppingRepository {
         WHERE camp."deletedAt" IS NULL;
       `;
       const result = await this.repository.query(query);    
-     
-  
-
-        return mapCamppingListData(result)
+    
+      return mapCamppingListData(result)
     }
     async findOne(paramDto: CamppingParamDto){
         const query = this.repository
         .createQueryBuilder('campping')
-        .leftJoinAndSelect('image', 'image') // campping과 image를 join
+        .leftJoinAndSelect('image', 'image')
         .where('campping.deletedAt IS NULL')
         .andWhere('campping.id = :id', { id: paramDto.id })
         .andWhere('image.deletedAt IS NULL')
@@ -147,15 +145,14 @@ export class CamppingRepository {
         ]);
     
       const result = await query.getRawMany();
-    
-   
-  if (!result || result.length === 0) {
-    return null;
-  }
+      
+      if (!result || result.length === 0) {
+        return null;
+      }
 
-  const camppingData = mapCamppingData(result);
-  const images = mapImageData(result);
+      const camppingData = mapCamppingData(result);
+      const images = mapImageData(result);
 
-  return { ...camppingData, images };
+      return { ...camppingData, images };
     }
 }
