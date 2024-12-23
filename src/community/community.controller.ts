@@ -8,12 +8,15 @@ import {
   Param,
   Req,
   UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';
 import { AuthenticatedRequest, JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('communities')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}

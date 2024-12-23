@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { BaseTable } from 'src/common/entities/base-table.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -41,4 +42,10 @@ export class Community extends BaseTable {
 
   @OneToMany(() => Comment, (comment) => comment.community, { cascade: true })
   comment: Comment[];
+
+  @Exclude()
+  updatedAt: Date;
+
+  @Exclude()
+  deletedAt: Date;
 }
