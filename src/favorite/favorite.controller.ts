@@ -11,7 +11,7 @@ export class FavoriteController {
 
   @Get()
   async getFavorites(@Req() req: AuthenticatedRequest) {
-    const userId = req.user?.sub;
+    const userId = req.user.sub;
     return this.favoriteService.getUserFavorites(userId);
   }
 
@@ -20,7 +20,7 @@ export class FavoriteController {
     @Req() req: AuthenticatedRequest,
     @Body() createFavoriteDto: CreateFavoriteDto,
   ) {
-    const userId = req.user?.sub;
+    const userId = req.user.sub;
     return this.favoriteService.createFavorite(userId, createFavoriteDto);
   }
 }

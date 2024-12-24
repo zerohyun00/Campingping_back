@@ -41,7 +41,6 @@ export class AuthService {
       verificationCode,
       180,
     ); // 3분 유효
-    console.log('인증번호: ', verificationCode);
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -63,11 +62,12 @@ export class AuthService {
     const cachedCode = await this.cacheManager.get<string>(
       `VERIFICATION_CODE_${email}`,
     );
-    console.log(`Redis에서 가져온 인증번호: ${cachedCode}`);
+
     if (!cachedCode || cachedCode !== code) {
       throw new BadRequestException('인증번호가 올바르지 않습니다.');
     }
 
+    // 고민해볼게요. 트랜잭션?
     await this.cacheManager.set(`${email}-verified`, true, 3600);
 
     await this.cacheManager.del(`VERIFICATION_CODE_${email}`);
@@ -98,7 +98,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       nickname,
-      role: Role.user,
+      role: Role.USER,
     });
 
     await this.userRepository.save(newUser);
@@ -123,38 +123,35 @@ export class AuthService {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
     }
 
-    const accessToken = await this.issueToken(user, false);
-    const refreshToken = await this.issueToken(user, true);
+    const [accessToken, refreshToken] = await Promise.all([
+      this.issueToken(user, false),
+      this.issueToken(user, true),
+    ]);
 
     return { accessToken, refreshToken };
   }
-
   async OAuthLogin(
     socialLoginDto: SocialLoginDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    console.log('OAuthLogin 실행, socialLoginDto:', socialLoginDto);
     const { email, nickname, type } = socialLoginDto;
 
     let user = await this.userRepository.findOne({ where: { email } });
-    console.log('DB에서 찾은 유저:', user);
 
     if (!user) {
       user = this.userRepository.create({
         email,
         nickname,
         type, // LoginType.KAKAO
-        role: Role.user, // 기본 Role 설정
+        role: Role.USER, // 기본 Role 설정
       });
 
-      console.log('새로운 유저 생성:', user);
       await this.userRepository.save(user);
     }
 
-    const accessToken = await this.issueToken(user, false);
-    const refreshToken = await this.issueToken(user, true);
-
-    console.log('AccessToken : ', accessToken);
-    console.log('RefreshToken : ', refreshToken);
+    const [accessToken, refreshToken] = await Promise.all([
+      this.issueToken(user, false),
+      this.issueToken(user, true),
+    ]);
 
     return { accessToken, refreshToken };
   }

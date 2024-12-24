@@ -43,7 +43,7 @@ export class CommentController {
     @Body() body: CreateCommentsDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const userId = req.user?.sub;
+    const userId = req.user.sub;
 
     return this.commentService.createComment(body, communityId, userId);
   }

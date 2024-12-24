@@ -15,8 +15,8 @@ import {
 } from 'typeorm';
 
 export enum Role {
-  admin,
-  user,
+  ADMIN,
+  USER,
 }
 
 export enum LoginType {
@@ -46,7 +46,7 @@ export class User extends BaseTable {
 
   @Column({
     enum: Role,
-    default: Role.user,
+    default: Role.USER,
   })
   @Exclude({
     toPlainOnly: true,

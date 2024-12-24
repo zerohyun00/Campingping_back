@@ -4,18 +4,18 @@ import { CamppingController } from './campping.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CamppingRepository } from './repository/campping.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Campping } from './entities/campping.entity';
+import { Camping } from './entities/camping.entity';
 import { CamppingCronHandler } from './capping.cron.provider';
 import { ImageModule } from 'src/image/image.module';
 
 @Module({
-  imports:[
+  imports: [
     ScheduleModule.forRoot(),
-    TypeOrmModule.forFeature([Campping]),
+    TypeOrmModule.forFeature([Camping]),
     ImageModule,
   ],
   controllers: [CamppingController],
   providers: [CamppingService, CamppingCronHandler, CamppingRepository],
-  exports: [CamppingService, CamppingRepository]
+  exports: [CamppingService, CamppingRepository],
 })
 export class CamppingModule {}

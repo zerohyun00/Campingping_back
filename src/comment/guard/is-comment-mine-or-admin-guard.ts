@@ -9,14 +9,16 @@ import { Request } from 'express';
 import { Role } from 'src/user/entities/user.entity';
 import { CommentService } from '../comment.service';
 
+export interface AuthenticatedRequest extends Request {
+  user: { sub: string; role: Role };
+}
+
 @Injectable()
 export class IsCommentMineOrAdminGuard implements CanActivate {
   constructor(private readonly commentService: CommentService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest() as Request & {
-      user: { sub: string; role: Role };
-    };
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
     const { user } = req;
 
@@ -24,7 +26,7 @@ export class IsCommentMineOrAdminGuard implements CanActivate {
       throw new UnauthorizedException('사용자 정보를 가져올 수 없습니다.');
     }
 
-    if (user.role === Role.admin) {
+    if (user.role === Role.ADMIN) {
       return true;
     }
 

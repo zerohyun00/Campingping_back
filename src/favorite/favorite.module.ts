@@ -3,13 +3,13 @@ import { FavoriteService } from './favorite.service';
 import { FavoriteController } from './favorite.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Favorite } from './entities/favorite.entity';
-import { Campping } from 'src/campping/entities/campping.entity';
+import { Camping } from 'src/campping/entities/camping.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Favorite, Campping]),
+    TypeOrmModule.forFeature([Favorite, Camping]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

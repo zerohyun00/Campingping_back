@@ -5,33 +5,14 @@ import {
 } from '@nestjs/common';
 import { User } from 'src/user/entities/user.entity';
 
+export interface SocialUserAfterAuth extends Request {
+  user: { email: string; nickname: string };
+}
+
 export const SocialUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
+    const request = ctx.switchToHttp().getRequest<SocialUserAfterAuth>();
+    console.log(request.user, '유저 데코레이터~!');
     return request.user;
   },
 );
-
-export const Users = createParamDecorator(
-  (data: keyof User | undefined, context: ExecutionContext) => {
-    const req = context.switchToHttp().getRequest();
-    const user = req.user as User;
-
-    if (!user) {
-      throw new InternalServerErrorException(
-        'Request에 user 프로퍼티가 존재하지 않습니다!',
-      );
-    }
-
-    if (data) {
-      return user[data];
-    }
-    return user;
-  },
-);
-
-export interface SocialUserAfterAuth {
-  email: string;
-  password: string;
-  nickname: string;
-}

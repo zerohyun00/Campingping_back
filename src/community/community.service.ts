@@ -76,6 +76,8 @@ export class CommunityService {
 
     Object.assign(post, updateCommunityDto);
     return this.communityRepository.save(post);
+    // preload 써도 되는지 로직 생각
+    // 여기도 find 후 update, find 후 delete가 아닌 바로 update, delete를 하는 로직으로 수정
   }
 
   async deletePost(id: number, userId: string) {

@@ -1,24 +1,28 @@
-import { Campping } from "src/campping/entities/campping.entity";
-import { BaseTable } from "src/common/entities/base-table.entity";
-import { ImageType } from "src/common/type/image.type";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-
+import { Camping } from 'src/campping/entities/camping.entity';
+import { BaseTable } from 'src/common/entities/base-table.entity';
+import { ImageType } from 'src/common/type/image.type';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
-export class Image extends BaseTable{
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Image extends BaseTable {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    url: string;
+  @Column()
+  url: string;
 
-    @Column({ nullable: true })
-    typeId: string;
-    
-    @Column({enum: ImageType , nullable: true})
-    type: string;
+  @Column({ nullable: true })
+  typeId: string;
 
-    @ManyToOne(() => Campping, campping => campping.images)
-    @JoinColumn({ name: 'contentId' })
-    campping: Campping;
+  @Column({ enum: ImageType, nullable: true })
+  type: string;
+
+  @ManyToOne(() => Camping, (campping) => campping.images)
+  camping: Camping;
 }

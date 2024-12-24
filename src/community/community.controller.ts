@@ -27,7 +27,7 @@ export class CommunityController {
     @Body() createCommunityDto: CreateCommunityDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const userId = req.user?.sub;
+    const userId = req.user.sub;
     return this.communityService.createPost(createCommunityDto, userId);
   }
 
@@ -48,14 +48,14 @@ export class CommunityController {
     @Body() updateCommunityDto: UpdateCommunityDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const userId = req.user?.sub;
+    const userId = req.user.sub;
     return this.communityService.updatePost(id, updateCommunityDto, userId);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   async deletePost(@Param('id') id: number, @Req() req: AuthenticatedRequest) {
-    const userId = req.user?.sub;
+    const userId = req.user.sub;
     return this.communityService.deletePost(id, userId);
   }
 }

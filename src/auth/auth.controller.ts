@@ -13,7 +13,7 @@ import { Response as ExpressResponse } from 'express';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { KakaoAuthGuard } from './guard/auth.guard';
-import { SocialUser, SocialUserAfterAuth } from './decorator/user.decorator';
+import { SocialUser } from './decorator/user.decorator';
 import { SocialLoginDto } from './dto/social-login.dto';
 
 @Controller('auth')

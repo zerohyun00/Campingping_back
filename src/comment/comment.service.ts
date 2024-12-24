@@ -36,6 +36,7 @@ export class CommentService {
     });
 
     return comments;
+    // 페이지 네이션 추가
   }
 
   async createComment(
@@ -64,33 +65,27 @@ export class CommentService {
     commentId: number,
     dto: UpdateCommentsDto,
   ) {
-    const comment = await this.commentRepository.findOne({
+    // 업데이트 시 조건과 업데이트 데이터를 설정
+    const updateResult = await this.commentRepository.update(
+      { id: commentId, community: { id: communityId } },
+      dto,
+    );
+
+    // 영향을 받은 행 수가 0인 경우 예외 처리
+    if (updateResult.affected === 0) {
+      throw new BadRequestException(
+        '존재하지 않거나 해당 커뮤니티에 속하지 않는 댓글입니다.',
+      );
+    }
+
+    // 업데이트된 데이터를 다시 로드 (필요 시)
+    const updatedComment = await this.commentRepository.findOne({
       where: { id: commentId },
       relations: ['community'],
     });
 
-    if (!comment) {
-      throw new BadRequestException('존재하지 않는 댓글입니다.');
-    }
-
-    if (comment.community.id !== communityId) {
-      throw new BadRequestException(
-        '이 댓글은 해당 커뮤니티에 속해 있지 않습니다.',
-      );
-    }
-
-    const prevComment = await this.commentRepository.preload({
-      id: commentId,
-      ...dto,
-    });
-
-    if (!prevComment) {
-      throw new BadRequestException('존재하지 않는 댓글입니다.');
-    }
-
-    const newComment = await this.commentRepository.save(prevComment);
-
-    return newComment;
+    // 로드된 데이터를 반환
+    return updatedComment;
   }
 
   async deleteComment(communityId: number, commentId: number): Promise<void> {
@@ -110,12 +105,10 @@ export class CommentService {
     }
 
     await this.commentRepository.softDelete(commentId);
-    console.log(`>>> [Service] Deleted comment with ID: ${commentId}`);
+    // softDelete 먼저 하는 로직으로 수정
   }
 
   async isCommentMine(userId: string, commentId: number) {
-    console.log('>>> [Service] Checking ownership:', { userId, commentId });
-
     const exists = await this.commentRepository.exists({
       where: {
         id: commentId,
@@ -126,7 +119,6 @@ export class CommentService {
       },
     });
 
-    console.log('>>> [Service] isCommentMine exists:', exists);
     return exists;
   }
 }

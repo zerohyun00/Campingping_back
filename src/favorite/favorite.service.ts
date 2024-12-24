@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Favorite } from './entities/favorite.entity';
-import { Campping } from 'src/campping/entities/campping.entity';
+import { Camping } from 'src/campping/entities/camping.entity';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 
 @Injectable()
@@ -10,8 +10,8 @@ export class FavoriteService {
   constructor(
     @InjectRepository(Favorite)
     private readonly favoriteRepository: Repository<Favorite>,
-    @InjectRepository(Campping)
-    private readonly camppingRepository: Repository<Campping>,
+    @InjectRepository(Camping)
+    private readonly camppingRepository: Repository<Camping>,
   ) {}
 
   async getUserFavorites(userId: string) {

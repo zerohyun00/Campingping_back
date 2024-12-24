@@ -1,6 +1,6 @@
-import { CamppingListType } from "src/campping/type/campping-list-type";
-import { CamppingDetailType } from "src/campping/type/campping-detail.type";
-import { ImageDataType } from "src/image/type/image.data-type";
+import { CamppingListType } from 'src/campping/type/campping-list-type';
+import { CamppingDetailType } from 'src/campping/type/campping-detail.type';
+import { ImageDataType } from 'src/image/type/image.data-type';
 
 export function mapImageData(result: any[]): ImageDataType[] {
   return result.map((row) => ({
@@ -52,7 +52,17 @@ export function mapCamppingData(result: any): CamppingDetailType {
 }
 
 export function mapCamppingListData(result: any[]): CamppingListType[] {
-    return result.map((camp) => ({
+  return result.map((camp) => {
+    let location: any = null;
+
+    try {
+      location = JSON.parse(camp.camp_location);
+    } catch (error) {
+      // custom logger 달기
+      // console.error(`Error parsing location JSON for camp ID ${camp.camp_id}:`, error.message);
+    }
+
+    return {
       id: camp.camp_id,
       lineIntro: camp.camp_lineIntro,
       intro: camp.camp_intro,
@@ -85,10 +95,11 @@ export function mapCamppingListData(result: any[]): CamppingListType[] {
       eqpmnLendCl: camp.camp_eqpmnLendCl,
       animalCmgCl: camp.camp_animalCmgCl,
       contentId: camp.camp_contentId,
-      location: JSON.parse(camp.camp_location),
+      location,
       images: {
         id: camp.image_id,
         url: camp.image_url,
       } as ImageDataType,
-    }));
+    };
+  });
 }

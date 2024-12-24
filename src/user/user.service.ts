@@ -56,7 +56,7 @@ export class UserService {
 
   // 사용자 삭제
   async remove(id: string) {
-    // UUID로 string 타입 사용
+    // 여기도 find 후 update, find 후 delete가 아닌 바로 update, delete를 하는 것을 추천드릴게
     const user = await this.userRepository.findOne({
       where: { id },
     });
