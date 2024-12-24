@@ -4,14 +4,14 @@ import { User } from 'src/user/entities/user.entity';
 @Entity()
 export class Favorite {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @ManyToOne(() => User, (user) => user.favorites, { onDelete: 'CASCADE' })
   user: User;
 
   @Column()
-  contentId: number;
+  contentId: string;
 
-  @Column({ default: true })
+  @Column({ default: false })
   status: boolean;
 }
