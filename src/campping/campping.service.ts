@@ -145,7 +145,6 @@ export class CamppingService {
   async findOne(paramDto: CamppingParamDto){
     return await this.camppingRepository.findOne(paramDto);
   }
-
   async findNearbyCampping(lon: number, lat: number){
     return await this.camppingRepository.findNearbyCampping(lon, lat);
   }

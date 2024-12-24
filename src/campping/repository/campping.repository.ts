@@ -37,54 +37,65 @@ export class CamppingRepository {
         return await this.repository.find();
     }
     async findAll() {
-        const query = `
-        SELECT 
-          camp."id" AS "camp_id", 
-          camp."lineIntro" AS "camp_lineIntro", 
-          camp."intro" AS "camp_intro", 
-          camp."factDivNm" AS "camp_factDivNm", 
-          camp."manageDivNm" AS "camp_manageDivNm", 
-          camp."bizrno" AS "camp_bizrno", 
-          camp."manageSttus" AS "camp_manageSttus", 
-          camp."hvofBgnde" AS "camp_hvofBgnde", 
-          camp."hvofEndde" AS "camp_hvofEndde", 
-          camp."featureNm" AS "camp_featureNm", 
-          camp."induty" AS "camp_induty", 
-          camp."lccl" AS "camp_lccl", 
-          camp."doNm" AS "camp_doNm", 
-          camp."signguNm" AS "camp_signguNm", 
-          camp."addr1" AS "camp_addr1", 
-          camp."addr2" AS "camp_addr2", 
-          camp."tel" AS "camp_tel", 
-          camp."homepage" AS "camp_homepage", 
-          camp."gplnInnerFclty" AS "camp_gplnInnerFclty", 
-          camp."caravnInnerFclty" AS "camp_caravnInnerFclty", 
-          camp."operPdCl" AS "camp_operPdCl", 
-          camp."operDeCl" AS "camp_operDeCl", 
-          camp."trlerAcmpnyAt" AS "camp_trlerAcmpnyAt", 
-          camp."caravAcmpnyAt" AS "camp_caravAcmpnyAt", 
-          camp."sbrsCl" AS "camp_sbrsCl", 
-          camp."toiletCo" AS "camp_toiletCo", 
-          camp."swrmCo" AS "camp_swrmCo", 
-          camp."posblFcltyCl" AS "camp_posblFcltyCl", 
-          camp."themaEnvrnCl" AS "camp_themaEnvrnCl", 
-          camp."eqpmnLendCl" AS "camp_eqpmnLendCl", 
-          camp."animalCmgCl" AS "camp_animalCmgCl", 
-          camp."contentId" AS "camp_contentId", 
-          ST_AsGeoJSON(camp."location") AS "camp_location",
-          images."id" AS "image_id", 
-          images."url" AS "image_url"
-        FROM "campping" "camp"
-        LEFT JOIN (
-          SELECT DISTINCT ON ("image"."typeId") "image"."id", "image"."url", "image"."typeId"
-          FROM "image" "image"
-          WHERE "image"."deletedAt" IS NULL
-          ORDER BY "image"."typeId" ASC, "image"."id" ASC
-        ) "images" ON images."typeId" = camp."contentId"
-        WHERE camp."deletedAt" IS NULL;
-      `;
-      const result = await this.repository.query(query);    
+      //쿼리빌더로 변경
+      const queryBuilder = this.repository
+      .createQueryBuilder("camp")
+      .select([
+        'camp.id AS camp_id',
+        'camp.lineIntro AS camp_lineIntro',
+        'camp.intro AS camp_intro',
+        'camp.factDivNm AS camp_factDivNm',
+        'camp.manageDivNm AS camp_manageDivNm',
+        'camp.bizrno AS camp_bizrno',
+        'camp.manageSttus AS camp_manageSttus',
+        'camp.hvofBgnde AS camp_hvofBgnde',
+        'camp.hvofEndde AS camp_hvofEndde',
+        'camp.featureNm AS camp_featureNm',
+        'camp.induty AS camp_induty',
+        'camp.lccl AS camp_lccl',
+        'camp.doNm AS camp_doNm',
+        'camp.signguNm AS camp_signguNm',
+        'camp.addr1 AS camp_addr1',
+        'camp.addr2 AS camp_addr2',
+        'camp.tel AS camp_tel',
+        'camp.homepage AS camp_homepage',
+        'camp.gplnInnerFclty AS camp_gplnInnerFclty',
+        'camp.caravnInnerFclty AS camp_caravnInnerFclty',
+        'camp.operPdCl AS camp_operPdCl',
+        'camp.operDeCl AS camp_operDeCl',
+        'camp.trlerAcmpnyAt AS camp_trlerAcmpnyAt',
+        'camp.caravAcmpnyAt AS camp_caravAcmpnyAt',
+        'camp.sbrsCl AS camp_sbrsCl',
+        'camp.toiletCo AS camp_toiletCo',
+        'camp.swrmCo AS camp_swrmCo',
+        'camp.posblFcltyCl AS camp_posblFcltyCl',
+        'camp.themaEnvrnCl AS camp_themaEnvrnCl',
+        'camp.eqpmnLendCl AS camp_eqpmnLendCl',
+        'camp.animalCmgCl AS camp_animalCmgCl',
+        'camp.contentId AS camp_contentId',
+        'ST_AsGeoJSON(camp.location) AS camp_location',
+        'images.id AS image_id',
+        'images.url AS image_url',
+      ])
+      .leftJoin(
+        (subQuery) =>
+          subQuery
+            .select([
+              'DISTINCT ON (image.typeId) image.id AS id',
+              'image.url AS url',
+              'image.typeId AS typeId',
+            ])
+            .from('image', 'image')
+            .where('image.deletedAt IS NULL')
+            .orderBy('image.typeId', 'ASC')
+            .addOrderBy('image.id', 'ASC'),
+        'images',
+        'images.typeId = camp.contentId'
+      )
+      .where('camp.deletedAt IS NULL');
     
+      const result = await queryBuilder.getRawMany();
+
       return mapCamppingListData(result)
     }
     async findOne(paramDto: CamppingParamDto){
@@ -92,7 +103,7 @@ export class CamppingRepository {
         .createQueryBuilder('campping')
         .leftJoinAndSelect('image', 'image')
         .where('campping.deletedAt IS NULL')
-        .andWhere('campping.id = :id', { id: paramDto.id })
+        .andWhere('campping.contentId = :contentId', { contentId: paramDto.contentId })
         .andWhere('image.deletedAt IS NULL')
         .andWhere('image.typeId = campping.contentId')
         .orderBy('image.typeId', 'ASC')

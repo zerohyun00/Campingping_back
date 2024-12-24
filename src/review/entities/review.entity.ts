@@ -10,9 +10,12 @@ export class Review extends BaseTable{
 
     @Column()
     content: string;
+    
+    @Column()
+    contentId : string;
 
     @Column()
-    scope: number;
+    scope: number; //별점
 
     @ManyToOne(() => User, (user) => user.review, { onDelete: 'CASCADE' })
     user: User;

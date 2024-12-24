@@ -18,12 +18,13 @@ export class CamppingController {
     @Query('lon') lon: number,){
     return await this.camppingService.findNearbyCampping(lon, lat)
   }
-  @Get('list')
+  @Get('lists')
   async findCampping(){
     return await this.camppingService.findAll();
   }
-  @Get('/list/:id')
+  @Get('/lists/:contentId')
   async findOneCampping(@Param() paramDto: CamppingParamDto){
+    console.log(paramDto)
     return await this.camppingService.findOne(paramDto);
   }
 }
