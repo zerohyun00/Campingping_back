@@ -1,4 +1,4 @@
-export type CamppingDetailType = {
+export type CampingDetailType = {
     id: string;
     createdAt: Date;
     updatedAt: Date;

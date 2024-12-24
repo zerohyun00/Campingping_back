@@ -1,5 +1,5 @@
-import { CamppingListType } from 'src/camping/type/camping-list-type';
-import { CamppingDetailType } from 'src/camping/type/camping-detail.type';
+import { CampingListType } from 'src/camping/type/camping-list-type';
+import { CampingDetailType } from 'src/camping/type/camping-detail.type';
 import { ImageDataType } from 'src/image/type/image.data-type';
 
 export function mapImageData(result: any[]): ImageDataType[] {
@@ -9,7 +9,7 @@ export function mapImageData(result: any[]): ImageDataType[] {
   }));
 }
 
-export function mapCamppingData(result: any): CamppingDetailType {
+export function mapCamppingData(result: any): CampingDetailType {
   const camppingData = result[0];
   return {
     id: camppingData.campping_id,
@@ -51,7 +51,7 @@ export function mapCamppingData(result: any): CamppingDetailType {
   };
 }
 
-export function mapCamppingListData(result: any[]): CamppingListType[] {
+export function mapCamppingListData(result: any[]): CampingListType[] {
   return result.map((camp) => {
     let location: any = null;
 

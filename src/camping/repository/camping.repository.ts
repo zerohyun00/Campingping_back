@@ -6,7 +6,7 @@ import {
   mapCamppingData,
   mapCamppingListData,
   mapImageData,
-} from 'src/common/utils/campping-data-map.util';
+} from 'src/common/utils/camping-data-map.util';
 
 @Injectable()
 export class CampingRepository {
