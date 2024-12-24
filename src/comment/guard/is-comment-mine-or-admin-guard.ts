@@ -24,10 +24,7 @@ export class IsCommentMineOrAdminGuard implements CanActivate {
       throw new UnauthorizedException('사용자 정보를 가져올 수 없습니다.');
     }
 
-    console.log('>>> [Guard] User:', user);
-
     if (user.role === Role.admin) {
-      console.log('>>> [Guard] User is admin');
       return true;
     }
 
@@ -36,13 +33,9 @@ export class IsCommentMineOrAdminGuard implements CanActivate {
       throw new ForbiddenException('유효하지 않은 댓글 ID입니다.');
     }
 
-    console.log('>>> [Guard] commentId:', commentId);
-
     const userId = user.sub;
-    console.log('>>> [Guard] Extracted userId:', userId);
 
     const isOk = await this.commentService.isCommentMine(userId, commentId);
-    console.log('>>> [Guard] isCommentMine result:', isOk);
 
     if (!isOk) {
       throw new ForbiddenException('권한이 없습니다.');
