@@ -37,6 +37,7 @@ export class CamppingRepository {
         return await this.repository.find();
     }
     async findAll() {
+      //쿼리빌더로 변경
       const queryBuilder = this.repository
       .createQueryBuilder("camp")
       .select([
