@@ -23,16 +23,10 @@ import { UpdateCommentsDto } from './dto/update-comment.dto';
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  // (1) 댓글 목록 조회
-  // GET community/:communityId/comments
-
   @Get()
   async getComments(@Param('communitiesId', ParseIntPipe) communityId: number) {
     return this.commentService.findAllCommentsOfCommunity(communityId);
   }
-
-  // // (2) 댓글 단건 조회
-  // // GET community/:communityId/comments/:commentId
 
   // @Get(':commentId')
   // async getComment(
@@ -49,14 +43,10 @@ export class CommentController {
     @Body() body: CreateCommentsDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    console.log('>>> [Controller] user : ', req.user);
     const userId = req.user?.sub;
 
     return this.commentService.createComment(body, communityId, userId);
   }
-
-  // // (4) 댓글 수정
-  // // PATCH community/:communityId/comments/:commentId
 
   @Patch(':commentsId')
   @UseGuards(JwtAuthGuard, IsCommentMineOrAdminGuard)
@@ -71,9 +61,6 @@ export class CommentController {
       updateCommentDto,
     );
   }
-
-  // // (5) 댓글 삭제
-  // // DELETE community/:communityId/comments/:commentId
 
   @Delete(':commentsId')
   @UseGuards(JwtAuthGuard, IsCommentMineOrAdminGuard)

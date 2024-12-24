@@ -95,5 +95,6 @@ export class CommunityService {
     }
 
     return this.communityRepository.softDelete(post);
+    // return 메시지 응답
   }
 }
