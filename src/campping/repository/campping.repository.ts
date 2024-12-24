@@ -92,7 +92,7 @@ export class CamppingRepository {
         .createQueryBuilder('campping')
         .leftJoinAndSelect('image', 'image')
         .where('campping.deletedAt IS NULL')
-        .andWhere('campping.id = :id', { id: paramDto.id })
+        .andWhere('campping.contentId = :contentId', { contentId: paramDto.contentId })
         .andWhere('image.deletedAt IS NULL')
         .andWhere('image.typeId = campping.contentId')
         .orderBy('image.typeId', 'ASC')
