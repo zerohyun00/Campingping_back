@@ -1,5 +1,5 @@
-import { CamppingListType } from 'src/campping/type/campping-list-type';
-import { CamppingDetailType } from 'src/campping/type/campping-detail.type';
+import { CamppingListType } from 'src/camping/type/camping-list-type';
+import { CamppingDetailType } from 'src/camping/type/camping-detail.type';
 import { ImageDataType } from 'src/image/type/image.data-type';
 
 export function mapImageData(result: any[]): ImageDataType[] {

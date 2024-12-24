@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { CamppingRepository } from './repository/campping.repository';
+import { CampingRepository } from './repository/camping.repository';
 import { Camping } from './entities/camping.entity';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { parseStringPromise } from 'xml2js';
-import { CamppingParamDto } from './dto/find-campping-param.dto';
-import { CampingType } from './type/campping-create.type';
+import { CampingParamDto } from './dto/find-camping-param.dto';
+import { CampingType } from './type/camping-create.type';
 
 @Injectable()
-export class CamppingService {
+export class CampingService {
   private apiKeyManager: ApiKeyManager;
 
-  constructor(private readonly camppingRepository: CamppingRepository) {
+  constructor(private readonly campingRepository: CampingRepository) {
     // 수정 필요
     this.apiKeyManager = new ApiKeyManager([
       'xmrpgObsiAFFR2II2Mr%2BABk2SHPyB21kt%2Ft0Y6g4mMndM3J0b3KDmM2TTsySRE6Cpuo0Q8cBNt2aQ5%2BX1woPyA%3D%3D',
@@ -113,7 +113,7 @@ export class CamppingService {
   ): Promise<void> {
     for (let i = 0; i < entities.length; i += batchSize) {
       const batch = entities.slice(i, i + batchSize);
-      await this.camppingRepository.saveDataWithTransaction(batch);
+      await this.campingRepository.saveDataWithTransaction(batch);
     }
   }
 
@@ -156,16 +156,16 @@ export class CamppingService {
   }
 
   async findAllForCron() {
-    return await this.camppingRepository.findAllForCron();
+    return await this.campingRepository.findAllForCron();
   }
   async findAllWithDetails() {
-    return await this.camppingRepository.findAllWithDetails();
+    return await this.campingRepository.findAllWithDetails();
   }
 
-  async findOne(paramDto: CamppingParamDto) {
-    return await this.camppingRepository.findOne(paramDto);
+  async findOne(paramDto: CampingParamDto) {
+    return await this.campingRepository.findOne(paramDto);
   }
   async findNearbyCampping(lon: number, lat: number) {
-    return await this.camppingRepository.findNearbyCampping(lon, lat);
+    return await this.campingRepository.findNearbyCampping(lon, lat);
   }
 }

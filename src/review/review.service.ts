@@ -5,7 +5,7 @@ import { UserService } from "src/user/user.service";
 import { FindReviewParam, ParamReview } from "./dto/param-review.dto";
 import { updateReviewDto } from "./dto/update-review.dto";
 import { ReponseReviewDto } from "./dto/response-review.dto";
-import { CamppingService } from "src/campping/campping.service";
+import { CampingService } from "src/camping/camping.service";
 
 
 @Injectable()
@@ -13,7 +13,7 @@ export class ReviewService {
     constructor(
         private reviewRepository: ReviewRepository,
         private userService: UserService,
-        private campingService: CamppingService,
+        private campingService: CampingService,
     ){}
     
     async createReview(createReviewDto: CreateReviewDto, userId: string) {

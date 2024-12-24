@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Favorite } from './entities/favorite.entity';
-import { Camping } from 'src/campping/entities/camping.entity';
+import { Camping } from 'src/camping/entities/camping.entity';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 
 @Injectable()

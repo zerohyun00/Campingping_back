@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Camping } from '../entities/camping.entity';
 import { DataSource, Repository } from 'typeorm';
-import { CamppingParamDto } from '../dto/find-campping-param.dto';
+import { CampingParamDto } from '../dto/find-camping-param.dto';
 import {
   mapCamppingData,
   mapCamppingListData,
@@ -9,7 +9,7 @@ import {
 } from 'src/common/utils/campping-data-map.util';
 
 @Injectable()
-export class CamppingRepository {
+export class CampingRepository {
   private readonly repository: Repository<Camping>;
   constructor(private readonly dataSource: DataSource) {
     this.repository = this.dataSource.getRepository(Camping);
@@ -128,7 +128,7 @@ export class CamppingRepository {
 
     return mapCamppingListData(result);
   }
-  async findOne(paramDto: CamppingParamDto) {
+  async findOne(paramDto: CampingParamDto) {
     const query = this.repository
       .createQueryBuilder('campping')
       .leftJoinAndSelect('image', 'image')

@@ -3,7 +3,7 @@ import { FavoriteService } from './favorite.service';
 import { FavoriteController } from './favorite.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Favorite } from './entities/favorite.entity';
-import { Camping } from 'src/campping/entities/camping.entity';
+import { Camping } from 'src/camping/entities/camping.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 

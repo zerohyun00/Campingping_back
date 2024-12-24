@@ -1,4 +1,4 @@
-import { Camping } from 'src/campping/entities/camping.entity';
+import { Camping } from 'src/camping/entities/camping.entity';
 import { BaseTable } from 'src/common/entities/base-table.entity';
 import { ImageType } from 'src/common/type/image.type';
 import {
