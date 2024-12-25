@@ -86,26 +86,22 @@ export class CommentService {
     commentId: number,
     dto: UpdateCommentsDto,
   ) {
-    // 업데이트 시 조건과 업데이트 데이터를 설정
     const updateResult = await this.commentRepository.update(
       { id: commentId, community: { id: communityId } },
       dto,
     );
 
-    // 영향을 받은 행 수가 0인 경우 예외 처리
     if (updateResult.affected === 0) {
       throw new BadRequestException(
         '존재하지 않거나 해당 커뮤니티에 속하지 않는 댓글입니다.',
       );
     }
 
-    // 업데이트된 데이터를 다시 로드 (필요 시)
     const updatedComment = await this.commentRepository.findOne({
       where: { id: commentId },
       relations: ['community'],
     });
 
-    // 로드된 데이터를 반환
     return updatedComment;
   }
 
