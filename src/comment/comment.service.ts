@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { CreateCommentsDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { UpdateCommentsDto } from './dto/update-comment.dto';
+import { PagePaginationDto } from 'src/common/dto/page-pagination.dto';
 
 @Injectable()
 export class CommentService {
@@ -19,7 +20,12 @@ export class CommentService {
     private readonly communityRepository: Repository<Community>,
   ) {}
 
-  async findAllCommentsOfCommunity(communityId: number) {
+  async findAllCommentsOfCommunity(
+    communityId: number,
+    paginationDto: PagePaginationDto,
+  ) {
+    const { page, take } = paginationDto;
+
     const community = await this.communityRepository.findOne({
       where: {
         id: communityId,
@@ -30,13 +36,23 @@ export class CommentService {
       throw new NotFoundException('해당 커뮤니티 게시글이 없습니다.');
     }
 
-    const comments = await this.commentRepository.find({
+    const [comments, total] = await this.commentRepository.findAndCount({
       where: { community: { id: communityId } },
       relations: ['user', 'community'],
+      skip: (page - 1) * take,
+      take,
+      order: { createdAt: 'DESC' },
     });
 
-    return comments;
-    // 페이지 네이션 추가
+    return {
+      data: comments,
+      meta: {
+        total,
+        page,
+        take,
+        totalpages: Math.ceil(total / take),
+      },
+    };
   }
 
   async createComment(
