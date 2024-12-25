@@ -67,12 +67,17 @@ export class AuthService {
       throw new BadRequestException('인증번호가 올바르지 않습니다.');
     }
 
-    // 고민해볼게요. 트랜잭션?
-    await this.cacheManager.set(`${email}-verified`, true, 3600);
+    try {
+      await this.cacheManager.set(`${email}-verified`, true, 3600);
 
-    await this.cacheManager.del(`VERIFICATION_CODE_${email}`);
+      await this.cacheManager.del(`VERIFICATION_CODE_${email}`);
 
-    return { message: '인증이 완료되었습니다.' };
+      return { message: '인증이 완료되었습니다.' };
+    } catch (error) {
+      await this.cacheManager.del(`${email}-verified`); // 실패시 롤백
+
+      throw new BadRequestException('인증 처리 중 문제가 발생했습니다');
+    }
   }
 
   async register(registerUserDto: RegisterUserDto) {
