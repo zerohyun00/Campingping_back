@@ -23,6 +23,6 @@ export class Image extends BaseTable {
   @Column({ enum: ImageType, nullable: true })
   type: string;
 
-  @ManyToOne(() => Camping, (campping) => campping.images)
+  @ManyToOne(() => Camping, (camping) => camping.images)
   camping: Camping;
 }

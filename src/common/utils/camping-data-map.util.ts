@@ -9,49 +9,49 @@ export function mapImageData(result: any[]): ImageDataType[] {
   }));
 }
 
-export function mapCamppingData(result: any): CampingDetailType {
-  const camppingData = result[0];
+export function mapCampingData(result: any): CampingDetailType {
+  const campingData = result[0];
   return {
-    id: camppingData.campping_id,
-    createdAt: camppingData.campping_createdAt,
-    updatedAt: camppingData.campping_updatedAt,
-    deletedAt: camppingData.campping_deletedAt,
-    lineIntro: camppingData.campping_lineIntro,
-    intro: camppingData.campping_intro,
-    factDivNm: camppingData.campping_factDivNm,
-    manageDivNm: camppingData.campping_manageDivNm,
-    bizrno: camppingData.campping_bizrno,
-    manageSttus: camppingData.campping_manageSttus,
-    hvofBgnde: camppingData.campping_hvofBgnde,
-    hvofEndde: camppingData.campping_hvofEndde,
-    featureNm: camppingData.campping_featureNm,
-    induty: camppingData.campping_induty,
-    lccl: camppingData.campping_lccl,
-    doNm: camppingData.campping_doNm,
-    signguNm: camppingData.campping_signguNm,
-    addr1: camppingData.campping_addr1,
-    addr2: camppingData.campping_addr2,
-    tel: camppingData.campping_tel,
-    homepage: camppingData.campping_homepage,
-    gplnInnerFclty: camppingData.campping_gplnInnerFclty,
-    caravnInnerFclty: camppingData.campping_caravnInnerFclty,
-    operPdCl: camppingData.campping_operPdCl,
-    operDeCl: camppingData.campping_operDeCl,
-    trlerAcmpnyAt: camppingData.campping_trlerAcmpnyAt,
-    caravAcmpnyAt: camppingData.campping_caravAcmpnyAt,
-    sbrsCl: camppingData.campping_sbrsCl,
-    toiletCo: camppingData.campping_toiletCo,
-    swrmCo: camppingData.campping_swrmCo,
-    posblFcltyCl: camppingData.campping_posblFcltyCl,
-    themaEnvrnCl: camppingData.campping_themaEnvrnCl,
-    eqpmnLendCl: camppingData.campping_eqpmnLendCl,
-    animalCmgCl: camppingData.campping_animalCmgCl,
-    contentId: camppingData.campping_contentId,
-    location: camppingData.campping_location,
+    id: campingData.camping_id,
+    createdAt: campingData.camping_createdAt,
+    updatedAt: campingData.camping_updatedAt,
+    deletedAt: campingData.camping_deletedAt,
+    lineIntro: campingData.camping_lineIntro,
+    intro: campingData.camping_intro,
+    factDivNm: campingData.camping_factDivNm,
+    manageDivNm: campingData.camping_manageDivNm,
+    bizrno: campingData.camping_bizrno,
+    manageSttus: campingData.camping_manageSttus,
+    hvofBgnde: campingData.camping_hvofBgnde,
+    hvofEndde: campingData.camping_hvofEndde,
+    featureNm: campingData.camping_featureNm,
+    induty: campingData.camping_induty,
+    lccl: campingData.camping_lccl,
+    doNm: campingData.camping_doNm,
+    signguNm: campingData.camping_signguNm,
+    addr1: campingData.camping_addr1,
+    addr2: campingData.camping_addr2,
+    tel: campingData.camping_tel,
+    homepage: campingData.camping_homepage,
+    gplnInnerFclty: campingData.camping_gplnInnerFclty,
+    caravnInnerFclty: campingData.camping_caravnInnerFclty,
+    operPdCl: campingData.camping_operPdCl,
+    operDeCl: campingData.camping_operDeCl,
+    trlerAcmpnyAt: campingData.camping_trlerAcmpnyAt,
+    caravAcmpnyAt: campingData.camping_caravAcmpnyAt,
+    sbrsCl: campingData.camping_sbrsCl,
+    toiletCo: campingData.camping_toiletCo,
+    swrmCo: campingData.camping_swrmCo,
+    posblFcltyCl: campingData.camping_posblFcltyCl,
+    themaEnvrnCl: campingData.camping_themaEnvrnCl,
+    eqpmnLendCl: campingData.camping_eqpmnLendCl,
+    animalCmgCl: campingData.camping_animalCmgCl,
+    contentId: campingData.camping_contentId,
+    location: campingData.camping_location,
   };
 }
 
-export function mapCamppingListData(result: any[]): CampingListType[] {
+export function mapCampingListData(result: any[]): CampingListType[] {
   return result.map((camp) => {
     let location: any = null;
 

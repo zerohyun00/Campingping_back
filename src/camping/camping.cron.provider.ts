@@ -11,9 +11,9 @@ export class CampingCronHandler {
   ) {}
   // @Cron('30 * * * * *')
   async handleCron() {
-    await this.campingService.camppingCronHandler();
-    const camppings = await this.campingService.findAllForCron();
-    for (const camp of camppings) {
+    await this.campingService.campingCronHandler();
+    const campings = await this.campingService.findAllForCron();
+    for (const camp of campings) {
       await this.imageService.ImageCronHandler(camp.contentId);
     }
   }

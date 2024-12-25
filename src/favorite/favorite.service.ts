@@ -11,27 +11,27 @@ export class FavoriteService {
     @InjectRepository(Favorite)
     private readonly favoriteRepository: Repository<Favorite>,
     @InjectRepository(Camping)
-    private readonly camppingRepository: Repository<Camping>,
+    private readonly campingRepository: Repository<Camping>,
   ) {}
 
   async getUserFavorites(userId: string) {
     const favorites = await this.favoriteRepository
       .createQueryBuilder('favorite')
       .leftJoinAndSelect(
-        'Campping',
-        'campping',
-        'favorite.contentId = campping.contentId',
+        'camping',
+        'camping',
+        'favorite.contentId = camping.contentId',
       )
       .leftJoin('Image', 'image', 'favorite.contentId = image.typeId')
       .where('favorite.user.id = :userId', { userId })
       .andWhere('favorite.status = :status', { status: true })
       .select([
         'favorite.id',
-        'campping.contentId',
-        'campping.factDivNm as campingName',
-        'campping.addr1',
-        'campping.lineIntro',
-        'campping.intro',
+        'camping.contentId',
+        'camping.factDivNm as campingName',
+        'camping.addr1',
+        'camping.lineIntro',
+        'camping.intro',
         'image.url',
       ])
       .distinctOn(['favorite.contentId'])
@@ -45,11 +45,11 @@ export class FavoriteService {
     const { contentId, status } = dto;
 
     // 1. 캠핑장 정보 확인
-    const campping = await this.camppingRepository.findOne({
+    const camping = await this.campingRepository.findOne({
       where: { contentId },
     });
 
-    if (!campping) {
+    if (!camping) {
       throw new NotFoundException('해당 캠핑장을 찾을 수 없습니다.');
     }
 

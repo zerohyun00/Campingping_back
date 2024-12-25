@@ -23,7 +23,7 @@ export class CampingService {
     ]);
   }
 
-  async camppingCronHandler() {
+  async campingCronHandler() {
     const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 100;
     let pageNo = 1;
@@ -118,41 +118,41 @@ export class CampingService {
   }
 
   mapToEntity(data: CampingType): Camping {
-    const campping = new Camping();
-    campping.lineIntro = data.lineIntro ?? null;
-    campping.intro = data.intro ?? null;
-    campping.factDivNm = data.facltNm ?? null; // 'facltNm'이 API의 이름 필드라 가정
-    campping.manageDivNm = data.manageDivNm ?? null;
-    campping.bizrno = data.bizrno ?? null;
-    campping.manageSttus = data.manageSttus ?? null;
-    campping.hvofBgnde = data.hvofBgnde ?? null;
-    campping.hvofEndde = data.hvofEndde ?? null;
-    campping.featureNm = data.featureNm ?? null;
-    campping.induty = data.induty ?? null;
-    campping.lccl = data.lctCl ?? null; // 'lctCl'이 API의 환경 필드라 가정
-    campping.doNm = data.doNm ?? null;
-    campping.signguNm = data.signguNm ?? null;
-    campping.addr1 = data.addr1 ?? null;
-    campping.addr2 = data.addr2 ?? null;
-    campping.setLocation(data.mapX, data.mapY);
-    campping.tel = data.tel ?? null;
-    campping.homepage = data.homepage ?? null;
-    campping.gplnInnerFclty = data.gnrlSiteCo ?? null;
-    campping.caravnInnerFclty = data.caravInnerFclty ?? null;
-    campping.operPdCl = data.operPdCl ?? null;
-    campping.operDeCl = data.operDeCl ?? null;
-    campping.trlerAcmpnyAt = data.trlerAcmpnyAt ?? null;
-    campping.caravAcmpnyAt = data.caravAcmpnyAt ?? null;
-    campping.sbrsCl = data.sbrsCl ?? null;
-    campping.toiletCo = data.toiletCo ?? null;
-    campping.swrmCo = data.swrmCo ?? null;
-    campping.posblFcltyCl = data.posblFcltyCl ?? null;
-    campping.themaEnvrnCl = data.themaEnvrnCl ?? null;
-    campping.eqpmnLendCl = data.eqpmnLendCl ?? null;
-    campping.animalCmgCl = data.animalCmgCl ?? null;
-    campping.contentId = data.contentId ?? null;
+    const camping = new Camping();
+    camping.lineIntro = data.lineIntro ?? null;
+    camping.intro = data.intro ?? null;
+    camping.factDivNm = data.facltNm ?? null; // 'facltNm'이 API의 이름 필드라 가정
+    camping.manageDivNm = data.manageDivNm ?? null;
+    camping.bizrno = data.bizrno ?? null;
+    camping.manageSttus = data.manageSttus ?? null;
+    camping.hvofBgnde = data.hvofBgnde ?? null;
+    camping.hvofEndde = data.hvofEndde ?? null;
+    camping.featureNm = data.featureNm ?? null;
+    camping.induty = data.induty ?? null;
+    camping.lccl = data.lctCl ?? null; // 'lctCl'이 API의 환경 필드라 가정
+    camping.doNm = data.doNm ?? null;
+    camping.signguNm = data.signguNm ?? null;
+    camping.addr1 = data.addr1 ?? null;
+    camping.addr2 = data.addr2 ?? null;
+    camping.setLocation(data.mapX, data.mapY);
+    camping.tel = data.tel ?? null;
+    camping.homepage = data.homepage ?? null;
+    camping.gplnInnerFclty = data.gnrlSiteCo ?? null;
+    camping.caravnInnerFclty = data.caravInnerFclty ?? null;
+    camping.operPdCl = data.operPdCl ?? null;
+    camping.operDeCl = data.operDeCl ?? null;
+    camping.trlerAcmpnyAt = data.trlerAcmpnyAt ?? null;
+    camping.caravAcmpnyAt = data.caravAcmpnyAt ?? null;
+    camping.sbrsCl = data.sbrsCl ?? null;
+    camping.toiletCo = data.toiletCo ?? null;
+    camping.swrmCo = data.swrmCo ?? null;
+    camping.posblFcltyCl = data.posblFcltyCl ?? null;
+    camping.themaEnvrnCl = data.themaEnvrnCl ?? null;
+    camping.eqpmnLendCl = data.eqpmnLendCl ?? null;
+    camping.animalCmgCl = data.animalCmgCl ?? null;
+    camping.contentId = data.contentId ?? null;
 
-    return campping;
+    return camping;
   }
 
   async findAllForCron() {
@@ -165,7 +165,7 @@ export class CampingService {
   async findOne(paramDto: CampingParamDto) {
     return await this.campingRepository.findOne(paramDto);
   }
-  async findNearbyCampping(lon: number, lat: number) {
-    return await this.campingRepository.findNearbyCampping(lon, lat);
+  async findNearbycamping(lon: number, lat: number) {
+    return await this.campingRepository.findNearbycamping(lon, lat);
   }
 }

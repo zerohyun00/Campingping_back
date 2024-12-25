@@ -12,7 +12,7 @@ import { CampingService } from './camping.service';
 import { CampingCronHandler } from './camping.cron.provider';
 import { CampingParamDto } from './dto/find-camping-param.dto';
 
-@Controller('camppings')
+@Controller('campings')
 export class CampingController {
   constructor(
     private readonly campingService: CampingService,
@@ -23,18 +23,18 @@ export class CampingController {
     return await this.campingCron.handleCron();
   }
   @Get('map')
-  async findNearbyCampping(
+  async findNearbycamping(
     @Query('lat') lat: number,
     @Query('lon') lon: number,
   ) {
-    return await this.campingService.findNearbyCampping(lon, lat);
+    return await this.campingService.findNearbycamping(lon, lat);
   }
   @Get('lists')
-  async findCampping() {
+  async findcamping() {
     return await this.campingService.findAllWithDetails();
   }
   @Get('/lists/:contentId')
-  async findOneCampping(@Param() paramDto: CampingParamDto) {
+  async findOnecamping(@Param() paramDto: CampingParamDto) {
     console.log(paramDto);
     return await this.campingService.findOne(paramDto);
   }

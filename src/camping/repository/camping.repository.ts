@@ -3,8 +3,8 @@ import { Camping } from '../entities/camping.entity';
 import { DataSource, Repository } from 'typeorm';
 import { CampingParamDto } from '../dto/find-camping-param.dto';
 import {
-  mapCamppingData,
-  mapCamppingListData,
+  mapCampingData,
+  mapCampingListData,
   mapImageData,
 } from 'src/common/utils/camping-data-map.util';
 
@@ -69,41 +69,41 @@ export class CampingRepository {
   async findAllWithDetails() {
     //쿼리빌더로 변경
     const queryBuilder = this.repository
-      .createQueryBuilder('camp')
+      .createQueryBuilder('camping')
       .select([
-        'camp.id AS camp_id',
-        'camp.lineIntro AS camp_lineIntro',
-        'camp.intro AS camp_intro',
-        'camp.factDivNm AS camp_factDivNm',
-        'camp.manageDivNm AS camp_manageDivNm',
-        'camp.bizrno AS camp_bizrno',
-        'camp.manageSttus AS camp_manageSttus',
-        'camp.hvofBgnde AS camp_hvofBgnde',
-        'camp.hvofEndde AS camp_hvofEndde',
-        'camp.featureNm AS camp_featureNm',
-        'camp.induty AS camp_induty',
-        'camp.lccl AS camp_lccl',
-        'camp.doNm AS camp_doNm',
-        'camp.signguNm AS camp_signguNm',
-        'camp.addr1 AS camp_addr1',
-        'camp.addr2 AS camp_addr2',
-        'camp.tel AS camp_tel',
-        'camp.homepage AS camp_homepage',
-        'camp.gplnInnerFclty AS camp_gplnInnerFclty',
-        'camp.caravnInnerFclty AS camp_caravnInnerFclty',
-        'camp.operPdCl AS camp_operPdCl',
-        'camp.operDeCl AS camp_operDeCl',
-        'camp.trlerAcmpnyAt AS camp_trlerAcmpnyAt',
-        'camp.caravAcmpnyAt AS camp_caravAcmpnyAt',
-        'camp.sbrsCl AS camp_sbrsCl',
-        'camp.toiletCo AS camp_toiletCo',
-        'camp.swrmCo AS camp_swrmCo',
-        'camp.posblFcltyCl AS camp_posblFcltyCl',
-        'camp.themaEnvrnCl AS camp_themaEnvrnCl',
-        'camp.eqpmnLendCl AS camp_eqpmnLendCl',
-        'camp.animalCmgCl AS camp_animalCmgCl',
-        'camp.contentId AS camp_contentId',
-        'ST_AsGeoJSON(camp.location) AS camp_location',
+        'campinging.id AS camping_id',
+        'camping.lineIntro AS camping_lineIntro',
+        'camping.intro AS camping_intro',
+        'camping.factDivNm AS camping_factDivNm',
+        'camping.manageDivNm AS camping_manageDivNm',
+        'camping.bizrno AS camping_bizrno',
+        'camping.manageSttus AS camping_manageSttus',
+        'camping.hvofBgnde AS camping_hvofBgnde',
+        'camping.hvofEndde AS camping_hvofEndde',
+        'camping.featureNm AS camping_featureNm',
+        'camping.induty AS camping_induty',
+        'camping.lccl AS camping_lccl',
+        'camping.doNm AS camping_doNm',
+        'camping.signguNm AS camping_signguNm',
+        'camping.addr1 AS camping_addr1',
+        'camping.addr2 AS camping_addr2',
+        'camping.tel AS camping_tel',
+        'camping.homepage AS camping_homepage',
+        'camping.gplnInnerFclty AS camping_gplnInnerFclty',
+        'camping.caravnInnerFclty AS camping_caravnInnerFclty',
+        'camping.operPdCl AS camping_operPdCl',
+        'camping.operDeCl AS camping_operDeCl',
+        'camping.trlerAcmpnyAt AS camping_trlerAcmpnyAt',
+        'camping.caravAcmpnyAt AS camping_caravAcmpnyAt',
+        'camping.sbrsCl AS camping_sbrsCl',
+        'camping.toiletCo AS camping_toiletCo',
+        'camping.swrmCo AS camping_swrmCo',
+        'camping.posblFcltyCl AS camping_posblFcltyCl',
+        'camping.themaEnvrnCl AS camping_themaEnvrnCl',
+        'camping.eqpmnLendCl AS camping_eqpmnLendCl',
+        'camping.animalCmgCl AS camping_animalCmgCl',
+        'camping.contentId AS camping_contentId',
+        'ST_AsGeoJSON(camping.location) AS camping_location',
         'images.id AS image_id',
         'images.url AS image_url',
       ])
@@ -120,63 +120,63 @@ export class CampingRepository {
             .orderBy('image.typeId', 'ASC')
             .addOrderBy('image.id', 'ASC'),
         'images',
-        'images.typeId = camp.contentId',
+        'images.typeId = camping.contentId',
       )
-      .where('camp.deletedAt IS NULL');
+      .where('camping.deletedAt IS NULL');
 
     const result = await queryBuilder.getRawMany();
 
-    return mapCamppingListData(result);
+    return mapCampingListData(result);
   }
   async findOne(paramDto: CampingParamDto) {
     const query = this.repository
-      .createQueryBuilder('campping')
+      .createQueryBuilder('camping')
       .leftJoinAndSelect('image', 'image')
-      .where('campping.deletedAt IS NULL')
-      .andWhere('campping.contentId = :contentId', {
+      .where('camping.deletedAt IS NULL')
+      .andWhere('camping.contentId = :contentId', {
         contentId: paramDto.contentId,
       })
       .andWhere('image.deletedAt IS NULL')
-      .andWhere('image.typeId = campping.contentId')
+      .andWhere('image.typeId = camping.contentId')
       .orderBy('image.typeId', 'ASC')
       .take(10)
       .select([
-        'campping.id',
-        'campping.createdAt',
-        'campping.updatedAt',
-        'campping.deletedAt',
-        'campping.lineIntro',
-        'campping.intro',
-        'campping.factDivNm',
-        'campping.manageDivNm',
-        'campping.bizrno',
-        'campping.manageSttus',
-        'campping.hvofBgnde',
-        'campping.hvofEndde',
-        'campping.featureNm',
-        'campping.induty',
-        'campping.lccl',
-        'campping.doNm',
-        'campping.signguNm',
-        'campping.addr1',
-        'campping.addr2',
-        'campping.tel',
-        'campping.homepage',
-        'campping.gplnInnerFclty',
-        'campping.caravnInnerFclty',
-        'campping.operPdCl',
-        'campping.operDeCl',
-        'campping.trlerAcmpnyAt',
-        'campping.caravAcmpnyAt',
-        'campping.sbrsCl',
-        'campping.toiletCo',
-        'campping.swrmCo',
-        'campping.posblFcltyCl',
-        'campping.themaEnvrnCl',
-        'campping.eqpmnLendCl',
-        'campping.animalCmgCl',
-        'campping.contentId',
-        'campping.location',
+        'camping.id',
+        'camping.createdAt',
+        'camping.updatedAt',
+        'camping.deletedAt',
+        'camping.lineIntro',
+        'camping.intro',
+        'camping.factDivNm',
+        'camping.manageDivNm',
+        'camping.bizrno',
+        'camping.manageSttus',
+        'camping.hvofBgnde',
+        'camping.hvofEndde',
+        'camping.featureNm',
+        'camping.induty',
+        'camping.lccl',
+        'camping.doNm',
+        'camping.signguNm',
+        'camping.addr1',
+        'camping.addr2',
+        'camping.tel',
+        'camping.homepage',
+        'camping.gplnInnerFclty',
+        'camping.caravnInnerFclty',
+        'camping.operPdCl',
+        'camping.operDeCl',
+        'camping.trlerAcmpnyAt',
+        'camping.caravAcmpnyAt',
+        'camping.sbrsCl',
+        'camping.toiletCo',
+        'camping.swrmCo',
+        'camping.posblFcltyCl',
+        'camping.themaEnvrnCl',
+        'camping.eqpmnLendCl',
+        'camping.animalCmgCl',
+        'camping.contentId',
+        'camping.location',
         'image.id AS image_id',
         'image.url AS image_url',
       ]);
@@ -187,30 +187,30 @@ export class CampingRepository {
       return null;
     }
 
-    const camppingData = mapCamppingData(result);
+    const campingData = mapCampingData(result);
     const images = mapImageData(result);
 
-    return { ...camppingData, images };
+    return { ...campingData, images };
   }
-  async findNearbyCampping(lon: number, lat: number) {
+  async findNearbycamping(lon: number, lat: number) {
     const query = await this.repository
-      .createQueryBuilder('campping')
+      .createQueryBuilder('camping')
       .select([
-        'campping.id',
-        'campping.factDivNm',
-        'ST_AsGeoJSON(campping.location) as location',
-        'ST_Distance(campping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) as distance',
+        'camping.id',
+        'camping.factDivNm',
+        'ST_AsGeoJSON(camping.location) as location',
+        'ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) as distance',
       ])
       .setParameters({ lat, lon })
       .where(
-        'ST_DWithin(campping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), 5000)',
+        'ST_DWithin(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), 5000)',
       )
       .orderBy('distance', 'ASC')
       .getRawMany();
 
     return query.map((camping) => ({
-      id: camping.campping_id,
-      factDivNm: camping.campping_factDivNm,
+      id: camping.camping_id,
+      factDivNm: camping.camping_factDivNm,
       location: JSON.parse(camping.location),
       distance: parseFloat(camping.distance),
     }));

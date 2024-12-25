@@ -112,7 +112,7 @@ export class ImageService {
         await this.imageRepository.createImage(
           contentId,
           image.imageUrl,
-          'CAMPPING',
+          'camping',
         );
         console.log(`이미지 저장 완료: ${image.imageUrl}`);
       } catch (error) {
