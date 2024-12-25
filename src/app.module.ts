@@ -18,6 +18,7 @@ import { CommunityModule } from './community/community.module';
 import { ChatModule } from './chat/chat.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LogInterceptor } from './common/interceptor/log-interceptor';
 dotenv.config();
 
 @Module({
@@ -50,6 +51,12 @@ dotenv.config();
     FavoriteModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LogInterceptor,
+    },
+  ],
 })
 export class AppModule {}
