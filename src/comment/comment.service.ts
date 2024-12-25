@@ -105,23 +105,16 @@ export class CommentService {
   }
 
   async deleteComment(communityId: number, commentId: number): Promise<void> {
-    const comment = await this.commentRepository.findOne({
-      where: { id: commentId },
-      relations: ['community'],
+    const result = await this.commentRepository.softDelete({
+      id: commentId,
+      community: { id: communityId },
     });
 
-    if (!comment) {
-      throw new NotFoundException('존재하지 않는 댓글입니다.');
-    }
-
-    if (comment.community.id !== communityId) {
+    if (result.affected === 0) {
       throw new BadRequestException(
-        '이 댓글은 해당 커뮤니티에 속해 있지 않습니다.',
+        '존재하지 않거나 해당 커뮤니티에 속하지 않는 댓글입니다.',
       );
     }
-
-    await this.commentRepository.softDelete(commentId);
-    // softDelete 먼저 하는 로직으로 수정
   }
 
   async isCommentMine(userId: string, commentId: number) {
