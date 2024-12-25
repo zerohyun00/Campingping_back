@@ -69,11 +69,16 @@ export class CommentService {
     if (!community) {
       throw new NotFoundException('해당 커뮤니티 게시글이 없습니다.');
     }
-    return this.commentRepository.save({
+
+    await this.commentRepository.save({
       ...dto,
       community: { id: communityId },
       user: { id: userId },
     });
+
+    return {
+      message: '댓글이 성공적으로 생성되었습니다.',
+    };
   }
 
   async updateComment(
