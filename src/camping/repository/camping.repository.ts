@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Camping } from '../entities/camping.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Brackets, DataSource, Repository } from 'typeorm';
 import { CampingParamDto } from '../dto/find-camping-param.dto';
 import {
   mapCampingData,
@@ -128,7 +128,16 @@ export class CampingRepository {
       queryBuilder.andWhere('camping.doNm ILIKE :region', { region: `%${region}%` });
     }
     if (category) {
-      queryBuilder.andWhere('camping.lccl ILIKE :category', { category: `%${category}%` });
+      if (category === 'pet') {
+        queryBuilder.andWhere('camping.animalCmgCl ILIKE :possible', { possible: '가능%' });
+      } else {
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            qb.where('camping.lccl ILIKE :category', { category: `%${category}%` })
+              .orWhere('camping.induty ILIKE :category', { category: `%${category}%` });
+          }),
+        );
+      }
     }
     const result = await queryBuilder.getRawMany();
     return mapCampingListData(result);
