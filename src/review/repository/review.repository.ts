@@ -4,6 +4,7 @@ import { Review } from "../entities/review.entity";
 import { CreateReviewDto } from "../dto/create-review.dto";
 import { User } from "src/user/entities/user.entity";
 import { FindReviewParam } from "../dto/param-review.dto";
+import { updateReviewDto } from "../dto/update-review.dto";
 
 
 @Injectable()
@@ -29,11 +30,20 @@ export class ReviewRepository {
         });
         return result;
     }
-    async updateReview(review: Review) {
-        const result = await this.repository.save(review);
-        return result;
-    }
-    async deleteReview(id: number) {
-        return await this.repository.softDelete(id);
+    async updateReview(reviewId: number, userId: string, updateReviewDto: updateReviewDto) {
+        const updateResult = await this.repository
+          .createQueryBuilder()
+          .update(Review)
+          .set(updateReviewDto)
+          .where('id = :reviewId AND user.id = :userId', { reviewId, userId })
+          .execute();
+    
+        return updateResult;
+      }
+    async deleteReview(id: number, userId: string) {
+        return await this.repository.softDelete({
+            id,
+            user: { id: userId },
+          });    
     }
 }

@@ -36,27 +36,18 @@ export class ReviewService {
         return ReponseReviewDto.allList(result);
     }
     async updateReview(paramReview: ParamReview, updateReviewDto: updateReviewDto, userId: string) {
-        const user = await this.userService.findOne(userId);
-        if(!user) throw new BadRequestException('로그인이 필요한 서비스 입니다.');
       
-        const review = await this.reviewRepository.findOne(paramReview.id);
-        if(!review) throw new NotFoundException('리뷰가 존재하지않습니다.');
-        if(review.user.id !== userId) throw new UnauthorizedException('수정할 권한이 없습니다');
+        const result = await this.reviewRepository.updateReview(paramReview.id, userId, updateReviewDto);
 
-        Object.assign(review, updateReviewDto);
-        const result = await this.reviewRepository.updateReview(review);
-
-        return new ReponseReviewDto(result);
+        // 영향받은 행 수가 0이면 예외 처리
+        if (result.affected === 0) {
+          throw new BadRequestException('존재하지 않거나 해당 사용자가 작성한 리뷰가 아닙니다.');
+        }
+        return {messsage: "리뷰 수정완료"}
     }
     async deleteReview(paramReview: ParamReview, userId: string) {
-        const user = await this.userService.findOne(userId);
-        if(!user) throw new BadRequestException('로그인이 필요한 서비스 입니다.');
-
-        const review = await this.reviewRepository.findOne(paramReview.id);
-        if(!review) throw new NotFoundException('리뷰가 존재하지 않습니다.');
-        if(review.user.id !== userId) throw new UnauthorizedException('삭제할 권한이 없습니다');
-
-        await this.reviewRepository.deleteReview(review.id);
+        const result = await this.reviewRepository.deleteReview(paramReview.id, userId);
+        if (result.affected === 0) throw new NotFoundException('리뷰가 존재하지 않거나 삭제할 권한이 없습니다.');
         return;
     }
 }
