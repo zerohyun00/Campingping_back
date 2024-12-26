@@ -71,7 +71,7 @@ export class CampingRepository {
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
-        'campinging.id AS camping_id',
+        'camping.id AS camping_id',
         'camping.lineIntro AS camping_lineIntro',
         'camping.intro AS camping_intro',
         'camping.factDivNm AS camping_factDivNm',
@@ -125,7 +125,7 @@ export class CampingRepository {
       .where('camping.deletedAt IS NULL');
 
     const result = await queryBuilder.getRawMany();
-
+    // console.log(result)
     return mapCampingListData(result);
   }
   async findOne(paramDto: CampingParamDto) {
@@ -207,15 +207,15 @@ export class CampingRepository {
       )
       .orderBy('distance', 'ASC')
       .getRawMany();
-
+    
     return query.map((camping) => ({
       id: camping.camping_id,
       factDivNm: camping.camping_factDivNm,
-      location: JSON.parse(camping.location),
+      location: JSON.parse(camping.campping_location),
       distance: parseFloat(camping.distance),
     }));
   }
-  async findCampingbyRegion() {
+  async findCampingbyRegion(city: string) {
     
   }
 }

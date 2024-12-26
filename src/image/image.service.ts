@@ -12,15 +12,14 @@ export class ImageService {
   constructor(private imageRepository: ImageRepository) {
     // 수정 필요
     this.apiKeyManager = new ApiKeyManager([
-      'xmrpgObsiAFFR2II2Mr%2BABk2SHPyB21kt%2Ft0Y6g4mMndM3J0b3KDmM2TTsySRE6Cpuo0Q8cBNt2aQ5%2BX1woPyA%3D%3D',
-      'TapmaDwOM%2FvvIzD2GYx%2F6RfNoMM1ES3NQbgRwQeVG31NEu5JDY7vWU41293qYDR51IrpaKtbgAuYzJseIBhx2A%3D%3D',
-      'FZ4frpQMulmr31of%2BdrKJkS9c99ziib5T%2BMJyqhp3kFnAHkw%2FR0URVDqItzaYurITyEJ3B%2BK%2BLtnNNmeVMfYFA%3D%3D',
-      'WVXbHaU1Swo%2BcYdMpg2hDAaLjs3Vehe3CBCsgOR63iQf%2FWqVv%2BeuKKq%2Bs8uOhS4%2B1bwL4VwhxS1%2F0WUOgmklag%3D%3D',
-      '20ToNqK21emRg6djV5ZFRNzl%2BGVnIEHdUoewEghzPlmop90s0dTK3sSnW%2FjdHqN1fF1lFrE96WK1ypYHhLuS6Q%3D%3D',
-      'fR5r78vDyLa5VlMt5YTpJRUGjXoWDMk6ZQmB2LPtYHAHw%2F7mdvoXpnkrz7OuOB2JJH%2FOtbvUbmtUS%2FiPGGwoxQ%3D%3D',
+      process.env.GO_CAMPING_APIKEY1,
+      process.env.GO_CAMPING_APIKEY2,
+      process.env.GO_CAMPING_APIKEY3,
+      process.env.GO_CAMPING_APIKEY4,
+      process.env.GO_CAMPING_APIKEY5,
+      process.env.GO_CAMPING_APIKEY6,
     ]);
   }
-
   async ImageCronHandler(contentId: string) {
     const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 10;
