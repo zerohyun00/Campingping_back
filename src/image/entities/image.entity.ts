@@ -14,7 +14,7 @@ export class Image extends BaseTable {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   url: string;
 
   @Column({ nullable: true })

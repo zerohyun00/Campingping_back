@@ -6,6 +6,7 @@ import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { parseStringPromise } from 'xml2js';
 import { CampingParamDto } from './dto/find-camping-param.dto';
 import { CampingType } from './type/camping-create.type';
+import { XmlUtils } from 'src/common/utils/xml-util';
 
 @Injectable()
 export class CampingService {
@@ -27,93 +28,49 @@ export class CampingService {
     const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 100;
     let pageNo = 1;
-    let allData = [];
-
+  
     while (true) {
       const apikey = this.apiKeyManager.getCurrentApiKey();
       const url = `${apiurl}/basedList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
-
+  
       try {
         const response = await axios.get(url);
         const responseBody = response.data?.response?.body;
-
+  
         if (!responseBody || !responseBody.items || responseBody.items === '') {
           console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
-          console.log('응답 데이터:', response.data); // 응답 전체 데이터를 로깅하여 확인
 
-          // 응답이 XML인지 확인
-          if (
-            response.data &&
-            typeof response.data === 'string' &&
-            response.data.trim().startsWith('<')
-          ) {
-            // XML 형식인 경우
-            const errorXml = response.data;
-            console.log(errorXml, '에러 발생 시');
-
-            try {
-              const parsedError = await parseStringPromise(errorXml, {
-                explicitArray: false,
-              });
-              const returnReasonCode =
-                parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader
-                  ?.returnReasonCode;
-
-              // 22번 코드 (API 키 초과) 처리
-              if (returnReasonCode === '22') {
-                console.warn(
-                  `API 키 사용 초과: ${apikey}, 이유: ${parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnAuthMsg}`,
-                );
-
-                // API 키 변경 및 재시도
-                if (!this.apiKeyManager.switchToNextApiKey()) {
-                  console.error('모든 API 키 사용 초과');
-                  break;
-                }
-                console.log(
-                  `새로운 API 키로 전환: ${this.apiKeyManager.getCurrentApiKey()}`,
-                );
-                continue;
-              }
-            } catch (parseError) {
-              console.error('XML 파싱 오류:', parseError);
-            }
+          if (XmlUtils.isXmlResponse(response.data)) {
+            await XmlUtils.handleXmlError(response.data, apikey, this.apiKeyManager);
           } else {
-            // JSON 형식이거나 다른 응답
-            console.error('응답 데이터가 예상한 XML 형식이 아닙니다.');
+            console.error('XML이 아닌 오류 응답:', response.data);
           }
           break;
         }
-
+  
         const campData = responseBody.items.item ?? [];
-        console.log(
-          `현재 페이지: ${pageNo}, 받은 데이터 수: ${campData.length}`,
-        );
-        allData = allData.concat(campData);
+        console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${campData.length}`);
+  
+        // 데이터를 즉시 저장
+        const entities = campData.map((item) => this.mapToEntity(item));
+        await this.saveDataInBatches(entities, 500); // 500개 단위로 저장
+        console.log(`${campData.length}개의 데이터를 저장했습니다.`);
         pageNo++;
       } catch (error) {
         console.error('데이터 요청 중 오류 발생:', error.message);
         break;
       }
     }
-
-    try {
-      const entities = allData.map((item) => this.mapToEntity(item));
-      const batchSize = 500; // 한 번에 저장할 데이터 수
-      await this.saveDataInBatches(entities, batchSize);
-      console.log(`${entities.length}개의 데이터를 성공적으로 저장했습니다.`);
-    } catch (error) {
-      console.error('데이터 저장 중 오류 발생:', error);
-    }
   }
-
-  async saveDataInBatches(
-    entities: Camping[],
-    batchSize: number,
-  ): Promise<void> {
+  async saveDataInBatches(entities: Camping[], batchSize: number): Promise<void> {
     for (let i = 0; i < entities.length; i += batchSize) {
       const batch = entities.slice(i, i + batchSize);
-      await this.campingRepository.saveDataWithTransaction(batch);
+      try {
+        await this.campingRepository.saveDataWithTransaction(batch);
+        console.log(`배치 저장 성공: ${batch.length}개`);
+      } catch (error) {
+        console.error('배치 저장 실패:', error.message, batch);
+      }
     }
   }
 

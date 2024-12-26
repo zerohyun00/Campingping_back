@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ImageRepository } from './repository/image.repository';
 import { parseStringPromise } from 'xml2js';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
+import { XmlUtils } from 'src/common/utils/xml-util';
 
 @Injectable()
 export class ImageService {
@@ -21,102 +22,61 @@ export class ImageService {
   }
 
   async ImageCronHandler(contentId: string) {
-    // 여기도 모든 이미지 URL을 모아서 DB에 저장하지 마시고 가져올 때마다 DB에 저장하는 것을 추천드릴게요. - 코치님
     const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 10;
     let pageNo = 1;
-    let allImages = [];
-
+    let batchImages = [];
+    const batchSize = 10;   
+    
     while (true) {
       const apikey = this.apiKeyManager.getCurrentApiKey(); // 현재 API 키
       const url = `${apiurl}/imageList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&contentId=${contentId}&_type=json`;
 
       try {
         const response = await axios.get(url);
-
         const responseBody = response.data?.response?.body;
 
-        // 응답 데이터 확인
         if (!responseBody || !responseBody.items || responseBody.items === '') {
-          console.log(`처리할 이미지가 없습니다 (페이지: ${pageNo})`);
-          console.log('응답 데이터:', response.data); // 응답 전체 데이터를 로깅하여 확인
+          console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
 
-          // 응답이 XML인지 확인
-          if (
-            response.data &&
-            typeof response.data === 'string' &&
-            response.data.trim().startsWith('<')
-          ) {
-            // XML 형식인 경우
-            const errorXml = response.data;
-            console.log(errorXml, '에러떴을경우');
-
-            try {
-              const parsedError = await parseStringPromise(errorXml, {
-                explicitArray: false,
-              });
-              const returnReasonCode =
-                parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader
-                  ?.returnReasonCode;
-
-              if (returnReasonCode === '22') {
-                console.warn(
-                  `API 키 사용 초과: ${apikey}, 이유: ${parsedError?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnAuthMsg}`,
-                );
-
-                // API 키 변경 및 재시도
-                if (!this.apiKeyManager.switchToNextApiKey()) {
-                  console.error('모든 API 키 사용 초과');
-                  break; // 더 이상 재시도할 API 키가 없으면 종료
-                }
-                console.log(
-                  `새로운 API 키로 전환: ${this.apiKeyManager.getCurrentApiKey()}`,
-                );
-                continue; // 새로운 API 키로 재시도
-              }
-            } catch (parseError) {
-              console.error('XML 파싱 오류:', parseError);
-            }
+          if (XmlUtils.isXmlResponse(response.data)) {
+            await XmlUtils.handleXmlError(response.data, apikey, this.apiKeyManager);
           } else {
-            console.error('응답 데이터가 예상한 XML 형식이 아닙니다.');
+            console.error('XML이 아닌 오류 응답:', response.data);
           }
-
-          break; // 이미지가 없으면 종료
+          break;
         }
-
-        const images = responseBody.items.item || [];
+        const images = responseBody.items.item ?? [];
         console.log(
           `현재 페이지: ${pageNo}, 받은 이미지 데이터 수: ${images.length}`,
         );
-        allImages = allImages.concat(images);
-        pageNo++;
+
+        // 가져온 이미지를 DB에 저장
+        for (const image of images) {
+          const existingImage = await this.imageRepository.findOne(contentId, image.imageUrl);
+          if (!existingImage) {
+            batchImages.push({ contentId, imageUrl: image.imageUrl, type: 'CAMPING' });
+          }
+        }
+
+        if (batchImages.length >= batchSize) {
+          await this.imageRepository.createBatchImages(batchImages);
+          console.log(`배치 이미지 저장 완료: ${batchImages.length}개`);
+          batchImages = []; 
+        }
+
+        if (images.length < numOfRows) {
+          if (batchImages.length > 0) {
+            await this.imageRepository.createBatchImages(batchImages);
+            console.log(`배치 이미지 저장 완료: ${batchImages.length}개`);
+          }
+          break; // 마지막 페이지에 도달했으므로 종료
+        }
+
+        pageNo++; // 다음 페이지로 이동
       } catch (error) {
         console.error('API 요청 중 오류 발생:', error);
         break;
-      }
-    }
-
-    // 이미지를 DB에 저장
-    for (const image of allImages) {
-      try {
-        const existingImage = await this.imageRepository.findOne(
-          contentId,
-          image.imageUrl,
-        );
-
-        if (existingImage) {
-          console.log(`이미 존재하는 이미지: ${image.imageUrl}`);
-          continue;
-        }
-
-        await this.imageRepository.createImage(
-          contentId,
-          image.imageUrl,
-          'camping',
-        );
-        console.log(`이미지 저장 완료: ${image.imageUrl}`);
-      } catch (error) {
-        console.error(`이미지 저장 중 오류 발생: ${image.imageUrl}`, error);
       }
     }
   }
