@@ -67,45 +67,59 @@ export class AuthService {
       throw new BadRequestException('인증번호가 올바르지 않습니다.');
     }
 
-    // 고민해볼게요. 트랜잭션?
-    await this.cacheManager.set(`${email}-verified`, true, 3600);
+    try {
+      await this.cacheManager.set(`${email}-verified`, true, 3600);
 
-    await this.cacheManager.del(`VERIFICATION_CODE_${email}`);
+      await this.cacheManager.del(`VERIFICATION_CODE_${email}`);
 
-    return { message: '인증이 완료되었습니다.' };
+      return { message: '인증이 완료되었습니다.' };
+    } catch (error) {
+      await this.cacheManager.del(`${email}-verified`); // 실패시 롤백
+
+      throw new BadRequestException('인증 처리 중 문제가 발생했습니다');
+    }
   }
 
   async register(registerUserDto: RegisterUserDto) {
     const { email, password, nickname } = registerUserDto;
 
-    const isVerified = await this.cacheManager.get<boolean>(
-      `${email}-verified`,
-    );
-    if (!isVerified) {
-      throw new BadRequestException('이메일 인증이 완료되지 않았습니다.');
+    try {
+      const isVerified = await this.cacheManager.get<boolean>(
+        `${email}-verified`,
+      );
+      if (!isVerified) {
+        throw new BadRequestException('이메일 인증이 완료되지 않았습니다.');
+      }
+
+      const existingUser = await this.userRepository.findOne({
+        where: { email },
+      });
+      if (existingUser) {
+        throw new BadRequestException('이미 가입된 이메일입니다.');
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = this.userRepository.create({
+        email,
+        password: hashedPassword,
+        nickname,
+        role: Role.USER,
+      });
+
+      await this.userRepository.save(newUser);
+
+      await this.cacheManager.del(`${email}-verified`);
+
+      return { message: '회원가입이 완료되었습니다.', email, nickname };
+    } catch (error) {
+      // 캐시 삭제 중 발생한 에러는 무시하고, 나머지 에러는 그대로 던짐
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new Error('회원가입 중 문제가 발생했습니다. 다시 시도해주세요.');
     }
-
-    const existingUser = await this.userRepository.findOne({
-      where: { email },
-    });
-    if (existingUser) {
-      throw new BadRequestException('이미 가입된 이메일입니다.');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = this.userRepository.create({
-      email,
-      password: hashedPassword,
-      nickname,
-      role: Role.USER,
-    });
-
-    await this.userRepository.save(newUser);
-
-    await this.cacheManager.del(`${email}-verified`);
-
-    return { message: '회원가입이 완료되었습니다.', email, nickname };
   }
 
   async login(

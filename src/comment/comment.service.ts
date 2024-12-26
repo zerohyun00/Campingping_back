@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { CreateCommentsDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { UpdateCommentsDto } from './dto/update-comment.dto';
+import { PagePaginationDto } from 'src/common/dto/page-pagination.dto';
 
 @Injectable()
 export class CommentService {
@@ -19,7 +20,12 @@ export class CommentService {
     private readonly communityRepository: Repository<Community>,
   ) {}
 
-  async findAllCommentsOfCommunity(communityId: number) {
+  async findAllCommentsOfCommunity(
+    communityId: number,
+    paginationDto: PagePaginationDto,
+  ) {
+    const { page, take } = paginationDto;
+
     const community = await this.communityRepository.findOne({
       where: {
         id: communityId,
@@ -30,13 +36,23 @@ export class CommentService {
       throw new NotFoundException('해당 커뮤니티 게시글이 없습니다.');
     }
 
-    const comments = await this.commentRepository.find({
+    const [comments, total] = await this.commentRepository.findAndCount({
       where: { community: { id: communityId } },
       relations: ['user', 'community'],
+      skip: (page - 1) * take,
+      take,
+      order: { createdAt: 'DESC' },
     });
 
-    return comments;
-    // 페이지 네이션 추가
+    return {
+      data: comments,
+      meta: {
+        total,
+        page,
+        take,
+        totalpages: Math.ceil(total / take),
+      },
+    };
   }
 
   async createComment(
@@ -53,11 +69,16 @@ export class CommentService {
     if (!community) {
       throw new NotFoundException('해당 커뮤니티 게시글이 없습니다.');
     }
-    return this.commentRepository.save({
+
+    await this.commentRepository.save({
       ...dto,
       community: { id: communityId },
       user: { id: userId },
     });
+
+    return {
+      message: '댓글이 성공적으로 생성되었습니다.',
+    };
   }
 
   async updateComment(
@@ -65,47 +86,36 @@ export class CommentService {
     commentId: number,
     dto: UpdateCommentsDto,
   ) {
-    // 업데이트 시 조건과 업데이트 데이터를 설정
     const updateResult = await this.commentRepository.update(
       { id: commentId, community: { id: communityId } },
       dto,
     );
 
-    // 영향을 받은 행 수가 0인 경우 예외 처리
     if (updateResult.affected === 0) {
       throw new BadRequestException(
         '존재하지 않거나 해당 커뮤니티에 속하지 않는 댓글입니다.',
       );
     }
 
-    // 업데이트된 데이터를 다시 로드 (필요 시)
     const updatedComment = await this.commentRepository.findOne({
       where: { id: commentId },
       relations: ['community'],
     });
 
-    // 로드된 데이터를 반환
     return updatedComment;
   }
 
   async deleteComment(communityId: number, commentId: number): Promise<void> {
-    const comment = await this.commentRepository.findOne({
-      where: { id: commentId },
-      relations: ['community'],
+    const result = await this.commentRepository.softDelete({
+      id: commentId,
+      community: { id: communityId },
     });
 
-    if (!comment) {
-      throw new NotFoundException('존재하지 않는 댓글입니다.');
-    }
-
-    if (comment.community.id !== communityId) {
+    if (result.affected === 0) {
       throw new BadRequestException(
-        '이 댓글은 해당 커뮤니티에 속해 있지 않습니다.',
+        '존재하지 않거나 해당 커뮤니티에 속하지 않는 댓글입니다.',
       );
     }
-
-    await this.commentRepository.softDelete(commentId);
-    // softDelete 먼저 하는 로직으로 수정
   }
 
   async isCommentMine(userId: string, commentId: number) {

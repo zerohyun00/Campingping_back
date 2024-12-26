@@ -37,10 +37,10 @@ export class Community extends BaseTable {
   @Column({ default: 0 })
   view: number;
 
-  @ManyToOne(() => User, (user) => user.community, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.community)
   user: User;
 
-  @OneToMany(() => Comment, (comment) => comment.community, { cascade: true })
+  @OneToMany(() => Comment, (comment) => comment.community)
   comment: Comment[];
 
   @Exclude()

@@ -18,7 +18,7 @@ export class FavoriteService {
     const favorites = await this.favoriteRepository
       .createQueryBuilder('favorite')
       .leftJoinAndSelect(
-        'Campping',
+        'Camping',
         'campping',
         'favorite.contentId = campping.contentId',
       )
