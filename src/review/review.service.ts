@@ -36,18 +36,16 @@ export class ReviewService {
         return ReponseReviewDto.allList(result);
     }
     async updateReview(paramReview: ParamReview, updateReviewDto: updateReviewDto, userId: string) {
-      
         const result = await this.reviewRepository.updateReview(paramReview.id, userId, updateReviewDto);
 
-        // 영향받은 행 수가 0이면 예외 처리
-        if (result.affected === 0) {
-          throw new BadRequestException('존재하지 않거나 해당 사용자가 작성한 리뷰가 아닙니다.');
-        }
+        if (result.affected === 0) throw new UnauthorizedException('존재하지 않거나 해당 사용자가 작성한 리뷰가 아닙니다.');
+        
         return {messsage: "리뷰 수정완료"}
     }
     async deleteReview(paramReview: ParamReview, userId: string) {
         const result = await this.reviewRepository.deleteReview(paramReview.id, userId);
-        if (result.affected === 0) throw new NotFoundException('리뷰가 존재하지 않거나 삭제할 권한이 없습니다.');
+        
+        if (result.affected === 0) throw new UnauthorizedException('리뷰가 존재하지 않거나 삭제할 권한이 없습니다.');
         return;
     }
 }
