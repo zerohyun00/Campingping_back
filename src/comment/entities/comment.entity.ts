@@ -17,11 +17,9 @@ export class Comment extends BaseTable {
   @Column()
   content: string;
 
-  @ManyToOne(() => User, (user) => user.comment, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.comment)
   user: User;
 
-  @ManyToOne(() => Community, (community) => community.comment, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Community, (community) => community.comment)
   community: Community;
 }
