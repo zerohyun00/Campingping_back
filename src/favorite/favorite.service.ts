@@ -18,15 +18,9 @@ export class FavoriteService {
     const favorites = await this.favoriteRepository
       .createQueryBuilder('favorite')
       .leftJoinAndSelect(
-<<<<<<< HEAD
         'camping',
         'camping',
         'favorite.contentId = camping.contentId',
-=======
-        'Camping',
-        'campping',
-        'favorite.contentId = campping.contentId',
->>>>>>> 7be8410dbd2e317619de9e56ec9ca691e9b10cc5
       )
       .leftJoin('Image', 'image', 'favorite.contentId = image.typeId')
       .where('favorite.user.id = :userId', { userId })
