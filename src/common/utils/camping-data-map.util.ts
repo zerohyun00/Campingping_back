@@ -52,7 +52,7 @@ export function mapCampingData(result: CampingDetailType[]) {
 
 export function mapCampingListData(result: CampingListType[]) {
   return result.map((camp) => {
-    let location: any = null;
+    let location: string = null;
     // console.log(camp);
     try {
       location = JSON.parse(camp.location);
@@ -104,8 +104,8 @@ export function mapCampingListData(result: CampingListType[]) {
 }
 
 export function mapNearbycampingData(result: NearbyCampingType[]) {
-  return result.map((camping: any) => {
-    let location: any = null;
+  return result.map((camping) => {
+    let location: string = null;
 
     try {
       location = JSON.parse(camping.location);
