@@ -1,4 +1,4 @@
-import { Camping } from 'src/campping/entities/camping.entity';
+import { Camping } from 'src/camping/entities/camping.entity';
 import { BaseTable } from 'src/common/entities/base-table.entity';
 import { ImageType } from 'src/common/type/image.type';
 import {
@@ -14,7 +14,7 @@ export class Image extends BaseTable {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   url: string;
 
   @Column({ nullable: true })
@@ -23,6 +23,6 @@ export class Image extends BaseTable {
   @Column({ enum: ImageType, nullable: true })
   type: string;
 
-  @ManyToOne(() => Camping, (campping) => campping.images)
+  @ManyToOne(() => Camping, (camping) => camping.images)
   camping: Camping;
 }

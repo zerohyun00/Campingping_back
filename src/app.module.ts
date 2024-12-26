@@ -7,7 +7,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import * as ioRedisStore from 'cache-manager-ioredis';
 import { MyConfigModule } from './config/config.module';
 import { MyConfigService } from './config/db';
-import { CamppingModule } from './campping/campping.module';
+import { CampingModule } from './camping/camping.module';
 import * as dotenv from 'dotenv';
 import { UserModule } from './user/user.module';
 import { ImageModule } from './image/image.module';
@@ -42,7 +42,7 @@ dotenv.config();
     }),
     AuthModule,
     UserModule,
-    CamppingModule,
+    CampingModule,
     ImageModule,
     CommentModule,
     ReviewModule,

@@ -8,14 +8,14 @@ import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UserModule } from "src/user/user.module";
 import { UserService } from "src/user/user.service";
-import { CamppingModule } from "src/campping/campping.module";
-import { CamppingService } from "src/campping/campping.service";
+import { CampingModule } from "src/camping/camping.module";
+import { CampingService } from "src/camping/camping.service";
 
 @Module({
   imports:[
     TypeOrmModule.forFeature([Review]),
     UserModule,
-    CamppingModule,
+    CampingModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -29,7 +29,7 @@ import { CamppingService } from "src/campping/campping.service";
     ReviewService, 
     ReviewRepository, 
     UserService, 
-    CamppingService
+    CampingService
   ],
 })
 export class ReviewModule {}

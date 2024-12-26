@@ -1,6 +1,6 @@
 import { ImageDataType } from "src/image/type/image.data-type";
 
-export type CamppingListType = {
+export type CampingListType = {
   id: number;
   lineIntro: string;
   intro: string;
