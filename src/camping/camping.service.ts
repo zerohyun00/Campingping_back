@@ -125,4 +125,8 @@ export class CampingService {
   async findNearbycamping(lon: number, lat: number) {
     return await this.campingRepository.findNearbycamping(lon, lat);
   }
+  async findCampingbyRegion(city: string) {
+    console.log(city);
+    return await this.campingRepository.findCampingbyRegion()
+  }
 }

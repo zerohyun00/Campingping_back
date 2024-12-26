@@ -215,4 +215,7 @@ export class CampingRepository {
       distance: parseFloat(camping.distance),
     }));
   }
+  async findCampingbyRegion() {
+    
+  }
 }

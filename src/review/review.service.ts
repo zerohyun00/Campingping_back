@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { ReviewRepository } from "./repository/review.repository";
 import { UserService } from "src/user/user.service";
@@ -38,14 +38,14 @@ export class ReviewService {
     async updateReview(paramReview: ParamReview, updateReviewDto: updateReviewDto, userId: string) {
         const result = await this.reviewRepository.updateReview(paramReview.id, userId, updateReviewDto);
 
-        if (result.affected === 0) throw new UnauthorizedException('존재하지 않거나 해당 사용자가 작성한 리뷰가 아닙니다.');
+        if (result.affected === 0) throw new BadRequestException('존재하지 않거나 해당 사용자가 작성한 리뷰가 아닙니다.');
         
         return {messsage: "리뷰 수정완료"}
     }
     async deleteReview(paramReview: ParamReview, userId: string) {
         const result = await this.reviewRepository.deleteReview(paramReview.id, userId);
-        
-        if (result.affected === 0) throw new UnauthorizedException('리뷰가 존재하지 않거나 삭제할 권한이 없습니다.');
+
+        if (result.affected === 0) throw new BadRequestException('리뷰가 존재하지 않거나 삭제할 권한이 없습니다.');
         return;
     }
 }

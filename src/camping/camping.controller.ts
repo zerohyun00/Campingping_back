@@ -29,8 +29,12 @@ export class CampingController {
   ) {
     return await this.campingService.findNearbycamping(lon, lat);
   }
+  @Get('region')
+  async findCampingbyRegion(@Query('city') city: string) {
+    return await this.campingService.findCampingbyRegion(city)
+  }
   @Get('lists')
-  async findcamping() {
+  async findCamping() {
     return await this.campingService.findAllWithDetails();
   }
   @Get('/lists/:contentId')
