@@ -4,20 +4,24 @@ import { ImageRepository } from './repository/image.repository';
 import { parseStringPromise } from 'xml2js';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { XmlUtils } from 'src/common/utils/xml-util';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ImageService {
   private apiKeyManager: ApiKeyManager;
 
-  constructor(private imageRepository: ImageRepository) {
+  constructor(
+    private imageRepository: ImageRepository,
+    private readonly configService: ConfigService,
+  ) {
     // 수정 필요
     this.apiKeyManager = new ApiKeyManager([
-      process.env.GO_CAMPING_APIKEY1,
-      process.env.GO_CAMPING_APIKEY2,
-      process.env.GO_CAMPING_APIKEY3,
-      process.env.GO_CAMPING_APIKEY4,
-      process.env.GO_CAMPING_APIKEY5,
-      process.env.GO_CAMPING_APIKEY6,
+      this.configService.get<string>('GO_CAMPING_APIKEY1'),
+      this.configService.get<string>('GO_CAMPING_APIKEY2'),
+      this.configService.get<string>('GO_CAMPING_APIKEY3'),
+      this.configService.get<string>('GO_CAMPING_APIKEY4'),
+      this.configService.get<string>('GO_CAMPING_APIKEY5'),
+      this.configService.get<string>('GO_CAMPING_APIKEY6'),
     ]);
   }
   async ImageCronHandler(contentId: string) {
@@ -25,8 +29,7 @@ export class ImageService {
     const numOfRows = 10;
     let pageNo = 1;
     let batchImages = [];
-    const batchSize = 10;   
-    
+    const batchSize = 10; 
     while (true) {
       const apikey = this.apiKeyManager.getCurrentApiKey(); // 현재 API 키
       const url = `${apiurl}/imageList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&contentId=${contentId}&_type=json`;
@@ -54,7 +57,7 @@ export class ImageService {
         for (const image of images) {
           const existingImage = await this.imageRepository.findOne(contentId, image.imageUrl);
           if (!existingImage) {
-            batchImages.push({ contentId, imageUrl: image.imageUrl, type: 'CAMPING' });
+            batchImages.push({ typeId: contentId, url: image.imageUrl, type: 'CAMPING' });
           }
         }
 

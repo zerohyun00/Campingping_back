@@ -40,7 +40,7 @@ export class ReviewService {
 
         if (result.affected === 0) throw new BadRequestException('존재하지 않거나 해당 사용자가 작성한 리뷰가 아닙니다.');
         
-        return {messsage: "리뷰 수정완료"}
+        return;
     }
     async deleteReview(paramReview: ParamReview, userId: string) {
         const result = await this.reviewRepository.deleteReview(paramReview.id, userId);

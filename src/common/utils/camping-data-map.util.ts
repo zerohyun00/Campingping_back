@@ -1,21 +1,20 @@
 import { CampingListType } from 'src/camping/type/camping-list-type';
 import { CampingDetailType } from 'src/camping/type/camping-detail.type';
 import { ImageDataType } from 'src/image/type/image.data-type';
+import { NearbyCampingType } from 'src/camping/type/camping-near-map.type';
 
-export function mapImageData(result: any[]): ImageDataType[] {
+export function mapImageData(result: ImageDataType[]) {
   return result.map((row) => ({
     id: row.image_id,
     url: row.image_url,
   }));
 }
 
-export function mapCampingData(result: any): CampingDetailType {
+export function mapCampingData(result: CampingDetailType[]) {
   const campingData = result[0];
+  console.log(campingData);
   return {
     id: campingData.camping_id,
-    createdAt: campingData.camping_createdAt,
-    updatedAt: campingData.camping_updatedAt,
-    deletedAt: campingData.camping_deletedAt,
     lineIntro: campingData.camping_lineIntro,
     intro: campingData.camping_intro,
     factDivNm: campingData.camping_factDivNm,
@@ -47,16 +46,16 @@ export function mapCampingData(result: any): CampingDetailType {
     eqpmnLendCl: campingData.camping_eqpmnLendCl,
     animalCmgCl: campingData.camping_animalCmgCl,
     contentId: campingData.camping_contentId,
-    location: campingData.camping_location,
+    location: campingData.location,
   };
 }
 
-export function mapCampingListData(result: any[]): CampingListType[] {
+export function mapCampingListData(result: CampingListType[]) {
   return result.map((camp) => {
     let location: any = null;
     // console.log(camp);
     try {
-      location = JSON.parse(camp.camp_location);
+      location = JSON.parse(camp.location);
     } catch (error) {
       // custom logger 달기
       // console.error(`Error parsing location JSON for camp ID ${camp.camp_id}:`, error.message);
@@ -94,12 +93,31 @@ export function mapCampingListData(result: any[]): CampingListType[] {
       themaEnvrnCl: camp.camping_themaEnvrnCl,
       eqpmnLendCl: camp.camping_eqpmnLendCl,
       animalCmgCl: camp.camping_animalCmgCl,
-      contentId: camp.camping_contentid,
+      contentId: camp.camping_contentId,
       location,
       images: {
         id: camp.image_id,
         url: camp.image_url,
-      } as ImageDataType,
+      },
+    };
+  });
+}
+
+export function mapNearbycampingData(result: NearbyCampingType[]) {
+  return result.map((camping: any) => {
+    let location: any = null;
+
+    try {
+      location = JSON.parse(camping.location);
+    } catch (error) {
+      console.error(`Error parsing location JSON for camping ID ${camping.camping_id}:`, error.message);
+    }
+
+    return {
+      id: camping.camping_id,
+      factDivNm: camping.camping_factDivNm,
+      location,
+      distance: isNaN(parseFloat(camping.distance)) ? 0 : parseFloat(camping.distance),
     };
   });
 }

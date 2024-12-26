@@ -6,20 +6,24 @@ import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { CampingParamDto } from './dto/find-camping-param.dto';
 import { CampingType } from './type/camping-create.type';
 import { XmlUtils } from 'src/common/utils/xml-util';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CampingService {
   private apiKeyManager: ApiKeyManager;
 
-  constructor(private readonly campingRepository: CampingRepository) {
+  constructor(
+    private readonly campingRepository: CampingRepository,
+    private readonly configService: ConfigService
+  ) {
     // 수정 필요
     this.apiKeyManager = new ApiKeyManager([
-      process.env.GO_CAMPING_APIKEY1,
-      process.env.GO_CAMPING_APIKEY2,
-      process.env.GO_CAMPING_APIKEY3,
-      process.env.GO_CAMPING_APIKEY4,
-      process.env.GO_CAMPING_APIKEY5,
-      process.env.GO_CAMPING_APIKEY6,
+      this.configService.get<string>('GO_CAMPING_APIKEY1'),
+      this.configService.get<string>('GO_CAMPING_APIKEY2'),
+      this.configService.get<string>('GO_CAMPING_APIKEY3'),
+      this.configService.get<string>('GO_CAMPING_APIKEY4'),
+      this.configService.get<string>('GO_CAMPING_APIKEY5'),
+      this.configService.get<string>('GO_CAMPING_APIKEY6'),
     ]);
   }
 
@@ -52,7 +56,7 @@ export class CampingService {
   
         // 데이터를 즉시 저장
         const entities = campData.map((item) => this.mapToEntity(item));
-        await this.saveDataInBatches(entities, 500); // 500개 단위로 저장
+        await this.saveDataInBatches(entities, 100);
         console.log(`${campData.length}개의 데이터를 저장했습니다.`);
         pageNo++;
       } catch (error) {
@@ -114,8 +118,8 @@ export class CampingService {
   async findAllForCron() {
     return await this.campingRepository.findAllForCron();
   }
-  async findAllWithDetails() {
-    return await this.campingRepository.findAllWithDetails();
+  async findAllWithDetails(region?: string, category?: string) {
+    return await this.campingRepository.findAllWithDetails(region, category);
   }
 
   async findOne(paramDto: CampingParamDto) {
@@ -123,9 +127,5 @@ export class CampingService {
   }
   async findNearbycamping(lon: number, lat: number) {
     return await this.campingRepository.findNearbycamping(lon, lat);
-  }
-  async findCampingbyRegion(city: string) {
-    console.log(city);
-    return await this.campingRepository.findCampingbyRegion(city);
   }
 }

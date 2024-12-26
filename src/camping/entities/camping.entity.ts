@@ -1,13 +1,10 @@
 import { BaseTable } from 'src/common/entities/base-table.entity';
-import { Image } from 'src/image/entities/image.entity';
 import {
   Column,
   Entity,
   Geometry,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Point } from 'geojson'; // GeoJSON의 Point 타입을 사용
 
 @Entity()
 export class Camping extends BaseTable {
@@ -109,9 +106,6 @@ export class Camping extends BaseTable {
 
   @Column({ unique: true })
   contentId: string;
-
-  @OneToMany(() => Image, (image) => image.camping)
-  images: Image[];
 
   setLocation(mapX: number, mapY: number) {
     this.location = {
