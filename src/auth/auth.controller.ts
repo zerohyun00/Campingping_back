@@ -40,6 +40,16 @@ export class AuthController {
     return await this.authService.register(registerUserDto);
   }
 
+  @Post('logout')
+  logout(@Res() res: ExpressResponse): void {
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: false, // HTTPS에서만 전송
+      sameSite: 'strict',
+    });
+    res.status(200).send({ message: '로그아웃 성공' });
+  }
+
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto, @Res() res: ExpressResponse) {
     const { accessToken, refreshToken } =

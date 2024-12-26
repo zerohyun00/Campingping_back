@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -17,6 +18,7 @@ import { AuthenticatedRequest, JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { CreateCommentsDto } from './dto/create-comment.dto';
 import { IsCommentMineOrAdminGuard } from './guard/is-comment-mine-or-admin-guard';
 import { UpdateCommentsDto } from './dto/update-comment.dto';
+import { PagePaginationDto } from 'src/common/dto/page-pagination.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('communities/:communitiesId/comments')
@@ -24,8 +26,14 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Get()
-  async getComments(@Param('communitiesId', ParseIntPipe) communityId: number) {
-    return this.commentService.findAllCommentsOfCommunity(communityId);
+  async getComments(
+    @Param('communitiesId', ParseIntPipe) communityId: number,
+    @Query() paginationDto: PagePaginationDto,
+  ) {
+    return this.commentService.findAllCommentsOfCommunity(
+      communityId,
+      paginationDto,
+    );
   }
 
   // @Get(':commentId')

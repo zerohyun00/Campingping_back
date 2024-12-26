@@ -59,44 +59,34 @@ export class CommunityService {
     updateCommunityDto: UpdateCommunityDto,
     userId: string,
   ) {
-    const post = await this.communityRepository.findOne({
-      where: { id },
-      relations: ['user'],
-    });
+    const updateResult = await this.communityRepository.update(
+      { id, user: { id: userId } },
+      updateCommunityDto,
+    );
 
-    if (!post) {
-      throw new NotFoundException('게시글을 찾을 수 없습니다.');
-    }
-
-    if (post.user.id !== userId) {
-      throw new UnauthorizedException(
-        '본인이 작성한 게시글만 수정할 수 있습니다.',
+    if (updateResult.affected === 0) {
+      throw new NotFoundException(
+        '게시글을 찾을 수 없거나 본인이 작성한 게시글만 수정할 수 있습니다.',
       );
     }
 
-    Object.assign(post, updateCommunityDto);
-    return this.communityRepository.save(post);
-    // preload 써도 되는지 로직 생각
-    // 여기도 find 후 update, find 후 delete가 아닌 바로 update, delete를 하는 로직으로 수정
+    return {
+      message: '게시글이 성공적으로 수정되었습니다.',
+    };
   }
 
   async deletePost(id: number, userId: string) {
-    const post = await this.communityRepository.findOne({
-      where: { id },
-      relations: ['user'],
+    const deleteResult = await this.communityRepository.softDelete({
+      id,
+      user: { id: userId },
     });
 
-    if (!post) {
-      throw new NotFoundException('게시글을 찾을 수 없습니다.');
-    }
-
-    if (post.user.id !== userId) {
-      throw new UnauthorizedException(
-        '본인이 작성한 게시글만 삭제할 수 있습니다.',
+    if (deleteResult.affected === 0) {
+      throw new NotFoundException(
+        '게시글을 찾을 수 없거나 본인이 작성한 게시글만 삭제할 수 있습니다.',
       );
     }
 
-    return this.communityRepository.softDelete(post);
-    // return 메시지 응답
+    return { message: '게시글이 성공적으로 삭제되었습니다.' };
   }
 }
