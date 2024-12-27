@@ -3,24 +3,27 @@ import axios from 'axios';
 import { CampingRepository } from './repository/camping.repository';
 import { Camping } from './entities/camping.entity';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
-import { parseStringPromise } from 'xml2js';
 import { CampingParamDto } from './dto/find-camping-param.dto';
 import { CampingType } from './type/camping-create.type';
 import { XmlUtils } from 'src/common/utils/xml-util';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CampingService {
   private apiKeyManager: ApiKeyManager;
 
-  constructor(private readonly campingRepository: CampingRepository) {
+  constructor(
+    private readonly campingRepository: CampingRepository,
+    private readonly configService: ConfigService
+  ) {
     // 수정 필요
     this.apiKeyManager = new ApiKeyManager([
-      'xmrpgObsiAFFR2II2Mr%2BABk2SHPyB21kt%2Ft0Y6g4mMndM3J0b3KDmM2TTsySRE6Cpuo0Q8cBNt2aQ5%2BX1woPyA%3D%3D',
-      'TapmaDwOM%2FvvIzD2GYx%2F6RfNoMM1ES3NQbgRwQeVG31NEu5JDY7vWU41293qYDR51IrpaKtbgAuYzJseIBhx2A%3D%3D',
-      'FZ4frpQMulmr31of%2BdrKJkS9c99ziib5T%2BMJyqhp3kFnAHkw%2FR0URVDqItzaYurITyEJ3B%2BK%2BLtnNNmeVMfYFA%3D%3D',
-      'WVXbHaU1Swo%2BcYdMpg2hDAaLjs3Vehe3CBCsgOR63iQf%2FWqVv%2BeuKKq%2Bs8uOhS4%2B1bwL4VwhxS1%2F0WUOgmklag%3D%3D',
-      '20ToNqK21emRg6djV5ZFRNzl%2BGVnIEHdUoewEghzPlmop90s0dTK3sSnW%2FjdHqN1fF1lFrE96WK1ypYHhLuS6Q%3D%3D',
-      'fR5r78vDyLa5VlMt5YTpJRUGjXoWDMk6ZQmB2LPtYHAHw%2F7mdvoXpnkrz7OuOB2JJH%2FOtbvUbmtUS%2FiPGGwoxQ%3D%3D',
+      this.configService.get<string>('GO_CAMPING_APIKEY1'),
+      this.configService.get<string>('GO_CAMPING_APIKEY2'),
+      this.configService.get<string>('GO_CAMPING_APIKEY3'),
+      this.configService.get<string>('GO_CAMPING_APIKEY4'),
+      this.configService.get<string>('GO_CAMPING_APIKEY5'),
+      this.configService.get<string>('GO_CAMPING_APIKEY6'),
     ]);
   }
 
@@ -53,7 +56,7 @@ export class CampingService {
   
         // 데이터를 즉시 저장
         const entities = campData.map((item) => this.mapToEntity(item));
-        await this.saveDataInBatches(entities, 500); // 500개 단위로 저장
+        await this.saveDataInBatches(entities, 100);
         console.log(`${campData.length}개의 데이터를 저장했습니다.`);
         pageNo++;
       } catch (error) {
@@ -115,18 +118,14 @@ export class CampingService {
   async findAllForCron() {
     return await this.campingRepository.findAllForCron();
   }
-  async findAllWithDetails() {
-    return await this.campingRepository.findAllWithDetails();
+  async findAllWithDetails(region?: string, category?: string) {
+    return await this.campingRepository.findAllWithDetails(region, category);
   }
 
   async findOne(paramDto: CampingParamDto) {
     return await this.campingRepository.findOne(paramDto);
   }
-  async findNearbycamping(lon: number, lat: number) {
-    return await this.campingRepository.findNearbycamping(lon, lat);
-  }
-  async findCampingbyRegion(city: string) {
-    console.log(city);
-    return await this.campingRepository.findCampingbyRegion()
+  async findNearbyCamping(lon: number, lat: number) {
+    return await this.campingRepository.findNearbyCamping(lon, lat);
   }
 }

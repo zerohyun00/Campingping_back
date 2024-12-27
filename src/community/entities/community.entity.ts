@@ -5,6 +5,7 @@ import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   Entity,
+  Geometry,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -36,6 +37,9 @@ export class Community extends BaseTable {
 
   @Column({ default: 0 })
   view: number;
+  
+  @Column({type: 'geometry'})
+  coordinate: Geometry;
 
   @ManyToOne(() => User, (user) => user.community)
   user: User;

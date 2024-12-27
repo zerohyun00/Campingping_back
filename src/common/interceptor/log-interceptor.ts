@@ -14,15 +14,15 @@ export class LogInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> {
     const now = new Date();
-    const req = context.switchToHttp().getRequest();
-    const path = req.originalUrl;
+    const req = context.switchToHttp().getRequest<Request>();
+    const path = req.url;
     const method = req.method;
+    const elapsedTime = new Date().getTime() - now.getTime();
 
-    console.log(`[REQ] ${method} ${path} ${now.toLocaleString('kr')}`);
+    console.log(`[REQ] ${method} ${path} ${now.toLocaleString('kr')} - ${elapsedTime}ms`);
 
     return next.handle().pipe(
       tap(() => {
-        const elapsedTime = new Date().getTime() - now.getTime();
         console.log(
           `[RES] ${method} ${path} ${now.toLocaleString('kr')} - ${elapsedTime}ms`,
         );
