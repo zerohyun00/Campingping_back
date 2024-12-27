@@ -6,6 +6,8 @@ import {
   Req,
   Get,
   UseGuards,
+  UseInterceptors,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -15,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { KakaoAuthGuard } from './guard/auth.guard';
 import { SocialUser } from './decorator/user.decorator';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { TransformInterceptor } from 'src/common/interceptor/transformation.intersepter';
 
 @Controller('auth')
 export class AuthController {
@@ -49,9 +52,9 @@ export class AuthController {
     });
     res.status(200).send({ message: '로그아웃 성공' });
   }
-
   @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto, @Res() res: ExpressResponse) {
+  @HttpCode(200)
+  async login(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: ExpressResponse) {
     const { accessToken, refreshToken } =
       await this.authService.login(loginUserDto);
 
@@ -71,7 +74,7 @@ export class AuthController {
       maxAge: 3600000,
     });
 
-    return res.json({ message: '로그인 성공' });
+    return {message: "로그인 성공"};
   }
 
   @Get('kakao-login')

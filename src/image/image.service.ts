@@ -4,30 +4,32 @@ import { ImageRepository } from './repository/image.repository';
 import { parseStringPromise } from 'xml2js';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { XmlUtils } from 'src/common/utils/xml-util';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ImageService {
   private apiKeyManager: ApiKeyManager;
 
-  constructor(private imageRepository: ImageRepository) {
+  constructor(
+    private imageRepository: ImageRepository,
+    private readonly configService: ConfigService,
+  ) {
     // 수정 필요
     this.apiKeyManager = new ApiKeyManager([
-      'xmrpgObsiAFFR2II2Mr%2BABk2SHPyB21kt%2Ft0Y6g4mMndM3J0b3KDmM2TTsySRE6Cpuo0Q8cBNt2aQ5%2BX1woPyA%3D%3D',
-      'TapmaDwOM%2FvvIzD2GYx%2F6RfNoMM1ES3NQbgRwQeVG31NEu5JDY7vWU41293qYDR51IrpaKtbgAuYzJseIBhx2A%3D%3D',
-      'FZ4frpQMulmr31of%2BdrKJkS9c99ziib5T%2BMJyqhp3kFnAHkw%2FR0URVDqItzaYurITyEJ3B%2BK%2BLtnNNmeVMfYFA%3D%3D',
-      'WVXbHaU1Swo%2BcYdMpg2hDAaLjs3Vehe3CBCsgOR63iQf%2FWqVv%2BeuKKq%2Bs8uOhS4%2B1bwL4VwhxS1%2F0WUOgmklag%3D%3D',
-      '20ToNqK21emRg6djV5ZFRNzl%2BGVnIEHdUoewEghzPlmop90s0dTK3sSnW%2FjdHqN1fF1lFrE96WK1ypYHhLuS6Q%3D%3D',
-      'fR5r78vDyLa5VlMt5YTpJRUGjXoWDMk6ZQmB2LPtYHAHw%2F7mdvoXpnkrz7OuOB2JJH%2FOtbvUbmtUS%2FiPGGwoxQ%3D%3D',
+      this.configService.get<string>('GO_CAMPING_APIKEY1'),
+      this.configService.get<string>('GO_CAMPING_APIKEY2'),
+      this.configService.get<string>('GO_CAMPING_APIKEY3'),
+      this.configService.get<string>('GO_CAMPING_APIKEY4'),
+      this.configService.get<string>('GO_CAMPING_APIKEY5'),
+      this.configService.get<string>('GO_CAMPING_APIKEY6'),
     ]);
   }
-
   async ImageCronHandler(contentId: string) {
     const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 10;
     let pageNo = 1;
     let batchImages = [];
-    const batchSize = 10;   
-    
+    const batchSize = 10; 
     while (true) {
       const apikey = this.apiKeyManager.getCurrentApiKey(); // 현재 API 키
       const url = `${apiurl}/imageList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&contentId=${contentId}&_type=json`;
@@ -55,7 +57,7 @@ export class ImageService {
         for (const image of images) {
           const existingImage = await this.imageRepository.findOne(contentId, image.imageUrl);
           if (!existingImage) {
-            batchImages.push({ contentId, imageUrl: image.imageUrl, type: 'CAMPING' });
+            batchImages.push({ typeId: contentId, url: image.imageUrl, type: 'CAMPING' });
           }
         }
 

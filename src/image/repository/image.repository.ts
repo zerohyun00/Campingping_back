@@ -8,7 +8,7 @@ export class ImageRepository {
     constructor(private readonly dataSource: DataSource) {
         this.repository = this.dataSource.getRepository(Image);
     }
-    async createBatchImages(images: { contentId: string, imageUrl: string, type: string }[]) {
+    async createBatchImages(images: { typeId: string, url: string, type: string }[]) {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.startTransaction();
       

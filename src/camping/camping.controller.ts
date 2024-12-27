@@ -23,19 +23,18 @@ export class CampingController {
     return await this.campingCron.handleCron();
   }
   @Get('map')
-  async findNearbycamping(
+  async findNearbyCamping(
     @Query('lat') lat: number,
     @Query('lon') lon: number,
   ) {
-    return await this.campingService.findNearbycamping(lon, lat);
-  }
-  @Get('region')
-  async findCampingbyRegion(@Query('city') city: string) {
-    return await this.campingService.findCampingbyRegion(city)
+    return await this.campingService.findNearbyCamping(lon, lat);
   }
   @Get('lists')
-  async findCamping() {
-    return await this.campingService.findAllWithDetails();
+  async findCamping(
+    @Query('region') region?: string,
+    @Query('category') category?: string,
+  ) {
+    return await this.campingService.findAllWithDetails(region, category);
   }
   @Get('/lists/:contentId')
   async findOnecamping(@Param() paramDto: CampingParamDto) {

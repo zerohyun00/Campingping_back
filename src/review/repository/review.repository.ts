@@ -15,7 +15,8 @@ export class ReviewRepository {
     }
     async findOne(id: number) {
         return await this.repository.findOne({
-            where: {id}, relations: ['user']
+            where: {id}, 
+            relations: ['user']
         });
     }
     async createReview(createReviewDto: CreateReviewDto, user: User): Promise<Review> {
@@ -35,15 +36,18 @@ export class ReviewRepository {
           .createQueryBuilder()
           .update(Review)
           .set(updateReviewDto)
-          .where('id = :reviewId AND user.id = :userId', { reviewId, userId })
+          .where('id = :reviewId AND deletedAt IS NULL AND user.id = :userId', { reviewId, userId })
           .execute();
     
         return updateResult;
       }
     async deleteReview(id: number, userId: string) {
-        return await this.repository.softDelete({
-            id,
-            user: { id: userId },
-          });    
+        return await this.repository
+        .createQueryBuilder('review')
+        .softDelete()
+        .where('id = :id', { id })
+        .andWhere('userId = :userId', { userId })
+        .andWhere('deletedAt IS NULL')
+        .execute();
     }
 }

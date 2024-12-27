@@ -1,5 +1,5 @@
 
 export type ImageDataType = {
-    id: number;
-    url: string;
+    image_id: number;
+    image_url: string;
   }
