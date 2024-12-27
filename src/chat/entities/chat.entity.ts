@@ -16,4 +16,7 @@ export class Chat extends BaseTable {
 
   @ManyToOne(() => ChatRoom, (chatRoom) => chatRoom.chats)
   chatRoom: ChatRoom;
+
+  @Column({ default: false })
+  isRead: boolean; // 메시지의 읽음 상태
 }
