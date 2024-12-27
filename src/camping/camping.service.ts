@@ -125,7 +125,7 @@ export class CampingService {
   async findOne(paramDto: CampingParamDto) {
     return await this.campingRepository.findOne(paramDto);
   }
-  async findNearbycamping(lon: number, lat: number) {
-    return await this.campingRepository.findNearbycamping(lon, lat);
+  async findNearbyCamping(lon: number, lat: number) {
+    return await this.campingRepository.findNearbyCamping(lon, lat);
   }
 }

@@ -103,10 +103,13 @@ export class CampingRepository {
         'camping.eqpmnLendCl',
         'camping.animalCmgCl',
         'camping.contentId',
+        'favorite.status',
         'ST_AsGeoJSON(camping.location) AS location',
         'images.id AS image_id',
         'images.url AS image_url',
       ])
+      .leftJoin('favorite', 'favorite', 
+        'camping.contentId = favorite.contentId')
       .leftJoin(
         (subQuery) =>
           subQuery
@@ -146,6 +149,8 @@ export class CampingRepository {
     const query = this.repository
     .createQueryBuilder('camping')
     .leftJoinAndSelect('image', 'image', 'image.deletedAt IS NULL AND image.typeId = camping.contentId')
+    .leftJoin('favorite', 'favorite', 
+      'camping.contentId = favorite.contentId')
     .where('camping.deletedAt IS NULL')
     .andWhere('camping.contentId = :contentId', {
       contentId: paramDto.contentId,
@@ -188,6 +193,7 @@ export class CampingRepository {
       'camping.eqpmnLendCl',
       'camping.animalCmgCl',
       'camping.contentId',
+      'favorite.status',
       'ST_AsGeoJSON(camping.location) as location',
       'image.id AS image_id',
       'image.url AS image_url',
@@ -197,28 +203,29 @@ export class CampingRepository {
     if (!result || result.length === 0) {
       return null;
     }
-
+    console.log(result);
     const campingData = mapCampingData(result);
     const images = mapImageData(result);
 
     return { ...campingData, images };
   }
-  async findNearbycamping(lon: number, lat: number) {
+  async findNearbyCamping(lon: number, lat: number, radius: number = 5000) {
     const query = await this.repository
-      .createQueryBuilder('camping')
-      .select([
-        'camping.id',
-        'camping.factDivNm',
-        'ST_AsGeoJSON(camping.location) as location',
-        'ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) as distance',
-      ])
-      .setParameters({ lat, lon })
-      .where(
-        'ST_DWithin(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), 5000)',
-      )
-      .orderBy('distance', 'ASC')
-      .getRawMany();
-    
-    return mapNearbycampingData(query);
+    .createQueryBuilder('camping')
+    .select([
+      'camping.id',
+      'camping.factDivNm',
+      'ST_AsGeoJSON(camping.location) as location',
+      '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
+    ])
+    .setParameters({ lat, lon, radius })
+    .where(
+      '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= :radius',
+    )
+    .andWhere('camping.deletedAt IS NULL')
+    .orderBy('distance', 'ASC')
+    .getRawMany();
+
+      return mapNearbycampingData(query);
   }
 }

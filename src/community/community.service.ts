@@ -59,10 +59,14 @@ export class CommunityService {
     updateCommunityDto: UpdateCommunityDto,
     userId: string,
   ) {
-    const updateResult = await this.communityRepository.update(
-      { id, user: { id: userId } },
-      updateCommunityDto,
-    );
+    const updateResult = await this.communityRepository
+    .createQueryBuilder()
+    .update()
+    .set(updateCommunityDto)
+    .where('id = :id', { id })
+    .andWhere('userId = :userId', { userId })
+    .andWhere('deletedAt IS NULL')
+    .execute();
 
     if (updateResult.affected === 0) {
       throw new NotFoundException(
@@ -76,10 +80,13 @@ export class CommunityService {
   }
 
   async deletePost(id: number, userId: string) {
-    const deleteResult = await this.communityRepository.softDelete({
-      id,
-      user: { id: userId },
-    });
+    const deleteResult = await this.communityRepository
+    .createQueryBuilder()
+    .softDelete()
+    .where('id = :id', { id })
+    .andWhere('userId = :userId', { userId })
+    .andWhere('deletedAt IS NULL')
+    .execute();
 
     if (deleteResult.affected === 0) {
       throw new NotFoundException(

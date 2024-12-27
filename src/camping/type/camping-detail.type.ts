@@ -32,4 +32,5 @@ export type CampingDetailType = {
   camping_eqpmnLendCl: string;
   camping_animalCmgCl: string;
   camping_contentId: string;
+  favorite_status: boolean;
   }

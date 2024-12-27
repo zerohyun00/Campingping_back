@@ -23,11 +23,11 @@ export class CampingController {
     return await this.campingCron.handleCron();
   }
   @Get('map')
-  async findNearbycamping(
+  async findNearbyCamping(
     @Query('lat') lat: number,
     @Query('lon') lon: number,
   ) {
-    return await this.campingService.findNearbycamping(lon, lat);
+    return await this.campingService.findNearbyCamping(lon, lat);
   }
   @Get('lists')
   async findCamping(
