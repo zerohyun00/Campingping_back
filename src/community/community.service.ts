@@ -4,11 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Geometry, Repository } from 'typeorm';
 import { Community } from './entities/community.entity';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';
 import { User } from 'src/user/entities/user.entity';
+import { FindResponseDto } from './dto/find-community.response.dto';
 
 @Injectable()
 export class CommunityService {
@@ -23,24 +24,53 @@ export class CommunityService {
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });
-
+   
     if (!user) {
       throw new UnauthorizedException('유저를 찾을 수 없습니다.');
     }
 
+    const coordinate: Geometry = {
+      type: 'Point',
+      coordinates: [createCommunityDto.lon, createCommunityDto.lat],
+    };
+
     const post = this.communityRepository.create({
       ...createCommunityDto,
+      coordinate,
       user,
     });
 
     return this.communityRepository.save(post);
   }
 
-  async findAll() {
-    return await this.communityRepository.find({
-      relations: ['user'],
-    });
-  }
+  async findAll(lon: number, lat: number) {
+    const query =  await this.communityRepository    
+      .createQueryBuilder('community')
+      .select([
+        'community.id AS id',
+        'community.title AS title',
+        'community.content AS content',
+        'community.location AS location',
+        'community.people AS people',
+        'community.startDate AS startDate',
+        'community.endDate AS endDate',
+        'community.view AS view',
+        'ST_AsGeoJSON(community.coordinate) as coordinate',
+        '(ST_Distance(community.coordinate, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
+        'user.email AS email',
+        'user.nickname AS nickname',
+      ])
+      .leftJoin('user', 'user', "community.user = user.id")
+      .setParameters({ lat, lon })
+      .where(
+        '(ST_Distance(community.coordinate, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= 1500',
+      )
+      .andWhere('community.deletedAt IS NULL')
+      .orderBy('distance', 'ASC')
+      .getRawMany();
+
+      return FindResponseDto.allList(query);
+    }
 
   async findOne(id: number) {
     const result = await this.communityRepository.findOne({

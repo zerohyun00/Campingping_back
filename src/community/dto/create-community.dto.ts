@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsString, IsNumber, IsDate } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsDate, IsOptional, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
 import { emptyValidationMessage } from 'src/common/validation-message/empty-validation.message';
 import { numberValidationMessage } from 'src/common/validation-message/number-validation.message';
+import { Geometry } from 'typeorm';
 
 export class CreateCommunityDto {
   @IsString({ message: stringValidationMessage })
@@ -26,4 +27,10 @@ export class CreateCommunityDto {
   @IsNotEmpty({ message: emptyValidationMessage })
   @Type(() => Date)
   endDate: Date;
+
+  @IsNumber()
+  lon: number;
+
+  @IsNumber()
+  lat: number;
 }

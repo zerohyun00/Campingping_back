@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Query,
 } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { CreateCommunityDto } from './dto/create-community.dto';
@@ -32,8 +33,11 @@ export class CommunityController {
   }
 
   @Get()
-  findAll() {
-    return this.communityService.findAll();
+  findAll(
+    @Query('lon') lon: number,
+    @Query('lat') lat: number
+    ) {
+    return this.communityService.findAll(lon, lat);
   }
 
   @Get(':id')
