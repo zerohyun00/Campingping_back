@@ -188,7 +188,7 @@ export class CampingRepository {
       'camping.eqpmnLendCl',
       'camping.animalCmgCl',
       'camping.contentId',
-      'camping.location',
+      'ST_AsGeoJSON(camping.location) as location',
       'image.id AS image_id',
       'image.url AS image_url',
     ]);

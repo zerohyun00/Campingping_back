@@ -12,7 +12,12 @@ export function mapImageData(result: ImageDataType[]) {
 
 export function mapCampingData(result: CampingDetailType[]) {
   const campingData = result[0];
-  console.log(campingData);
+  let location: string = null;
+  try {
+    location = JSON.parse(campingData.location)
+  } catch (error) {
+      // console.error(`Error parsing location JSON for camp ID ${camp.camp_id}:`, error.message);
+  }
   return {
     id: campingData.camping_id,
     lineIntro: campingData.camping_lineIntro,
@@ -46,7 +51,7 @@ export function mapCampingData(result: CampingDetailType[]) {
     eqpmnLendCl: campingData.camping_eqpmnLendCl,
     animalCmgCl: campingData.camping_animalCmgCl,
     contentId: campingData.camping_contentId,
-    location: campingData.location,
+    location,
   };
 }
 
