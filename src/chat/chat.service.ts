@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io';
 import { ChatRoom } from './entities/chat-room.entity';
-import { In, QueryRunner, Repository } from 'typeorm';
+import { In, Not, QueryRunner, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
-import { ChatPaginationDto } from './dto/chat-pagination.dto';
 
 @Injectable()
 export class ChatService {
@@ -43,6 +42,7 @@ export class ChatService {
 
     for (let room of chatRooms) {
       client.join(room.id.toString());
+      await this.markMessagesRead(user.sub, room.id);
     }
 
     return chatRooms; // 방 목록 반환
@@ -146,5 +146,28 @@ export class ChatService {
     });
 
     return chatHistory;
+  }
+
+  async markMessagesRead(userId: string, roomId: number): Promise<void> {
+    await this.chatRepository
+      .createQueryBuilder()
+      .update(Chat)
+      .set({ isRead: true })
+      .where('chatRoom.id = :roomId', { roomId })
+      .andWhere('author.id != :userId', { userId }) // 본인이 작성한 메시지는 제외
+      .andWhere('isRead = false') // 읽지 않은 메시지만
+      .execute();
+  }
+
+  async getUnreadMessageCount(roomId: number, userId: string): Promise<number> {
+    const unreadCount = await this.chatRepository.count({
+      where: {
+        chatRoom: { id: roomId },
+        isRead: false,
+        author: { id: Not(userId) }, // 상대방이 보낸 메시지만 확인
+      },
+    });
+
+    return unreadCount;
   }
 }

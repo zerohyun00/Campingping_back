@@ -17,7 +17,6 @@ import * as cookie from 'cookie';
 import { JwtService } from '@nestjs/jwt';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { JwtWsAuthGuard } from './guard/jwtWs.guard';
-import { ChatPaginationDto } from './dto/chat-pagination.dto';
 import { WsTransactionInterceptor } from 'src/common/interceptor/ws-transaction-interceptor';
 import { WsQueryRunner } from 'src/common/decorator/ws-query-runner.decorator';
 import { QueryRunner } from 'typeorm';
