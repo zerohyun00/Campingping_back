@@ -46,6 +46,7 @@ export class ReviewService {
         const result = await this.reviewRepository.deleteReview(paramReview.id, userId);
 
         if (result.affected === 0) throw new BadRequestException('리뷰가 존재하지 않거나 삭제할 권한이 없습니다.');
+        
         return;
     }
 }

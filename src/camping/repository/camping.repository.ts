@@ -128,7 +128,7 @@ export class CampingRepository {
       queryBuilder.andWhere('camping.doNm ILIKE :region', { region: `%${region}%` });
     }
     if (category) {
-      if (category === 'pet') {
+      if (category === '펫') {
         queryBuilder.andWhere('camping.animalCmgCl ILIKE :possible', { possible: '가능%' });
       } else {
         queryBuilder.andWhere(
