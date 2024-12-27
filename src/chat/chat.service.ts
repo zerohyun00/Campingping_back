@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io';
 import { ChatRoom } from './entities/chat-room.entity';
-import { In, Repository } from 'typeorm';
+import { In, QueryRunner, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
@@ -51,29 +51,22 @@ export class ChatService {
   async createMessage(
     payload: { sub: string },
     { message, room }: CreateChatDto,
+    qr: QueryRunner, // QueryRunner 인수 추가
   ) {
-    const user = await this.userRepository.findOne({
-      where: { id: payload.sub },
-    });
-
-    // 1. 채팅방 확인
-    const chatRoom = await this.chatRoomRepository.findOne({
+    const user = await qr.manager.findOne(User, { where: { id: payload.sub } });
+    const chatRoom = await qr.manager.findOne(ChatRoom, {
       where: { id: room },
       relations: ['users'],
     });
 
-    if (!chatRoom) {
-      throw new Error('유효하지 않은 채팅방입니다.');
-    }
+    if (!chatRoom) throw new Error('유효하지 않은 채팅방입니다.');
 
-    // 2. 채팅 메시지 저장
-    const chatMessage = await this.chatRepository.save({
+    const chatMessage = await qr.manager.save(Chat, {
       author: user,
       message,
       chatRoom,
     });
 
-    // 3. 메시지 브로드캐스트
     const clients = chatRoom.users.map((user) =>
       this.connectedClients.get(user.id),
     );
@@ -92,13 +85,14 @@ export class ChatService {
 
   async findOrCreateChatRoom(
     userIds: [string, string], // 두 명의 유저만 받음
+    qr: QueryRunner, // QueryRunner 추가
   ): Promise<ChatRoom> {
     // 유저 ID 정렬: 항상 같은 순서로 방을 찾기 위해
     const sortedUserIds = userIds.sort();
 
     // 유저 존재 여부 확인
-    const users = await this.userRepository.findBy({
-      id: In(sortedUserIds),
+    const users = await qr.manager.find(User, {
+      where: { id: In(sortedUserIds) },
     });
 
     if (users.length !== 2) {
@@ -106,8 +100,8 @@ export class ChatService {
     }
 
     // 기존 방 찾기
-    const existingRoom = await this.chatRoomRepository
-      .createQueryBuilder('room')
+    const existingRoom = await qr.manager
+      .createQueryBuilder(ChatRoom, 'room')
       .innerJoin('room.users', 'user', 'user.id IN (:...userIds)', {
         userIds: sortedUserIds,
       })
@@ -121,8 +115,8 @@ export class ChatService {
     }
 
     // 새 방 생성
-    const newRoom = this.chatRoomRepository.create({ users });
-    const savedRoom = await this.chatRoomRepository.save(newRoom);
+    const newRoom = qr.manager.create(ChatRoom, { users });
+    const savedRoom = await qr.manager.save(newRoom);
 
     console.log(`[INFO] Created new room: ${savedRoom.id}`);
     return savedRoom;

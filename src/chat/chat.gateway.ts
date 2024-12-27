@@ -7,13 +7,20 @@ import {
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Socket } from 'socket.io';
 import * as cookie from 'cookie';
 import { JwtService } from '@nestjs/jwt';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { JwtWsAuthGuard } from './guard/jwtWs.guard';
 import { ChatPaginationDto } from './dto/chat-pagination.dto';
+import { WsTransactionInterceptor } from 'src/common/interceptor/ws-transaction-interceptor';
+import { WsQueryRunner } from 'src/common/decorator/ws-query-runner.decorator';
+import { QueryRunner } from 'typeorm';
 
 @WebSocketGateway({
   // ws://localhost:3000/chats
@@ -74,18 +81,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('sendMessage')
+  @UseInterceptors(WsTransactionInterceptor)
   async handleMessage(
     @MessageBody() body: CreateChatDto,
     @ConnectedSocket() client: Socket,
+    @WsQueryRunner() qr: QueryRunner,
   ) {
     const payload = client.data.user;
-    await this.chatService.createMessage(payload, body);
+    await this.chatService.createMessage(payload, body, qr);
   }
 
   @SubscribeMessage('createRoom')
+  @UseInterceptors(WsTransactionInterceptor)
   async handleCreateRoom(
     @MessageBody() body: { nickname: string }, // 상대방 유저 닉네임만 받음
     @ConnectedSocket() client: Socket,
+    @WsQueryRunner() qr: QueryRunner,
   ) {
     try {
       const payload = client.data.user;
@@ -100,11 +111,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       // 본인의 ID와 상대방 ID를 사용해 방 생성
-      const chatRoom = await this.chatService.findOrCreateChatRoom([
-        payload.sub,
-        targetUser.id,
-      ]);
-
+      const chatRoom = await this.chatService.findOrCreateChatRoom(
+        [payload.sub, targetUser.id],
+        qr,
+      );
       // 본인과 상대방 모두 방에 참여
       client.join(chatRoom.id.toString());
       const otherClient = this.chatService.getClientById(targetUser.id);
