@@ -55,6 +55,7 @@ export class User extends BaseTable {
 
   @Column({
     nullable: true,
+    unique: true,
   })
   nickname: string;
 

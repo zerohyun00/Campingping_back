@@ -6,9 +6,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatRoom } from './entities/chat-room.entity';
 import { Chat } from './entities/chat.entity';
 import { User } from 'src/user/entities/user.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([User, Chat, ChatRoom])],
+  imports: [
+    AuthModule,
+    TypeOrmModule.forFeature([User, Chat, ChatRoom]),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_ACCESS_SECRET'),
+      }),
+    }),
+  ],
   providers: [ChatGateway, ChatService],
 })
 export class ChatModule {}
