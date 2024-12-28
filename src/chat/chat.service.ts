@@ -51,7 +51,7 @@ export class ChatService {
   async createMessage(
     payload: { sub: string },
     { message, room }: CreateChatDto,
-    qr: QueryRunner, // QueryRunner 인수 추가
+    qr: QueryRunner,
   ) {
     const user = await qr.manager.findOne(User, { where: { id: payload.sub } });
     const chatRoom = await qr.manager.findOne(ChatRoom, {
@@ -85,7 +85,7 @@ export class ChatService {
 
   async findOrCreateChatRoom(
     userIds: [string, string], // 두 명의 유저만 받음
-    qr: QueryRunner, // QueryRunner 추가
+    qr: QueryRunner,
   ): Promise<ChatRoom> {
     // 유저 ID 정렬: 항상 같은 순서로 방을 찾기 위해
     const sortedUserIds = userIds.sort();
@@ -124,7 +124,7 @@ export class ChatService {
 
   async findUserByNickname(nickname: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
-      where: { nickname }, // 닉네임으로 조회
+      where: { nickname },
     });
 
     return user || null;

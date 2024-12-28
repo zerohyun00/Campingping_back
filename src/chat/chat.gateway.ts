@@ -159,7 +159,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         body.limit,
       );
 
-      // 채팅 기록을 클라이언트로 전달
       client.emit('chatHistory', chatHistory);
     } catch (error) {
       console.error(`[ERROR] Failed to fetch chat history: ${error.message}`);
