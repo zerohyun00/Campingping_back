@@ -6,6 +6,7 @@ import { In, Not, QueryRunner, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatService {
@@ -60,6 +61,10 @@ export class ChatService {
     });
 
     if (!chatRoom) throw new Error('유효하지 않은 채팅방입니다.');
+
+    if (!chatRoom.users.some((u) => u.id === user.id)) {
+      throw new WsException('해당 채팅방에 참여하고 있지 않습니다.');
+    }
 
     const chatMessage = await qr.manager.save(Chat, {
       author: user,
