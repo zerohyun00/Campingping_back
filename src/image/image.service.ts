@@ -101,13 +101,7 @@ export class ImageService {
     file: Express.Multer.File,
   ): Promise<string> {
     const imageUrl = await this.s3Service.uploadFile(file, userId);
-
     await this.imageRepository.updateProfileImage(userId, imageUrl);
-
     return imageUrl;
-  }
-
-  async getUserProfileImages(userId: string) {
-    return await this.imageRepository.findUserProfileImages(userId);
   }
 }
