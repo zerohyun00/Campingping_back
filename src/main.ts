@@ -22,6 +22,8 @@ async function bootstrap() {
   });
   SwaggerModule.setup('doc', app, document);
 
+  app.setGlobalPrefix('api');
+
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
