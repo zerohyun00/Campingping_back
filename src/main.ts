@@ -14,7 +14,9 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-
+  app.enableCors({
+    origin: 'http://kdt-react-node-1-team03.elicecoding.com', // Swagger UI가 열리는 도메인
+  });
   SwaggerModule.setup('doc', app, document);
 
   app.use(cookieParser());
