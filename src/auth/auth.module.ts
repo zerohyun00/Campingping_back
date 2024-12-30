@@ -22,7 +22,14 @@ dotenv.config();
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, KakaoStrategy],
+  providers: [
+    {
+      provide: 'IAuthService',
+      useClass: AuthService,
+    },
+    AuthService,
+    KakaoStrategy
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

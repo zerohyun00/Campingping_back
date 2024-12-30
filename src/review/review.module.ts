@@ -26,10 +26,14 @@ import { CampingService } from "src/camping/camping.service";
   ],
   controllers: [ReviewController],
   providers: [
+    {
+      provide: 'IReviewService',
+      useClass: ReviewService,
+    },
     ReviewService, 
     ReviewRepository, 
-    UserService, 
-    CampingService
+    UserService,
+    CampingService,
   ],
 })
 export class ReviewModule {}

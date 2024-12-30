@@ -7,17 +7,19 @@ import {
   Param,
   Delete,
   Query,
+  Inject,
 } from '@nestjs/common';
-import { CampingService } from './camping.service';
 import { ApiOperation, ApiResponse, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
 import { CampingCronHandler } from './camping.cron.provider';
 import { CampingParamDto } from './dto/find-camping-param.dto';
+import { ICampingService } from './interface/camping.service.interface';
 
 @ApiTags('Camping')
 @Controller('campings')
 export class CampingController {
   constructor(
-    private readonly campingService: CampingService,
+    @Inject('ICampingService')
+    private readonly campingService: ICampingService,
     private readonly campingCron: CampingCronHandler,
   ) {}
   @Get()
@@ -99,7 +101,6 @@ export class CampingController {
   })
   @ApiResponse({ status: 200, description: '특정 캠핑장의 세부 정보를 반환합니다.' })
   async findOnecamping(@Param() paramDto: CampingParamDto) {
-    console.log(paramDto);
     return await this.campingService.findOne(paramDto);
   }
 }

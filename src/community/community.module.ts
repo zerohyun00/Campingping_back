@@ -22,6 +22,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [CommunityController],
-  providers: [CommunityService],
+  providers: [
+    {
+      provide: 'ICommunityService',
+      useClass: CommunityService,
+    },
+  ],
 })
 export class CommunityModule {}
