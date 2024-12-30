@@ -5,6 +5,7 @@ import { parseStringPromise } from 'xml2js';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { XmlUtils } from 'src/common/utils/xml-util';
 import { ConfigService } from '@nestjs/config';
+import { S3Service } from 'src/common/s3-service';
 
 @Injectable()
 export class ImageService {
@@ -12,6 +13,7 @@ export class ImageService {
 
   constructor(
     private imageRepository: ImageRepository,
+    private readonly s3Service: S3Service,
     private readonly configService: ConfigService,
   ) {
     // 수정 필요
@@ -29,7 +31,7 @@ export class ImageService {
     const numOfRows = 10;
     let pageNo = 1;
     let batchImages = [];
-    const batchSize = 10; 
+    const batchSize = 10;
     while (true) {
       const apikey = this.apiKeyManager.getCurrentApiKey(); // 현재 API 키
       const url = `${apiurl}/imageList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&contentId=${contentId}&_type=json`;
@@ -42,7 +44,11 @@ export class ImageService {
           console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
 
           if (XmlUtils.isXmlResponse(response.data)) {
-            await XmlUtils.handleXmlError(response.data, apikey, this.apiKeyManager);
+            await XmlUtils.handleXmlError(
+              response.data,
+              apikey,
+              this.apiKeyManager,
+            );
           } else {
             console.error('XML이 아닌 오류 응답:', response.data);
           }
@@ -55,16 +61,23 @@ export class ImageService {
 
         // 가져온 이미지를 DB에 저장
         for (const image of images) {
-          const existingImage = await this.imageRepository.findOne(contentId, image.imageUrl);
+          const existingImage = await this.imageRepository.findOne(
+            contentId,
+            image.imageUrl,
+          );
           if (!existingImage) {
-            batchImages.push({ typeId: contentId, url: image.imageUrl, type: 'CAMPING' });
+            batchImages.push({
+              typeId: contentId,
+              url: image.imageUrl,
+              type: 'CAMPING',
+            });
           }
         }
 
         if (batchImages.length >= batchSize) {
           await this.imageRepository.createBatchImages(batchImages);
           console.log(`배치 이미지 저장 완료: ${batchImages.length}개`);
-          batchImages = []; 
+          batchImages = [];
         }
 
         if (images.length < numOfRows) {
@@ -81,5 +94,20 @@ export class ImageService {
         break;
       }
     }
+  }
+
+  async updateUserProfileImage(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<string> {
+    const imageUrl = await this.s3Service.uploadFile(file, userId);
+
+    await this.imageRepository.updateProfileImage(userId, imageUrl);
+
+    return imageUrl;
+  }
+
+  async getUserProfileImages(userId: string) {
+    return await this.imageRepository.findUserProfileImages(userId);
   }
 }
