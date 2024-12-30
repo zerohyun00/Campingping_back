@@ -5,6 +5,7 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
+  WsException,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import {
@@ -106,7 +107,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
 
       if (!targetUser) {
-        throw new Error('해당 닉네임을 가진 사용자가 존재하지 않습니다.');
+        throw new WsException('해당 닉네임을 가진 사용자가 존재하지 않습니다.');
       }
 
       // 본인의 ID와 상대방 ID를 사용해 방 생성
@@ -159,7 +160,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         body.limit,
       );
 
-      // 채팅 기록을 클라이언트로 전달
       client.emit('chatHistory', chatHistory);
     } catch (error) {
       console.error(`[ERROR] Failed to fetch chat history: ${error.message}`);

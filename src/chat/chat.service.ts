@@ -6,6 +6,7 @@ import { In, Not, QueryRunner, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatService {
@@ -51,7 +52,7 @@ export class ChatService {
   async createMessage(
     payload: { sub: string },
     { message, room }: CreateChatDto,
-    qr: QueryRunner, // QueryRunner 인수 추가
+    qr: QueryRunner,
   ) {
     const user = await qr.manager.findOne(User, { where: { id: payload.sub } });
     const chatRoom = await qr.manager.findOne(ChatRoom, {
@@ -60,6 +61,10 @@ export class ChatService {
     });
 
     if (!chatRoom) throw new Error('유효하지 않은 채팅방입니다.');
+
+    if (!chatRoom.users.some((u) => u.id === user.id)) {
+      throw new WsException('해당 채팅방에 참여하고 있지 않습니다.');
+    }
 
     const chatMessage = await qr.manager.save(Chat, {
       author: user,
@@ -85,7 +90,7 @@ export class ChatService {
 
   async findOrCreateChatRoom(
     userIds: [string, string], // 두 명의 유저만 받음
-    qr: QueryRunner, // QueryRunner 추가
+    qr: QueryRunner,
   ): Promise<ChatRoom> {
     // 유저 ID 정렬: 항상 같은 순서로 방을 찾기 위해
     const sortedUserIds = userIds.sort();
@@ -124,7 +129,7 @@ export class ChatService {
 
   async findUserByNickname(nickname: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
-      where: { nickname }, // 닉네임으로 조회
+      where: { nickname },
     });
 
     return user || null;
