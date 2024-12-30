@@ -8,11 +8,12 @@ import {
   UseGuards,
   UseInterceptors,
   HttpCode,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
-import { Response as ExpressResponse } from 'express';
+import { Response as ExpressResponse, Request } from 'express';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { KakaoAuthGuard } from './guard/auth.guard';
@@ -70,7 +71,10 @@ export class AuthController {
   @ApiOperation({ summary: '로그인', description: '사용자를 로그인시킵니다.' })
   @ApiResponse({ status: 200, description: '로그인 성공.' })
   @ApiBody({ type: LoginUserDto })
-  async login(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: ExpressResponse) {
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ) {
     const { accessToken, refreshToken } =
       await this.authService.login(loginUserDto);
 
@@ -90,7 +94,7 @@ export class AuthController {
       maxAge: 3600000,
     });
 
-    return {message: "로그인 성공"};
+    return { message: '로그인 성공' };
   }
 
   @Get('kakao-login')
@@ -111,5 +115,50 @@ export class AuthController {
     res.cookie('accessToken', accessToken, { httpOnly: true });
 
     res.redirect('/');
+  }
+
+  @Post('refresh')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: '엑세스 토큰 재발급',
+    description: '리프레쉬 토큰을 이용하여 새로운 엑세스 토큰과 리프레쉬 토큰을 발급합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '엑세스 토큰이 재발급되었습니다.',
+    schema: {
+      example: { message: '엑세스 토큰 재발급 완료' },
+    },
+  })
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ) {
+    const refreshToken = req.cookies['refreshToken'];
+    if (!refreshToken) {
+      throw new UnauthorizedException('리프레쉬 토큰이 쿠키에 없습니다.');
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.authService.refreshAccessToken(refreshToken);
+
+    const isProduction = this.configService.get<string>('ENV') === 'prod';
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000, // 1시간
+    });
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000 * 24 * 7, // 7일
+    });
+
+    return {
+      message: '엑세스 토큰 재발급 완료',
+    };
   }
 }

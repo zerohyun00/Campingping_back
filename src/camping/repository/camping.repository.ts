@@ -67,7 +67,8 @@ export class CampingRepository {
   async findAllForCron() {
     return await this.repository.find();
   }
-  async findAllWithDetails(region?: string, category?: string) {
+  async findAllWithDetails(limit: number, cursor?:number,  region?: string, category?: string) {
+    console.log(limit);
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
@@ -142,8 +143,18 @@ export class CampingRepository {
         );
       }
     }
+    if (cursor) {
+      queryBuilder.andWhere('camping.id > :cursor', { cursor });
+    }
+    queryBuilder.orderBy('camping.id', 'ASC').take(limit > 0 ? limit : 10);
+
     const result = await queryBuilder.getRawMany();
-    return mapCampingListData(result);
+    const nextCursor = result.length > 0 ? result[result.length - 1].camping_id : null;
+
+    return {
+      data: mapCampingListData(result),
+      nextCursor
+    };
   }
   async findOne(paramDto: CampingParamDto) {
     const query = this.repository
@@ -203,7 +214,6 @@ export class CampingRepository {
     if (!result || result.length === 0) {
       return null;
     }
-    console.log(result);
     const campingData = mapCampingData(result);
     const images = mapImageData(result);
 

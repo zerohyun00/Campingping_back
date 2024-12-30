@@ -118,8 +118,8 @@ export class CampingService {
   async findAllForCron() {
     return await this.campingRepository.findAllForCron();
   }
-  async findAllWithDetails(region?: string, category?: string) {
-    return await this.campingRepository.findAllWithDetails(region, category);
+  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string) {
+    return await this.campingRepository.findAllWithDetails(limit, cursor,region, category);
   }
 
   async findOne(paramDto: CampingParamDto) {
