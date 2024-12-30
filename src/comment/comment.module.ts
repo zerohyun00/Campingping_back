@@ -19,6 +19,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [CommentController],
-  providers: [CommentService],
+  providers: [
+    {
+      provide: 'ICommentService',
+      useClass: CommentService,
+    },
+    CommentService
+  ],
 })
 export class CommentModule {}

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { ReviewRepository } from "./repository/review.repository";
 import { UserService } from "src/user/user.service";
@@ -11,9 +11,9 @@ import { CampingService } from "src/camping/camping.service";
 @Injectable()
 export class ReviewService {
     constructor(
+        private campingService: CampingService,
         private reviewRepository: ReviewRepository,
         private userService: UserService,
-        private campingService: CampingService,
     ){}
     
     async createReview(createReviewDto: CreateReviewDto, userId: string) {

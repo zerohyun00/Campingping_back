@@ -43,8 +43,8 @@ export class CommunityService {
     return this.communityRepository.save(post);
   }
 
-  async findAll(lon: number, lat: number) {
-    const query =  await this.communityRepository    
+  async findAll(lon: number, lat: number, limit: number, cursor: number) {
+    const query = this.communityRepository    
       .createQueryBuilder('community')
       .select([
         'community.id AS id',
@@ -67,9 +67,20 @@ export class CommunityService {
       )
       .andWhere('community.deletedAt IS NULL')
       .orderBy('distance', 'ASC')
-      .getRawMany();
+      
+      if (cursor) {
+        query.andWhere('community.id > :cursor', { cursor });
+      }
+    
+      query.limit(limit && limit > 0 ? limit : 10);
+  
+      const result = await query.getRawMany();
+      const nextCursor = result.length > 0 ? result[result.length - 1].id : null;
 
-      return FindResponseDto.allList(query);
+      return {
+        result: FindResponseDto.allList(result), 
+        nextCursor,
+      };
     }
 
   async findOne(id: number) {

@@ -19,6 +19,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [FavoriteController],
-  providers: [FavoriteService],
+  providers: [
+    {
+      provide: 'IFavoriteService',
+      useClass: FavoriteService,
+    },
+    FavoriteService
+  ],
 })
 export class FavoriteModule {}

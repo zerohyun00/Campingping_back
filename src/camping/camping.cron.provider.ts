@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CampingService } from './camping.service';
 import { ImageService } from 'src/image/image.service';
 import { Cron } from '@nestjs/schedule';
+import { ICampingService } from './interface/camping.service.interface';
 
 @Injectable()
 export class CampingCronHandler {
   constructor(
-    private readonly campingService: CampingService,
+    @Inject('ICampingService')
+    private readonly campingService: ICampingService,
     private readonly imageService: ImageService,
   ) {}
   // @Cron('30 * * * * *')

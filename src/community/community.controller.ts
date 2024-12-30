@@ -11,18 +11,23 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Query,
+  Inject,
 } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiTags } from '@nestjs/swagger';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';
 import { AuthenticatedRequest, JwtAuthGuard } from 'src/auth/guard/jwt.guard';
+import { ICommunityService } from './interface/community.service.interface';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('communities')
 @Controller('communities')
 export class CommunityController {
-  constructor(private readonly communityService: CommunityService) {}
+  constructor(
+    @Inject('ICommunityService')
+    private readonly communityService: ICommunityService
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -56,12 +61,26 @@ export class CommunityController {
     example: 37.5665,
     required: true,
   })
+  @ApiQuery({
+    name: 'limit',
+    description: '보여줄 게시글 수',
+    example: 10,
+    required: true,
+  })
+  @ApiQuery({
+    name: 'cursor',
+    description: '커서 기반 검색용',
+    example: 10,
+    required: false,
+  })
   @ApiResponse({ status: 200, description: '게시글 목록을 성공적으로 조회했습니다.' })
   findAll(
     @Query('lon') lon: number,
-    @Query('lat') lat: number
+    @Query('lat') lat: number,
+    @Query('limit') limit: number,
+    @Query('cursor') cursor: number,
     ) {
-    return this.communityService.findAll(lon, lat);
+    return this.communityService.findAll(lon, lat, limit, cursor);
   }
 
   @Get(':id')

@@ -27,7 +27,7 @@ export class AuthService {
     private readonly cacheManager: Cache,
   ) {}
 
-  async sendVerificationCode(email: string): Promise<void> {
+  async sendVerificationCode(email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
     if (user) {
       throw new BadRequestException('이미 가입된 이메일입니다.');

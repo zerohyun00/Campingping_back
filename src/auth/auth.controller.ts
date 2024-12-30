@@ -9,8 +9,8 @@ import {
   UseInterceptors,
   HttpCode,
   UnauthorizedException,
+  Inject,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Response as ExpressResponse, Request } from 'express';
@@ -19,13 +19,15 @@ import { ConfigService } from '@nestjs/config';
 import { KakaoAuthGuard } from './guard/auth.guard';
 import { SocialUser } from './decorator/user.decorator';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { IAuthService } from './interface/auth.service.interface';
 
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
+    @Inject('IAuthService')
+    private readonly authService: IAuthService,
     private readonly configService: ConfigService,
   ) {}
 

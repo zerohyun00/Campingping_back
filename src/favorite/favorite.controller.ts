@@ -1,15 +1,19 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { FavoriteService } from './favorite.service';
 import { AuthenticatedRequest } from 'src/auth/guard/jwt.guard';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';  // Swagger 데코레이터 추가
+import { IFavoriteService } from './interface/favorite.service.interface';
 
 @Controller('favorites')
 @UseGuards(JwtAuthGuard)
 @ApiTags('Favorites')
 export class FavoriteController {
-  constructor(private readonly favoriteService: FavoriteService) {}
+  constructor(
+    @Inject('IFavoriteService')
+    private readonly favoriteService: IFavoriteService
+  ) {}
 
   @Get()
   @ApiOperation({

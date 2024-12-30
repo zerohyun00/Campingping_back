@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import {
+  Inject,
   UnauthorizedException,
   UseGuards,
   UseInterceptors,
@@ -21,6 +22,7 @@ import { JwtWsAuthGuard } from './guard/jwtWs.guard';
 import { WsTransactionInterceptor } from 'src/common/interceptor/ws-transaction-interceptor';
 import { WsQueryRunner } from 'src/common/decorator/ws-query-runner.decorator';
 import { QueryRunner } from 'typeorm';
+import { IChatService } from './interface/chat.service.interface';
 
 @WebSocketGateway({
   // ws://localhost:3000/chats
@@ -30,7 +32,8 @@ import { QueryRunner } from 'typeorm';
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
-    private readonly chatService: ChatService,
+    @Inject('IChatService')
+    private readonly chatService: IChatService,
     private readonly jwtService: JwtService,
   ) {}
 

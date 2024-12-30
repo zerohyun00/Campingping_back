@@ -29,6 +29,19 @@ import { ImageModule } from 'src/image/image.module';
     }),
   ],
   controllers: [ReviewController],
+<<<<<<< HEAD
+  providers: [
+    {
+      provide: 'IReviewService',
+      useClass: ReviewService,
+    },
+    ReviewService, 
+    ReviewRepository, 
+    UserService,
+    CampingService,
+  ],
+=======
   providers: [ReviewService, ReviewRepository, UserService, CampingService],
+>>>>>>> b26467b2197f50ebad0bb09768d1c8286481400a
 })
 export class ReviewModule {}

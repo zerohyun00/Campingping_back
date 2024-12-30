@@ -15,7 +15,15 @@ import { ImageModule } from 'src/image/image.module';
     ImageModule,
   ],
   controllers: [CampingController],
-  providers: [CampingService, CampingCronHandler, CampingRepository],
+  providers: [
+    {
+      provide: 'ICampingService',
+      useClass: CampingService,
+    },
+    CampingService,
+    CampingCronHandler, 
+    CampingRepository
+  ],
   exports: [CampingService, CampingRepository],
 })
 export class CampingModule {}

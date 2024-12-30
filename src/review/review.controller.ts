@@ -3,21 +3,25 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ReviewService } from './review.service';
 import { AuthenticatedRequest, JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { FindReviewParam, ParamReview } from './dto/param-review.dto';
 import { updateReviewDto } from './dto/update-review.dto';
+import { IReviewService } from './interface/review.service.interface';
 
 @Controller('reviews')
 export class ReviewController {
-  constructor(private readonly reviewSerivce: ReviewService) {}
+  constructor(
+    @Inject('IReviewService')
+    private readonly reviewSerivce: IReviewService
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)

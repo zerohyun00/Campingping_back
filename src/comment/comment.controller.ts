@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   ParseIntPipe,
   Patch,
@@ -20,12 +21,16 @@ import { IsCommentMineOrAdminGuard } from './guard/is-comment-mine-or-admin-guar
 import { UpdateCommentsDto } from './dto/update-comment.dto';
 import { PagePaginationDto } from 'src/common/dto/page-pagination.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ICommentService } from './interface/comment.service.interface';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('Comment')
 @Controller('communities/:communitiesId/comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(
+    @Inject('ICommentService')
+    private readonly commentService: ICommentService
+  ) {}
 
   @Get()
   @ApiOperation({ summary: '특정 커뮤니티의 모든 댓글을 조회합니다.' })
