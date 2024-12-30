@@ -11,7 +11,8 @@ import { UserService } from 'src/user/user.service';
 import { CampingModule } from 'src/camping/camping.module';
 import { CampingService } from 'src/camping/camping.service';
 import { CommonModule } from 'src/common/common.module';
-import { ImageModule } from 'src/image/image.module';
+import { ImageService } from 'src/image/image.service';
+import { ImageRepository } from 'src/image/repository/image.repository';
 
 @Module({
   imports: [
@@ -19,7 +20,6 @@ import { ImageModule } from 'src/image/image.module';
     UserModule,
     CampingModule,
     CommonModule,
-    ImageModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -29,19 +29,17 @@ import { ImageModule } from 'src/image/image.module';
     }),
   ],
   controllers: [ReviewController],
-<<<<<<< HEAD
   providers: [
     {
       provide: 'IReviewService',
       useClass: ReviewService,
     },
     ReviewService, 
-    ReviewRepository, 
+    ReviewRepository,
+    ImageRepository,
+    ImageService,
     UserService,
     CampingService,
   ],
-=======
-  providers: [ReviewService, ReviewRepository, UserService, CampingService],
->>>>>>> b26467b2197f50ebad0bb09768d1c8286481400a
 })
 export class ReviewModule {}
