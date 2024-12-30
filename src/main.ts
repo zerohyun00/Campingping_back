@@ -11,11 +11,15 @@ async function bootstrap() {
     .setTitle('캠핑핑')
     .setDescription('캠핑핑 API 명세서')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   app.enableCors({
-    origin: 'http://kdt-react-node-1-team03.elicecoding.com', // Swagger UI가 열리는 도메인
+    origin: ['http://kdt-react-node-1-team03.elicecoding.com', 'http://kdt-react-node-1-team03.elicecoding.com:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+    credentials: true,
   });
   SwaggerModule.setup('doc', app, document);
 
