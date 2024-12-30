@@ -51,14 +51,4 @@ export class ImageRepository {
       await this.repository.save(newImage);
     }
   }
-
-  async findUserProfileImages(userId: string) {
-    return await this.repository
-      .createQueryBuilder('image')
-      .where('image.typeId = :userId AND image.type = :type', {
-        userId,
-        type: ImageType.USER,
-      })
-      .getMany();
-  }
 }

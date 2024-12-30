@@ -12,20 +12,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly s3Service: S3Service,
-    private imageRepository: ImageRepository,
   ) {}
-
-  // 사용자 생성
-  create(createUserDto: CreateUserDto) {
-    return this.userRepository.save(createUserDto);
-  }
-
-  // 전체 사용자 조회
-  findAll() {
-    return this.userRepository.find();
-  }
-
   // 특정 사용자 조회
   async findOne(id: string) {
     // UUID로 string 타입 사용
@@ -38,59 +25,30 @@ export class UserService {
     }
     return user;
   }
-
-  // 사용자 정보 수정
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    // UUID로 string 타입 사용
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new NotFoundException('존재하지 않는 사용자입니다!');
-    }
-
-    await this.userRepository.update(id, updateUserDto);
-
-    const newUser = await this.userRepository.findOne({
-      where: { id },
-    });
-    return newUser;
-  }
-
-  // 사용자 삭제
-  async remove(id: string) {
-    // 여기도 find 후 update, find 후 delete가 아닌 바로 update, delete를 하는 것을 추천드릴게
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new NotFoundException('존재하지 않는 사용자입니다!');
-    }
-
-    await this.userRepository.delete(id);
-
-    return id;
-  }
-
-  // async updateProfileImage(
-  //   userId: string,
-  //   file: Express.Multer.File,
-  // ): Promise<string> {
-  //   const imageUrl = await this.s3Service.uploadFile(file, userId);
-
-  //   await this.userRepository.update(userId, { profileImageUrl: imageUrl });
-
-  //   return imageUrl;
-  // }
-
   async getUserProfileImages(userId: string) {
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-    return await this.imageRepository.findUserProfileImages(user.id);
+    const query = await this.userRepository
+    .createQueryBuilder('user')
+    .where('user.id = :userId', { userId })
+    .leftJoin('image', 'image', 'image.typeId = CAST(user.id AS varchar)')
+    .select([
+      'user.id AS userId',
+      'user.email AS userEmail',
+      'user.type AS userType',
+      'user.nickname AS nickname',
+      'image.id AS imageId',
+      'image.url AS imageUrl',
+    ])
+    .getRawOne();
+    return {
+      user:{
+        id: query.userId,
+        email: query.email,
+        nickName: query.nickname,
+        userType: query.userType,
+        image:{
+          id: query.imageId,
+          url: query.imageUrl,
+        }
+      }};
   }
 }
