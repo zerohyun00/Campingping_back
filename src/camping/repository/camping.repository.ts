@@ -67,7 +67,8 @@ export class CampingRepository {
   async findAllForCron() {
     return await this.repository.find();
   }
-  async findAllWithDetails(region?: string, category?: string) {
+  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string) {
+    console.log(limit);
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
@@ -108,8 +109,7 @@ export class CampingRepository {
         'images.id AS image_id',
         'images.url AS image_url',
       ])
-      .leftJoin('favorite', 'favorite', 
-        'camping.contentId = favorite.contentId')
+      .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
       .leftJoin(
         (subQuery) =>
           subQuery
@@ -126,7 +126,7 @@ export class CampingRepository {
         'images.typeId = camping.contentId',
       )
       .where('camping.deletedAt IS NULL');
-
+  
     if (region) {
       queryBuilder.andWhere('camping.doNm ILIKE :region', { region: `%${region}%` });
     }
@@ -142,8 +142,19 @@ export class CampingRepository {
         );
       }
     }
+    if (cursor) {
+      queryBuilder.andWhere('camping.id > :cursor', { cursor });
+    }
+  
+    queryBuilder.limit(limit && limit > 0 ? limit : 10);
     const result = await queryBuilder.getRawMany();
-    return mapCampingListData(result);
+
+    const nextCursor = result.length > 0 ? result[result.length - 1].camping_id : null;
+  
+    return {
+      result: mapCampingListData(result),
+      nextCursor
+    };
   }
   async findOne(paramDto: CampingParamDto) {
     const query = this.repository
@@ -203,7 +214,6 @@ export class CampingRepository {
     if (!result || result.length === 0) {
       return null;
     }
-    console.log(result);
     const campingData = mapCampingData(result);
     const images = mapImageData(result);
 
