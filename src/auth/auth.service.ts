@@ -191,4 +191,34 @@ export class AuthService {
       },
     );
   }
+
+  async refreshAccessToken(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    let payload: any;
+
+    try {
+      payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+    } catch (err) {
+      throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다.');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+    });
+    if (!user) {
+      throw new UnauthorizedException('해당 사용자를 찾을 수 없습니다.');
+    }
+
+    const accessToken = await this.issueToken(user, false);
+    const newRefreshToken = await this.issueToken(user, true);
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
 }
