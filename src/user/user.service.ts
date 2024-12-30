@@ -4,12 +4,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { S3Service } from 'src/common/s3-service';
+import { ImageRepository } from 'src/image/repository/image.repository';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly s3Service: S3Service,
+    private imageRepository: ImageRepository,
   ) {}
 
   // 사용자 생성
@@ -68,5 +72,25 @@ export class UserService {
     await this.userRepository.delete(id);
 
     return id;
+  }
+
+  // async updateProfileImage(
+  //   userId: string,
+  //   file: Express.Multer.File,
+  // ): Promise<string> {
+  //   const imageUrl = await this.s3Service.uploadFile(file, userId);
+
+  //   await this.userRepository.update(userId, { profileImageUrl: imageUrl });
+
+  //   return imageUrl;
+  // }
+
+  async getUserProfileImages(userId: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+    return await this.imageRepository.findUserProfileImages(user.id);
   }
 }
