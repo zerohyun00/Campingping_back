@@ -54,14 +54,14 @@ export class CampingController {
     description: '지역(region) 및 카테고리(category)에 따라 캠핑장 목록을 검색합니다.',
   })
   @ApiQuery({
-    name: 'cursor',
-    description: '커서 기반 검색용',
-    example: 10,
-    required: false,
-  })
-  @ApiQuery({
     name: 'limit',
     description: '최대 조회 수',
+    example: 10,
+    required: true,
+  })
+  @ApiQuery({
+    name: 'cursor',
+    description: '커서 기반 검색용',
     example: 10,
     required: false,
   })

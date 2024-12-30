@@ -67,7 +67,7 @@ export class CampingRepository {
   async findAllForCron() {
     return await this.repository.find();
   }
-  async findAllWithDetails(limit: number, cursor?:number,  region?: string, category?: string) {
+  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string) {
     console.log(limit);
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
@@ -109,8 +109,7 @@ export class CampingRepository {
         'images.id AS image_id',
         'images.url AS image_url',
       ])
-      .leftJoin('favorite', 'favorite', 
-        'camping.contentId = favorite.contentId')
+      .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
       .leftJoin(
         (subQuery) =>
           subQuery
@@ -127,7 +126,7 @@ export class CampingRepository {
         'images.typeId = camping.contentId',
       )
       .where('camping.deletedAt IS NULL');
-
+  
     if (region) {
       queryBuilder.andWhere('camping.doNm ILIKE :region', { region: `%${region}%` });
     }
@@ -146,13 +145,14 @@ export class CampingRepository {
     if (cursor) {
       queryBuilder.andWhere('camping.id > :cursor', { cursor });
     }
-    queryBuilder.orderBy('camping.id', 'ASC').take(limit > 0 ? limit : 10);
-
+  
+    queryBuilder.limit(limit && limit > 0 ? limit : 10);
     const result = await queryBuilder.getRawMany();
-    const nextCursor = result.length > 0 ? result[result.length - 1].camping_id : null;
 
+    const nextCursor = result.length > 0 ? result[result.length - 1].camping_id : null;
+  
     return {
-      data: mapCampingListData(result),
+      result: mapCampingListData(result),
       nextCursor
     };
   }
