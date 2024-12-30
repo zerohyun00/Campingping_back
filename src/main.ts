@@ -19,7 +19,6 @@ async function bootstrap() {
     origin: ['*'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
-    credentials: true,
   });
   SwaggerModule.setup('doc', app, document);
 
