@@ -16,7 +16,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   app.enableCors({
-    origin: ['http://kdt-react-node-1-team03.elicecoding.com', 'http://kdt-react-node-1-team03.elicecoding.com:3000'],
+    origin: ['*'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true,
