@@ -1,0 +1,35 @@
+name: Deploy to GCP VM
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 코드 가져오기
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Docker 이미지 빌드 및 Docker Hub로 보내기
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest .
+          echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
+
+      # 3. GCP VM에 접속해서 Docker 컨테이너 실행
+      - name: Deploy to GCP VM
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.GCP_VM_IP }}
+          username: ${{ secrets.GCP_VM_USER }}
+          key: ${{ secrets.GCP_PRIVATE_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
+            docker stop nestjs-app || true
+            docker rm nestjs-app || true
+            docker run -d --name nestjs-app -p 3000:3000 ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
