@@ -6,12 +6,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 
 async function bootstrap() {
-  const httpsOptions = {
-    key: readFileSync('/etc/letsencrypt/live/kdt-react-node-1-team03.elicecoding.com/privkey.pem'),
-    cert: readFileSync('/etc/letsencrypt/live/kdt-react-node-1-team03.elicecoding.com/fullchain.pem'),
-  };
 
-  const app = await NestFactory.create(AppModule, {httpsOptions});
+  const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('캠핑핑')
