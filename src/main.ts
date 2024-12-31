@@ -22,7 +22,7 @@ async function bootstrap() {
     origin: ['https://kdt-react-node-1-team03.elicecoding.com', 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
-  SwaggerModule.setup('doc', app, document);
+  SwaggerModule.setup('api/doc', app, document);
 
   app.setGlobalPrefix('api');
 
