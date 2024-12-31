@@ -17,10 +17,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: ['https://kdt-react-node-1-team03.elicecoding.com', 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
   SwaggerModule.setup('doc', app, document);
+
+  app.setGlobalPrefix('api');
 
   app.use(cookieParser());
   app.useGlobalPipes(
