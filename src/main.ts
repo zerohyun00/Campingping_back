@@ -6,7 +6,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
@@ -19,7 +18,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   app.enableCors({
-    origin: ['https://kdt-react-node-1-team03.elicecoding.com', 'http://localhost:3000'],
+    origin: ['http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
   SwaggerModule.setup('api/doc', app, document);
