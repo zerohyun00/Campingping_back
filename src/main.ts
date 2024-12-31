@@ -6,7 +6,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
