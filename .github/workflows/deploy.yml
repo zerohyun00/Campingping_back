@@ -43,7 +43,7 @@ jobs:
             echo "Running the new container..."
             docker run -d \
               --name "nestjs-app-$(date +%s)" \
-              -p 3000:3000 \
+              -p 8080:8080 \
               -e DB_HOST=${{ secrets.DB_HOST }} \
               -e DB_PORT=${{ secrets.DB_PORT }} \
               -e DB_USER=${{ secrets.DB_USER }} \
