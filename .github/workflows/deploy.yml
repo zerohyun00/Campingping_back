@@ -25,7 +25,7 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-      # 4. GCP VM에 Docker 이미지 배포
+      # 4. GCP VM에 Docker 이미지 배포 + 5. 컨테이너 내부 ENV 확인
       - name: Deploy to GCP VM
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -33,23 +33,24 @@ jobs:
           username: ${{ secrets.GCP_VM_USER }}
           key: ${{ secrets.GCP_PRIVATE_KEY }}
           script: |
-            echo "Stopping and removing existing container..."
+            echo "=== Stopping and removing existing container ==="
             docker stop nestjs-app || true
             docker rm -f nestjs-app || true
 
-            echo "Pulling the latest Docker image..."
+            echo "=== Pulling the latest Docker image ==="
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-            echo "Running the new container..."
+            echo "=== Running the new container ==="
+            # 컨테이너 이름에 타임스탬프를 붙여 매번 고유 이름으로 생성
+            CONTAINER_NAME="nestjs-app-$(date +%s)"
             docker run -d \
-              --name "nestjs-app-$(date +%s)" \
-              -p 8080:8080 \
+              --name "$CONTAINER_NAME" \
+              -p 3000:3000 \
               -e DB_HOST=${{ secrets.DB_HOST }} \
               -e DB_PORT=${{ secrets.DB_PORT }} \
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
-              -e DB_LOGGING= ${{ secrets.DB_LOGGING  }} \
               -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
               -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
               -e KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }} \
@@ -67,5 +68,6 @@ jobs:
               -e GO_CAMPING_APIKEY6=${{ secrets.GO_CAMPING_APIKEY6 }} \
               ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-            echo "Verifying the running container..."
-            docker ps
+            echo "=== Verifying the running container ==="
+            # 환경변수 모두 출력 (보안 정보 노출 주의!)
+            docker exec "$CONTAINER_NAME" env

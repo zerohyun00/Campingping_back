@@ -32,12 +32,21 @@ dotenv.config();
     }),
     CacheModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        store: ioRedisStore,
-        host: configService.get<string>('REDIS_HOST', 'localhost'),
-        port: configService.get<number>('REDIS_PORT', 6379),
-        ttl: 300,
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const redisHost = configService.get<string>('REDIS_HOST', 'localhost');
+        const redisPort = configService.get<number>('REDIS_PORT', 6379);
+        
+        // 값을 콘솔에 출력
+        console.log('Redis Host:', redisHost);
+        console.log('Redis Port:', redisPort);
+    
+        return {
+          store: ioRedisStore,
+          host: redisHost,
+          port: redisPort,
+          ttl: 300,
+        };
+      },
       inject: [ConfigService],
       isGlobal: true,
     }),
