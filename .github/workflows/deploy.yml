@@ -19,7 +19,9 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest .
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
-
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+          echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+          echo "KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }}" >> .env
       # cicd 제발 돼라 * 7
       - name: Deploy to GCP VM
         uses: appleboy/ssh-action@v0.1.8
