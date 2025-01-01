@@ -31,7 +31,7 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-      # 5. .env 파일을 GCP VM에 복사
+      # 5. .env 파일을 GCP VM에
       - name: Copy .env to GCP VM
         uses: appleboy/scp-action@v0.1.0 # 최신 버전으로 변경
         with:
