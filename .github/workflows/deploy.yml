@@ -25,7 +25,7 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-      # 4. GCP VM에 Docker 이미지 배포
+      # 4. GCP VM에 Docker 이미지 배포 1
       - name: Deploy to GCP VM
         uses: appleboy/ssh-action@v0.1.8
         with:
