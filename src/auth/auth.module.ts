@@ -13,6 +13,7 @@ dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    ConfigModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
