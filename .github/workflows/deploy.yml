@@ -33,7 +33,7 @@ jobs:
 
       # 5. .env 파일을 GCP VM에 복사
       - name: Copy .env to GCP VM
-        uses: appleboy/scp-action@v0.1.8  # 최신 버전으로 변경
+        uses: appleboy/scp-action@v0.1.0 # 최신 버전으로 변경
         with:
           host: ${{ secrets.GCP_VM_IP }}
           username: ${{ secrets.GCP_VM_USER }}
