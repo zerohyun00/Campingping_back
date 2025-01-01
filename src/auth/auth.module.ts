@@ -33,6 +33,6 @@ dotenv.config();
     AuthService,
     KakaoStrategy
   ],
-  exports: [AuthService, KakaoStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}
