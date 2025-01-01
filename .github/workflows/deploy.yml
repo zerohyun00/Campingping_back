@@ -33,4 +33,8 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
             docker stop nestjs-app || true
             docker rm nestjs-app || true
-            docker run -d --name nestjs-app -p 3000:3000 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
+            docker run -d --name nestjs-app -p 3000:3000 \
+              --env KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+              --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+              --env KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }} \
+              ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
