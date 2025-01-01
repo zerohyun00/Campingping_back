@@ -22,7 +22,9 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo '${{ secrets.ENV }}' >> .env
+              echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" > .env
+              echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+              echo "KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }}" >> .env
 
       # 4. Docker 이미지 빌드 및 Docker Hub로 푸시
       - name: Build and push Docker image
