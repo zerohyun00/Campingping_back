@@ -49,6 +49,7 @@ jobs:
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+              -e DB_LOGGING= ${{ secrets.DB_LOGGING  }} \
               -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
               -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
               -e KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }} \
