@@ -1,7 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-kakao';
 
+@Injectable() // 이 데코레이터를 반드시 추가
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   constructor(private readonly configService: ConfigService) {
     super({
@@ -12,12 +14,10 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
-    // 카카오 계정의 이메일 정보와 닉네임 가져오기
     const email = profile._json.kakao_account?.email;
     const nickname = profile.displayName;
     const kakaoId = profile.id;
 
-    // 이메일이 없는 경우, kakaoId를 사용하여 임시 이메일 생성
     const generatedEmail = email || `${kakaoId}@kakao.com`;
 
     console.log('accessToken: ', accessToken);
@@ -28,8 +28,8 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     return {
       email: generatedEmail,
       nickname,
-      kakaoId, // 고유한 Kakao ID 추가
-      type: 'KAKAO', // 로그인 유형 추가
+      kakaoId,
+      type: 'KAKAO',
     };
   }
 }
