@@ -13,7 +13,9 @@ dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: '.env'
+    }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -31,6 +33,6 @@ dotenv.config();
     AuthService,
     KakaoStrategy
   ],
-  exports: [AuthService],
+  exports: [AuthService, KakaoStrategy],
 })
 export class AuthModule {}

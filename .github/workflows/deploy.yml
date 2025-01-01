@@ -28,8 +28,6 @@ jobs:
           username: ${{ secrets.GCP_VM_USER }}
           key: ${{ secrets.GCP_PRIVATE_KEY }}
           script: |
-            # Docker 환경 변수 설정
-            export KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
             docker stop nestjs-app || true
             docker rm nestjs-app || true
