@@ -17,6 +17,8 @@ RUN npm install
 # NestJS 프로젝트 복사
 COPY . .
 
+COPY .env .env
+
 # NestJS 빌드
 RUN npm run build
 
