@@ -42,7 +42,7 @@ jobs:
 
             # Docker 컨테이너 실행 및 환경 변수 전달
             docker run -d \
-              --name nestjs-app \
+              --name nestjs-app-$(date +%s) \  # 이름에 타임스탬프 추가
               -p 3000:3000 \
               -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
               -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
