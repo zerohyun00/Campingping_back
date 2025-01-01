@@ -14,6 +14,9 @@ RUN npm install -g @nestjs/cli
 COPY package*.json ./
 RUN npm install
 
+# .env 파일 복사
+COPY .env .env
+
 # NestJS 프로젝트 복사
 COPY . .
 
