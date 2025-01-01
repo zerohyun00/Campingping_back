@@ -35,7 +35,7 @@ jobs:
           script: |
             # 기존 컨테이너 중지 및 제거
             docker stop nestjs-app || true
-            docker rm nestjs-app || true
+            docker rm -f nestjs-app || true
 
             # 최신 Docker 이미지 가져오기
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
