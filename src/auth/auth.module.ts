@@ -13,7 +13,9 @@ dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: '.env'
+    }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

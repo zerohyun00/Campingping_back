@@ -6,10 +6,14 @@ import { Profile, Strategy } from 'passport-kakao';
 @Injectable() // 이 데코레이터를 반드시 추가
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   constructor(private readonly configService: ConfigService) {
+    const clientID = configService.get<string>('KAKAO_CLIENT_ID');
+    const clientSecret = configService.get<string>('KAKAO_CLIENT_SECRET');
+    const callbackURL = configService.get<string>('KAKAO_CALLBACK_URL');
+    console.log(clientID);
     super({
-      clientID: configService.get<string>('KAKAO_CLIENT_ID'),
-      clientSecret: configService.get<string>('KAKAO_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('KAKAO_CALLBACK_URL'),
+      clientID,
+      clientSecret,
+      callbackURL,
     });
   }
 
