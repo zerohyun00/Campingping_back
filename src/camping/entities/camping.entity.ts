@@ -16,6 +16,9 @@ export class Camping extends BaseTable {
 
   @Column({ nullable: true })
   intro: string;
+  
+  @Column({ nullable: true })
+  facltNm: string;
 
   @Column({ nullable: true })
   factDivNm: string;
@@ -46,9 +49,6 @@ export class Camping extends BaseTable {
 
   @Column({ nullable: true })
   doNm: string;
-
-  @Column({ nullable: true })
-  signguNm: string;
 
   @Column({ nullable: true })
   addr1: string;
@@ -106,6 +106,9 @@ export class Camping extends BaseTable {
 
   @Column({ nullable: true })
   firstImageUrl: string;
+
+  @Column({ nullable : true })
+  sigunguNm: string;
 
   @Column({ unique: true })
   contentId: string;

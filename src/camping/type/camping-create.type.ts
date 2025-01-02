@@ -11,7 +11,7 @@ export type CampingType = {
   induty?: string;
   lctCl?: string; // 환경 필드
   doNm?: string;
-  signguNm?: string;
+  sigunguNm?: string;
   addr1?: string;
   addr2?: string;
   mapX?: number; // 좌표는 문자열 또는 숫자로 받을 수 있음

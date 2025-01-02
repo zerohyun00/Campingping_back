@@ -2,7 +2,7 @@ export type CampingDetailType = {
   camping_id: number;
   camping_lineIntro: string;
   camping_intro: string;
-  camping_factDivNm: string;
+  camping_facltNm: string;
   camping_manageDivNm: string;
   camping_bizrno: string;
   camping_manageSttus: string;

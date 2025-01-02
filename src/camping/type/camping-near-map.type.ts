@@ -1,13 +1,15 @@
 export type NearbyCampingType = { 
-    camping_id: number;
-    camping_factDivNm: string;
-    camping_lineIntro: string;
-    camping_intro: string;
-    camping_addr1: string;
-    camping_contentId: string;
-    favorite_status: boolean;
-    url: string;
+    id: number;
+    contentid : string;
+    firstimageurl: string;
+    facltnm: string;
+    addr1: string;
+    addr2: string;
+    donm: string;
+    sigungunm: string;
+    lineintro: string;
+    intro: string;
     location: string;
-    distance: string;
-    camping_firstImageUrl: string;
+    favorite: boolean;
+    distance: number;
   }

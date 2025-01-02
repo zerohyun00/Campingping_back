@@ -7,6 +7,8 @@ import { readFileSync } from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
     .setTitle('캠핑핑')
@@ -15,15 +17,17 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-
+  const document = SwaggerModule.createDocument(app, config, {
+    ignoreGlobalPrefix: false, // 글로벌 프리픽스 적용
+  });
   app.enableCors({
     origin: ['http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
+
+
   SwaggerModule.setup('api/doc', app, document);
 
-  app.setGlobalPrefix('api');
 
   app.use(cookieParser());
   app.useGlobalPipes(

@@ -23,20 +23,22 @@ export class FavoriteService implements IFavoriteService {
         'camping',
         'favorite.contentId = camping.contentId',
       )
-      .leftJoin('Image', 'image', 'favorite.contentId = image.typeId')
       .where('favorite.user.id = :userId', { userId })
       .andWhere('favorite.status = :status', { status: true })
       .select([
         'favorite.id AS id',
+        'camping.id AS campingId',
         'camping.contentId AS contentId',
-        'camping.factDivNm as factDivNm',
+        'camping.facltNm AS facltNm',
         'camping.addr1 AS addr1',
+        'camping.addr2 AS addr2',
+        'camping.doNm AS doNm',
+        'camping.sigunguNm AS sigunguNm',
         'camping.lineIntro AS lineIntro',
         'camping.intro AS intro',
-        'image.url AS url',
+        'camping.firstImageUrl AS firstImageUrl',
       ])
-      .distinctOn(['favorite.contentId'])
-      .orderBy('favorite.contentId, image.id', 'ASC')
+      .orderBy('favorite.contentId', 'ASC')
       .getRawMany();
 
     return favorites;

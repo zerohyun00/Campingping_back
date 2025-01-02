@@ -38,7 +38,7 @@ export class CampingRepository {
             'induty',
             'lccl',
             'doNm',
-            'signguNm',
+            'sigunguNm',
             'addr1',
             'addr2',
             'tel',
@@ -72,42 +72,18 @@ export class CampingRepository {
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
-        'camping.id AS camping_id',
-        'camping.lineIntro',
-        'camping.intro',
-        'camping.factDivNm',
-        'camping.manageDivNm',
-        'camping.bizrno',
-        'camping.manageSttus',
-        'camping.hvofBgnde',
-        'camping.hvofEndde',
-        'camping.featureNm',
-        'camping.induty',
-        'camping.lccl',
-        'camping.doNm',
-        'camping.signguNm',
-        'camping.addr1',
-        'camping.addr2',
-        'camping.tel',
-        'camping.homepage',
-        'camping.gplnInnerFclty',
-        'camping.caravnInnerFclty',
-        'camping.operPdCl',
-        'camping.operDeCl',
-        'camping.trlerAcmpnyAt',
-        'camping.caravAcmpnyAt',
-        'camping.sbrsCl',
-        'camping.toiletCo',
-        'camping.swrmCo',
-        'camping.posblFcltyCl',
-        'camping.themaEnvrnCl',
-        'camping.eqpmnLendCl',
-        'camping.animalCmgCl',
-        'camping.contentId',
-        'camping.firstImageUrl',
-        'favorite.status',
+        'camping.id AS id',
+        'camping.contentId AS contentId',
+        'camping.firstImageUrl AS firstImageUrl',
+        'camping.facltNm AS facltNm',
+        'camping.addr1 AS addr1',
+        'camping.addr2 AS addr2',
+        'camping.doNm AS doNm',
+        'camping.lineIntro AS lineIntro',
+        'camping.intro AS intro',
+        'camping.sigunguNm AS sigunguNm',
+        'favorite.status AS favorite',
         'ST_AsGeoJSON(camping.location) AS location',
-        
       ])
       .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
     if (region) {
@@ -140,7 +116,7 @@ export class CampingRepository {
     const result = await queryBuilder.getRawMany();
 
     const nextCursor =
-      result.length > 0 ? result[result.length - 1].camping_id : null;
+      result.length > 0 ? result[result.length - 1].id : null;
     const camping = mapCampingListData(result);
     return {
       result: camping,
@@ -166,7 +142,7 @@ export class CampingRepository {
       'camping.deletedAt',
       'camping.lineIntro',
       'camping.intro',
-      'camping.factDivNm',
+      'camping.facltNm',
       'camping.manageDivNm',
       'camping.bizrno',
       'camping.manageSttus',
@@ -215,15 +191,18 @@ export class CampingRepository {
     const query = await this.repository
     .createQueryBuilder('camping')
     .select([
-      'camping.id',
-      'camping.factDivNm',
-      'camping.addr1',
-      'camping.lineIntro',
-      'camping.intro',
-      'camping.contentId',
-      'favorite.status',
-      'camping.firstImageUrl',
-      'ST_AsGeoJSON(camping.location) as location',
+      'camping.id AS id',
+      'camping.contentId AS contentId',
+      'camping.firstImageUrl AS firstImageUrl',
+      'camping.facltNm AS facltNm',
+      'camping.addr1 AS addr1',
+      'camping.addr2 AS addr2',
+      'camping.doNm AS doNm',
+      'camping.lineIntro AS lineIntro',
+      'camping.intro AS intro',
+      'camping.sigunguNm AS sigunguNm',
+      'favorite.status AS favorite',
+      'ST_AsGeoJSON(camping.location) AS location',
       '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
     ])
     .setParameters({ lat, lon, radius })

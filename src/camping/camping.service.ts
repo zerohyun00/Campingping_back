@@ -82,7 +82,7 @@ export class CampingService implements ICampingService{
     const camping = new Camping();
     camping.lineIntro = data.lineIntro ?? null;
     camping.intro = data.intro ?? null;
-    camping.factDivNm = data.facltNm ?? null; // 'facltNm'이 API의 이름 필드라 가정
+    camping.facltNm = data.facltNm ?? null; // 'facltNm'이 API의 이름 필드라 가정
     camping.manageDivNm = data.manageDivNm ?? null;
     camping.bizrno = data.bizrno ?? null;
     camping.manageSttus = data.manageSttus ?? null;
@@ -92,7 +92,6 @@ export class CampingService implements ICampingService{
     camping.induty = data.induty ?? null;
     camping.lccl = data.lctCl ?? null; // 'lctCl'이 API의 환경 필드라 가정
     camping.doNm = data.doNm ?? null;
-    camping.signguNm = data.signguNm ?? null;
     camping.addr1 = data.addr1 ?? null;
     camping.addr2 = data.addr2 ?? null;
     camping.setLocation(data.mapX, data.mapY);
@@ -113,6 +112,7 @@ export class CampingService implements ICampingService{
     camping.animalCmgCl = data.animalCmgCl ?? null;
     camping.firstImageUrl = data.firstImageUrl ?? null;
     camping.contentId = data.contentId ?? null;
+    camping.sigunguNm = data.sigunguNm ?? null;
 
     return camping;
   }
