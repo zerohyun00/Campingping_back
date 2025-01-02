@@ -5,11 +5,21 @@ export type NearbyCampingType = {
     facltnm: string;
     addr1: string;
     addr2: string;
-    donm: string;
-    sigungunm: string;
     lineintro: string;
-    intro: string;
     location: string;
     favorite: boolean;
+    distance: number;
+}
+
+export interface NearbyCampingResType {
+    id: number;
+    contentId: string;
+    firstImageUrl: string;
+    facltNm: string;
+    addr1: string;
+    addr2: string;
+    lineIntro: string;
+    favorite: boolean;
+    location: string;
     distance: number;
   }

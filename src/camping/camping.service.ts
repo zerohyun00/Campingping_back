@@ -120,14 +120,14 @@ export class CampingService implements ICampingService{
   async findAllForCron() {
     return await this.campingRepository.findAllForCron();
   }
-  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string) {
-    return await this.campingRepository.findAllWithDetails(limit, cursor,region, category);
+  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
+    return await this.campingRepository.findAllWithDetails(limit, cursor,region, category, userId);
   }
 
   async findOne(paramDto: CampingParamDto) {
     return await this.campingRepository.findOne(paramDto);
   }
-  async findNearbyCamping(lon: number, lat: number) {
-    return await this.campingRepository.findNearbyCamping(lon, lat);
+  async findNearbyCamping(lon: number, lat: number, userId?: string) {
+    return await this.campingRepository.findNearbyCamping(lon, lat, userId);
   }
 }

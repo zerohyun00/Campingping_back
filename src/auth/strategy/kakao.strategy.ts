@@ -11,7 +11,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
       clientSecret: configService.get<string>('KAKAO_CLIENT_SECRET'),
       callbackURL: configService.get<string>('KAKAO_CALLBACK_URL'),
     });
-    console.log(configService.get<string>('KAKAO_CLIENT_ID'));
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {

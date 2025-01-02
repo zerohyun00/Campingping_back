@@ -68,7 +68,7 @@ export class CampingRepository {
   async findAllForCron() {
     return await this.repository.find();
   }
-  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string) {
+  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
@@ -82,10 +82,8 @@ export class CampingRepository {
         'camping.lineIntro AS lineIntro',
         'camping.intro AS intro',
         'camping.sigunguNm AS sigunguNm',
-        'favorite.status AS favorite',
         'ST_AsGeoJSON(camping.location) AS location',
       ])
-      .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
     if (region) {
       queryBuilder.andWhere('camping.doNm ILIKE :region', {
         region: `%${region}%`,
@@ -111,7 +109,18 @@ export class CampingRepository {
     if (cursor) {
       queryBuilder.andWhere('camping.id > :cursor', { cursor });
     }
-
+    if(userId) {
+      queryBuilder
+      .leftJoinAndSelect(
+        'favorite',
+        'favorite',
+        'camping.contentId = favorite.contentId AND favorite.user = :userId',
+        { userId }
+      )
+      .addSelect('favorite.status', 'favorite')
+      .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC')
+    }
+    queryBuilder.addOrderBy('camping.contentId', 'ASC')
     queryBuilder.limit(limit && limit > 0 ? limit : 10);
     const result = await queryBuilder.getRawMany();
 
@@ -127,8 +136,6 @@ export class CampingRepository {
     const query = this.repository
     .createQueryBuilder('camping')
     .leftJoinAndSelect('image', 'image', 'image.deletedAt IS NULL AND image.typeId = camping.contentId')
-    .leftJoin('favorite', 'favorite', 
-      'camping.contentId = favorite.contentId')
     .where('camping.deletedAt IS NULL')
     .andWhere('camping.contentId = :contentId', {
       contentId: paramDto.contentId,
@@ -152,7 +159,7 @@ export class CampingRepository {
       'camping.induty',
       'camping.lccl',
       'camping.doNm',
-      'camping.signguNm',
+      'camping.sigunguNm',
       'camping.addr1',
       'camping.addr2',
       'camping.tel',
@@ -172,7 +179,6 @@ export class CampingRepository {
       'camping.animalCmgCl',
       'camping.contentId',
       'camping.firstImageUrl',
-      'favorite.status',
       'ST_AsGeoJSON(camping.location) as location',
       'image.id AS image_id',
       'image.url AS image_url',
@@ -187,8 +193,8 @@ export class CampingRepository {
 
     return { ...campingData, images };
   }
-  async findNearbyCamping(lon: number, lat: number, radius: number = 5000) {
-    const query = await this.repository
+  async findNearbyCamping(lon: number, lat: number,  userId?: string, radius: number = 5000) {
+    const query = this.repository
     .createQueryBuilder('camping')
     .select([
       'camping.id AS id',
@@ -197,11 +203,7 @@ export class CampingRepository {
       'camping.facltNm AS facltNm',
       'camping.addr1 AS addr1',
       'camping.addr2 AS addr2',
-      'camping.doNm AS doNm',
       'camping.lineIntro AS lineIntro',
-      'camping.intro AS intro',
-      'camping.sigunguNm AS sigunguNm',
-      'favorite.status AS favorite',
       'ST_AsGeoJSON(camping.location) AS location',
       '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
     ])
@@ -209,11 +211,22 @@ export class CampingRepository {
     .where(
       '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= :radius',
     )
-    .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
     .andWhere('camping.deletedAt IS NULL')
-    .orderBy('distance', 'ASC')
-    .getRawMany();
+    if(userId) {
+      query
+      .leftJoinAndSelect(
+        'favorite',
+        'favorite',
+        'camping.contentId = favorite.contentId AND favorite.user = :userId',
+        { userId }
+      )
+      .addSelect('favorite.status', 'favorite')
+      .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC')
+    }
+    query.addOrderBy('distance', 'ASC')
 
-    return mapNearbycampingData(query);
+    const result = await query.getRawMany();
+
+    return mapNearbycampingData(result);
   }
 }

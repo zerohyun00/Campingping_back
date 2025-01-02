@@ -36,7 +36,7 @@ export function mapCampingData(result: CampingDetailType[]) {
     induty: filterEmptyString(campingData.camping_induty),
     lccl: filterEmptyString(campingData.camping_lccl),
     doNm: filterEmptyString(campingData.camping_doNm),
-    signguNm: filterEmptyString(campingData.camping_signguNm),
+    sigunguNm: filterEmptyString(campingData.camping_sigunguNm),
     addr1: filterEmptyString(campingData.camping_addr1),
     addr2: filterEmptyString(campingData.camping_addr2),
     tel: filterEmptyString(campingData.camping_tel),
@@ -56,7 +56,6 @@ export function mapCampingData(result: CampingDetailType[]) {
     animalCmgCl: filterEmptyString(campingData.camping_animalCmgCl),
     firstImageUrl: filterEmptyString(campingData.camping_firstImageUrl),
     contentId: campingData.camping_contentId,
-    favorite: campingData.favorite_status ?? false,
     location,
   };
 }
@@ -103,10 +102,7 @@ export function mapNearbycampingData(result: NearbyCampingType[]) {
       facltNm: filterEmptyString(camping.facltnm),
       addr1: filterEmptyString(camping.addr1),
       addr2:  filterEmptyString(camping.addr2),
-      doNm: filterEmptyString(camping.donm),
-      sigunguNm: filterEmptyString(camping.sigungunm),
       lineIntro: filterEmptyString(camping.lineintro),
-      intro: filterEmptyString(camping.intro),
       favorite: camping.favorite ?? false,
       location,
       distance: Number(camping.distance) || 0,

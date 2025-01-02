@@ -35,11 +35,6 @@ dotenv.config();
       useFactory: async (configService: ConfigService) => {
         const redisHost = configService.get<string>('REDIS_HOST', 'localhost');
         const redisPort = configService.get<number>('REDIS_PORT', 6379);
-        
-        // 값을 콘솔에 출력
-        console.log('Redis Host:', redisHost);
-        console.log('Redis Port:', redisPort);
-    
         return {
           store: ioRedisStore,
           host: redisHost,

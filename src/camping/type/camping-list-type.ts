@@ -1,6 +1,25 @@
+export interface CampingListResType {
+  id: number;
+  contentId: string;
+  firstImageUrl: string;
+  facltNm: string;
+  addr1: string;
+  addr2: string;
+  doNm: string;
+  sigunguNm: string;
+  lineIntro: string;
+  intro: string;
+  favorite: boolean;
+  location: string;
+}
+export interface CampingWithDetails {
+  result: CampingListResType[];
+  nextCursor: any;
+}
+
 export type CampingListType = {
   id: number;
-  contentid : string;
+  contentid: string;
   firstimageurl: string;
   facltnm: string;
   addr1: string;
@@ -11,4 +30,4 @@ export type CampingListType = {
   intro: string;
   location: string;
   favorite: boolean;
-}
+};
