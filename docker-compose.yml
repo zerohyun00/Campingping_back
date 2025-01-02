@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  redis:
+    image: 'redis:6-alpine'
+    container_name: 'redis-container'
+    # (옵션) VM 바깥에서 Redis 접속해야 하면 다음 줄을 활성화:
+    ports:
+      - '6379:6379'
+    # 보통 NestJS 컨테이너에서만 내부 연결하는 거라면 포트 공개 안 해도 됨
+
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile # NestJS용 Dockerfile
+    container_name: 'nestjs-app'
+    depends_on:
+      - redis
+    ports:
+      - '3000:3000'
+    environment:
+      # Redis 연결 정보
+      REDIS_HOST: 'redis' # 같은 Docker 네트워크에서 'redis'라는 서비스 이름이 호스트명이 됨
+      REDIS_PORT: '6379'
