@@ -25,7 +25,7 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-      # 4. GCP VM에 Docker 이미지 배포 + 5. 컨테이너 내부 ENV 확인 4
+      # 4. GCP VM에 Docker 이미지 배포 및 마이그레이션 실행
       - name: Deploy to GCP VM
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -68,6 +68,8 @@ jobs:
               -e GO_CAMPING_APIKEY6=${{ secrets.GO_CAMPING_APIKEY6 }} \
               ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
+            echo "=== Running migrations inside the container ==="
+            docker exec "$CONTAINER_NAME" npm run typeorm -- migration:run -d ./dist/database/data-source.js
+
             echo "=== Verifying the running container ==="
-            # 환경변수 모두 출력 (보안 정보 노출 주의!)
             docker exec "$CONTAINER_NAME" env
