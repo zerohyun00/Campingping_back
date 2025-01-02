@@ -21,7 +21,7 @@ export class CampingJwtAuthGuard implements CanActivate {
     }
     try {
       const user = this.jwtService.verify(token); // 토큰 검증
-      request.user = user; // 인증된 사용자 정보 설정
+      request.user = user; // 인증된 사용자 정보
     } catch (error) {
       console.error('JWT 검증 오류: ', error.message); // 오류 로그 추가
     }
