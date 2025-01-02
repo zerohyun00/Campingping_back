@@ -127,6 +127,11 @@ export function mapNearbycampingData(result: NearbyCampingType[]) {
     return {
       id: camping.camping_id,
       factDivNm: camping.camping_factDivNm,
+      addr1: camping.camping_addr1,
+      lineinto: camping.camping_lineIntro,
+      contentId: camping.camping_contentId,
+      favorite: camping.favorite_status ?? false,
+      imageUrl: camping.url,
       location,
       distance: Number(camping.distance) || 0,
     };

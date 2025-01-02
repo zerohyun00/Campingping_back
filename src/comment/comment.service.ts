@@ -10,9 +10,11 @@ import { CreateCommentsDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { UpdateCommentsDto } from './dto/update-comment.dto';
 import { PagePaginationDto } from 'src/common/dto/page-pagination.dto';
+import { ICommentService } from './interface/comment.service.interface';
+import { FindCommentDto } from './dto/find-comment.dto';
 
 @Injectable()
-export class CommentService {
+export class CommentService implements ICommentService{
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
@@ -43,16 +45,12 @@ export class CommentService {
       take,
       order: { createdAt: 'DESC' },
     });
-
-    return {
-      data: comments,
-      meta: {
-        total,
-        page,
-        take,
-        totalpages: Math.ceil(total / take),
+    return FindCommentDto.allList(comments, {
+      total,
+      page,
+      take,
       },
-    };
+)
   }
 
   async createComment(
@@ -96,13 +94,7 @@ export class CommentService {
         '존재하지 않거나 해당 커뮤니티에 속하지 않는 댓글입니다.',
       );
     }
-
-    const updatedComment = await this.commentRepository.findOne({
-      where: { id: commentId },
-      relations: ['community'],
-    });
-
-    return updatedComment;
+    return {message: "수정이 완료되었습니다"};
   }
 
   async deleteComment(communityId: number, commentId: number): Promise<void> {

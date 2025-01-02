@@ -15,9 +15,10 @@ import * as nodemailer from 'nodemailer';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { IAuthService } from './interface/auth.service.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,

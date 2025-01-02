@@ -150,9 +150,9 @@ export class CampingRepository {
     const result = await queryBuilder.getRawMany();
 
     const nextCursor = result.length > 0 ? result[result.length - 1].camping_id : null;
-  
+    const camping = mapCampingListData(result);
     return {
-      result: mapCampingListData(result),
+      result: camping, 
       nextCursor
     };
   }
@@ -219,12 +219,17 @@ export class CampingRepository {
 
     return { ...campingData, images };
   }
-  async findNearbyCamping(lon: number, lat: number, radius: number = 5000) {
+  async findNearbyCamping(lon: number, lat: number, radius: number = 1000) {
     const query = await this.repository
     .createQueryBuilder('camping')
     .select([
       'camping.id',
       'camping.factDivNm',
+      'camping.addr1',
+      'camping.lineIntro',
+      'camping.contentId',
+      'favorite.status',
+      'images.url',
       'ST_AsGeoJSON(camping.location) as location',
       '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
     ])
@@ -232,10 +237,26 @@ export class CampingRepository {
     .where(
       '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= :radius',
     )
+    .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
+    .leftJoin(
+      (subQuery) =>
+        subQuery
+          .select([
+            'DISTINCT ON (image.typeId) image.id AS id',
+            'image.url AS url',
+            'image.typeId AS typeId',
+          ])
+          .from('image', 'image')
+          .where('image.deletedAt IS NULL')
+          .orderBy('image.typeId', 'ASC') 
+          .addOrderBy('image.id', 'ASC'),
+      'images', 
+      'images.typeId = camping.contentId',
+    )
     .andWhere('camping.deletedAt IS NULL')
     .orderBy('distance', 'ASC')
     .getRawMany();
 
-      return mapNearbycampingData(query);
+    return mapNearbycampingData(query);
   }
 }

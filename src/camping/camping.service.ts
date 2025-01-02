@@ -7,9 +7,10 @@ import { CampingParamDto } from './dto/find-camping-param.dto';
 import { CampingType } from './type/camping-create.type';
 import { XmlUtils } from 'src/common/utils/xml-util';
 import { ConfigService } from '@nestjs/config';
+import { ICampingService } from './interface/camping.service.interface';
 
 @Injectable()
-export class CampingService {
+export class CampingService implements ICampingService{
   private apiKeyManager: ApiKeyManager;
 
   constructor(

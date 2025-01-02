@@ -4,9 +4,10 @@ import { Repository } from 'typeorm';
 import { Favorite } from './entities/favorite.entity';
 import { Camping } from 'src/camping/entities/camping.entity';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
+import { IFavoriteService } from './interface/favorite.service.interface';
 
 @Injectable()
-export class FavoriteService {
+export class FavoriteService implements IFavoriteService {
   constructor(
     @InjectRepository(Favorite)
     private readonly favoriteRepository: Repository<Favorite>,
@@ -26,13 +27,13 @@ export class FavoriteService {
       .where('favorite.user.id = :userId', { userId })
       .andWhere('favorite.status = :status', { status: true })
       .select([
-        'favorite.id',
-        'camping.contentId',
-        'camping.factDivNm as campingName',
-        'camping.addr1',
-        'camping.lineIntro',
-        'camping.intro',
-        'image.url',
+        'favorite.id AS id',
+        'camping.contentId AS contentId',
+        'camping.factDivNm as factDivNm',
+        'camping.addr1 AS addr1',
+        'camping.lineIntro AS lineIntro',
+        'camping.intro AS intro',
+        'image.url AS url',
       ])
       .distinctOn(['favorite.contentId'])
       .orderBy('favorite.contentId, image.id', 'ASC')

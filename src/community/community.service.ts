@@ -10,9 +10,10 @@ import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';
 import { User } from 'src/user/entities/user.entity';
 import { FindResponseDto } from './dto/find-community.response.dto';
+import { ICommunityService } from './interface/community.service.interface';
 
 @Injectable()
-export class CommunityService {
+export class CommunityService implements ICommunityService {
   constructor(
     @InjectRepository(Community)
     private readonly communityRepository: Repository<Community>,
