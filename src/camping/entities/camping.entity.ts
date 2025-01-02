@@ -104,6 +104,9 @@ export class Camping extends BaseTable {
   @Column({ nullable: true })
   animalCmgCl: string;
 
+  @Column({ nullable: true })
+  firstImageUrl: string;
+
   @Column({ unique: true })
   contentId: string;
 

@@ -111,6 +111,7 @@ export class CampingService implements ICampingService{
     camping.themaEnvrnCl = data.themaEnvrnCl ?? null;
     camping.eqpmnLendCl = data.eqpmnLendCl ?? null;
     camping.animalCmgCl = data.animalCmgCl ?? null;
+    camping.firstImageUrl = data.firstImageUrl ?? null;
     camping.contentId = data.contentId ?? null;
 
     return camping;

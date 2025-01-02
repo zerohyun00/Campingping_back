@@ -31,5 +31,6 @@ export type CampingType = {
   themaEnvrnCl?: string;
   eqpmnLendCl?: string;
   animalCmgCl?: string;
+  firstImageUrl?: string;
   contentId?: string;
 };

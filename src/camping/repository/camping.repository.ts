@@ -58,6 +58,7 @@ export class CampingRepository {
             'animalCmgCl',
             'contentId',
             'location',
+            'firstImageUrl',
           ],
           ['contentId'],
         )
@@ -68,7 +69,6 @@ export class CampingRepository {
     return await this.repository.find();
   }
   async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string) {
-    console.log(limit);
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
@@ -104,29 +104,12 @@ export class CampingRepository {
         'camping.eqpmnLendCl',
         'camping.animalCmgCl',
         'camping.contentId',
+        'camping.firstImageUrl',
         'favorite.status',
         'ST_AsGeoJSON(camping.location) AS location',
-        'images.id AS image_id',
-        'images.url AS image_url',
+        
       ])
       .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
-      .leftJoin(
-        (subQuery) =>
-          subQuery
-            .select([
-              'DISTINCT ON (image.typeId) image.id AS id',
-              'image.url AS url',
-              'image.typeId AS typeId',
-            ])
-            .from('image', 'image')
-            .where('image.deletedAt IS NULL')
-            .orderBy('image.typeId', 'ASC')
-            .addOrderBy('image.id', 'ASC'),
-        'images',
-        'images.typeId = camping.contentId',
-      )
-      .where('camping.deletedAt IS NULL');
-  
     if (region) {
       queryBuilder.andWhere('camping.doNm ILIKE :region', { region: `%${region}%` });
     }
@@ -204,6 +187,7 @@ export class CampingRepository {
       'camping.eqpmnLendCl',
       'camping.animalCmgCl',
       'camping.contentId',
+      'camping.firstImageUrl',
       'favorite.status',
       'ST_AsGeoJSON(camping.location) as location',
       'image.id AS image_id',
@@ -227,9 +211,10 @@ export class CampingRepository {
       'camping.factDivNm',
       'camping.addr1',
       'camping.lineIntro',
+      'camping.intro',
       'camping.contentId',
       'favorite.status',
-      'images.url',
+      'camping.firstImageUrl',
       'ST_AsGeoJSON(camping.location) as location',
       '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
     ])
@@ -238,21 +223,6 @@ export class CampingRepository {
       '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= :radius',
     )
     .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
-    .leftJoin(
-      (subQuery) =>
-        subQuery
-          .select([
-            'DISTINCT ON (image.typeId) image.id AS id',
-            'image.url AS url',
-            'image.typeId AS typeId',
-          ])
-          .from('image', 'image')
-          .where('image.deletedAt IS NULL')
-          .orderBy('image.typeId', 'ASC') 
-          .addOrderBy('image.id', 'ASC'),
-      'images', 
-      'images.typeId = camping.contentId',
-    )
     .andWhere('camping.deletedAt IS NULL')
     .orderBy('distance', 'ASC')
     .getRawMany();
