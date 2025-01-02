@@ -111,16 +111,23 @@ export class CampingRepository {
       ])
       .leftJoin('favorite', 'favorite', 'camping.contentId = favorite.contentId')
     if (region) {
-      queryBuilder.andWhere('camping.doNm ILIKE :region', { region: `%${region}%` });
+      queryBuilder.andWhere('camping.doNm ILIKE :region', {
+        region: `%${region}%`,
+      });
     }
     if (category) {
       if (category === '펫') {
-        queryBuilder.andWhere('camping.animalCmgCl ILIKE :possible', { possible: '가능%' });
+        queryBuilder.andWhere('camping.animalCmgCl ILIKE :possible', {
+          possible: '가능%',
+        });
       } else {
         queryBuilder.andWhere(
           new Brackets((qb) => {
-            qb.where('camping.lccl ILIKE :category', { category: `%${category}%` })
-              .orWhere('camping.induty ILIKE :category', { category: `%${category}%` });
+            qb.where('camping.lccl ILIKE :category', {
+              category: `%${category}%`,
+            }).orWhere('camping.induty ILIKE :category', {
+              category: `%${category}%`,
+            });
           }),
         );
       }
@@ -128,15 +135,16 @@ export class CampingRepository {
     if (cursor) {
       queryBuilder.andWhere('camping.id > :cursor', { cursor });
     }
-  
+
     queryBuilder.limit(limit && limit > 0 ? limit : 10);
     const result = await queryBuilder.getRawMany();
 
-    const nextCursor = result.length > 0 ? result[result.length - 1].camping_id : null;
+    const nextCursor =
+      result.length > 0 ? result[result.length - 1].camping_id : null;
     const camping = mapCampingListData(result);
     return {
-      result: camping, 
-      nextCursor
+      result: camping,
+      nextCursor,
     };
   }
   async findOne(paramDto: CampingParamDto) {
@@ -203,7 +211,7 @@ export class CampingRepository {
 
     return { ...campingData, images };
   }
-  async findNearbyCamping(lon: number, lat: number, radius: number = 1000) {
+  async findNearbyCamping(lon: number, lat: number, radius: number = 5000) {
     const query = await this.repository
     .createQueryBuilder('camping')
     .select([
