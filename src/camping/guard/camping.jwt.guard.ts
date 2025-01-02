@@ -24,7 +24,6 @@ export class CampingJwtAuthGuard implements CanActivate {
       request.user = user; // 인증된 사용자 정보 설정
     } catch (error) {
       console.error('JWT 검증 오류: ', error.message); // 오류 로그 추가
-      return false;
     }
     return true; // 요청을 계속 진행
   }
