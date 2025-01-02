@@ -41,6 +41,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
             echo "=== Running the new container ==="
+            # 컨테이너 이름에 타임스탬프를 붙여 매번 고유 이름으로 생성
             CONTAINER_NAME="nestjs-app-$(date +%s)"
             docker run -d \
               --name "$CONTAINER_NAME" \
@@ -50,11 +51,25 @@ jobs:
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
-              -e REDIS_HOST=host.docker.internal \ # Redis가 호스트에서 실행 중일 경우
+              -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+              -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+              -e KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }} \
+              -e HASH_ROUNDS=${{ secrets.HASH_ROUNDS }} \
+              -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
+              -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
+              -e REDIS_HOST=host.docker.internal \ 
+              -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+              -e ENV=${{ secrets.ENV }} \
+              -e GO_CAMPING_APIKEY1=${{ secrets.GO_CAMPING_APIKEY1 }} \
+              -e GO_CAMPING_APIKEY2=${{ secrets.GO_CAMPING_APIKEY2 }} \
+              -e GO_CAMPING_APIKEY3=${{ secrets.GO_CAMPING_APIKEY3 }} \
+              -e GO_CAMPING_APIKEY4=${{ secrets.GO_CAMPING_APIKEY4 }} \
+              -e GO_CAMPING_APIKEY5=${{ secrets.GO_CAMPING_APIKEY5 }} \
+              -e GO_CAMPING_APIKEY6=${{ secrets.GO_CAMPING_APIKEY6 }} \
               ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
             echo "=== Running migrations inside the container ==="
-            docker exec "$CONTAINER_NAME" npm run migration:run -d ./dist/database/data-source.js
+            docker exec "$CONTAINER_NAME" npm run typeorm -- migration:run -d ./dist/database/data-source.js
 
             echo "=== Verifying the running container ==="
             docker exec "$CONTAINER_NAME" env
