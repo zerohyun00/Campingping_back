@@ -69,7 +69,8 @@ jobs:
               ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
             echo "=== Running migrations inside the container ==="
-            docker exec "$CONTAINER_NAME" npm run typeorm -- migration:run -d ./dist/database/data-source.js
+            docker exec "$CONTAINER_NAME" npm run migration:generate -- -d src/database/data-source.ts src/migrations/NewMigration
+            docker exec "$CONTAINER_NAME" npm run migration:run -d ./dist/database/data-source.js
 
             echo "=== Verifying the running container ==="
             docker exec "$CONTAINER_NAME" env
