@@ -56,6 +56,8 @@ export class CommunityService implements ICommunityService {
         'community.startDate AS startDate',
         'community.endDate AS endDate',
         'community.view AS view',
+        'community.createdAt AS createdAt',
+        'community.updatedAt AS updatedAt',
         'ST_AsGeoJSON(community.coordinate) as coordinate',
         '(ST_Distance(community.coordinate, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
         'user.email AS email',
@@ -83,7 +85,40 @@ export class CommunityService implements ICommunityService {
         nextCursor,
       };
     }
-
+  async getMyPost(limit: number, cursor: number, userId: string) {
+      const query = this.communityRepository
+      .createQueryBuilder('community')
+      .select([
+        'community.id AS id',
+        'community.title AS title',
+        'community.content AS content',
+        'community.location AS location',
+        'community.people AS people',
+        'community.startDate AS startDate',
+        'community.endDate AS endDate',
+        'community.view AS view',
+        'community.createdAt AS createdAt',
+        'community.updatedAt AS updatedAt',
+        'ST_AsGeoJSON(community.coordinate) as coordinate',
+        'user.email AS email',
+        'user.nickname AS nickname',
+      ])
+      .leftJoin('community.user', 'user')
+      .where('community.user = :userId', { userId });
+      if (cursor) {
+        query.andWhere('community.id > :cursor', { cursor });
+      }
+    
+      query.limit(limit && limit > 0 ? limit : 10);
+  
+      const result = await query.getRawMany();
+      const nextCursor = result.length > 0 ? result[result.length - 1].id : null;
+  
+    return {
+      result: FindResponseDto.allList(result), 
+      nextCursor
+    }
+  }
   async findOne(id: number) {
     const result = await this.communityRepository.findOne({
       where: { id },
