@@ -134,6 +134,7 @@ export class AuthService implements IAuthService {
         throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
       }
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log(isPasswordValid);
     if (!isPasswordValid) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
     }
