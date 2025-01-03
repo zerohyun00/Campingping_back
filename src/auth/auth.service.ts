@@ -129,15 +129,17 @@ export class AuthService implements IAuthService {
     const { email, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) {
-      throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
-    }
-
+    try {
+      if (!user) {
+        throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
+      }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
     }
-
+    } catch (error) {
+      console.log("문제?", error)
+    }
     const [accessToken, refreshToken] = await Promise.all([
       this.issueToken(user, false),
       this.issueToken(user, true),
