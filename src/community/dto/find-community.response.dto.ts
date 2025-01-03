@@ -9,9 +9,12 @@ export class FindResponseDto {
     startdate: Date;
     enddate: Date;
     view: number;
+    createdAt: Date;
+    updatedAt: Date;
     coordinate: string;
     distance: number;
     user: {email:string, nickname: string}
+    
     constructor(community: any) {
         this.id = community.id
         this.title = community.title
@@ -21,6 +24,8 @@ export class FindResponseDto {
         this.startdate = community.startDate
         this.enddate = community.endDate
         this.view = community.view
+        this.createdAt = community.createdat
+        this.updatedAt = community.createdat
         this.distance = community.distance
         try {
             this.coordinate = JSON.parse(community.coordinate)

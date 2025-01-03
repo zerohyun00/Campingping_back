@@ -5,8 +5,8 @@ import { SocialLoginDto } from "../dto/social-login.dto";
 
 export interface IAuthService  {
     sendVerificationCode(email: string): Promise<void>;
-    verifyCode(email: string, code: string): Promise<string>;
-    register(registerUserDto: RegisterUserDto): Promise<string>;
+    verifyCode(email: string, code: string): Promise<{message: string}>;
+    register(registerUserDto: RegisterUserDto): Promise<{message: string, email: string, nickname: string}>;
     login(loginUserDto: LoginUserDto): Promise<{ accessToken: string; refreshToken: string }>;
     OAuthLogin(socialLoginDto: SocialLoginDto): Promise<{ accessToken: string; refreshToken: string }>;
     issueToken(user: { id: string; email: string; role: Role },  isRefreshToken: boolean): Promise<string>;

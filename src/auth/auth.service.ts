@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { LoginType, Role, User } from 'src/user/entities/user.entity';
@@ -15,9 +14,11 @@ import * as nodemailer from 'nodemailer';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { IAuthService } from './interface/auth.service.interface';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -136,7 +137,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
     }
-
+    
     const [accessToken, refreshToken] = await Promise.all([
       this.issueToken(user, false),
       this.issueToken(user, true),

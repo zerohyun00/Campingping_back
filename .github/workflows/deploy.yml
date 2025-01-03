@@ -1,0 +1,74 @@
+name: Deploy to GCP VM
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. 의존성 설치
+      - name: Install dependencies
+        run: npm ci
+
+      # 3. Docker 이미지 빌드 및 Docker Hub로 푸시
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest .
+          echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
+
+      # 4. GCP VM에 Docker 이미지 배포 및 마이그레이션 실행
+      - name: Deploy to GCP VM
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.GCP_VM_IP }}
+          username: ${{ secrets.GCP_VM_USER }}
+          key: ${{ secrets.GCP_PRIVATE_KEY }}
+          script: |
+            echo "=== Stopping and removing existing container ==="
+            docker stop nestjs-app || true
+            docker rm -f nestjs-app || true
+
+            echo "=== Pulling the latest Docker image ==="
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
+
+            echo "=== Running the new container ==="
+            docker run -d \
+              --name nestjs-app \
+              --add-host=host.docker.internal:host-gateway \
+              -p 5000:5000 \
+              -e DB_HOST=host.docker.internal \
+              -e DB_PORT=${{ secrets.DB_PORT }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+              -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+              -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+              -e KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }} \
+              -e HASH_ROUNDS=${{ secrets.HASH_ROUNDS }} \
+              -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
+              -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
+              -e REDIS_HOST=host.docker.internal \
+              -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+              -e ENV=${{ secrets.ENV }} \
+              -e GO_CAMPING_APIKEY1=${{ secrets.GO_CAMPING_APIKEY1 }} \
+              -e GO_CAMPING_APIKEY2=${{ secrets.GO_CAMPING_APIKEY2 }} \
+              -e GO_CAMPING_APIKEY3=${{ secrets.GO_CAMPING_APIKEY3 }} \
+              -e GO_CAMPING_APIKEY4=${{ secrets.GO_CAMPING_APIKEY4 }} \
+              -e GO_CAMPING_APIKEY5=${{ secrets.GO_CAMPING_APIKEY5 }} \
+              -e GO_CAMPING_APIKEY6=${{ secrets.GO_CAMPING_APIKEY6 }} \
+              ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
+
+            echo "=== Running migrations inside the container ==="
+            docker exec nestjs-app npm run typeorm -- migration:run -d ./dist/database/data-source.js
+
+            echo "=== Verifying the running container ==="
+            docker exec nestjs-app env

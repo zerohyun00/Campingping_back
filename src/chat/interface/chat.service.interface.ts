@@ -7,8 +7,8 @@ import { Chat } from "../entities/chat.entity";
 
 export interface IChatService {
     getClientById(userId: string): Socket | undefined;
-    registerClient(userId: string, client:Socket): Promise<void>;
-    removeClient(userId: string): Promise<void>;
+    registerClient(userId: string, client:Socket): void;
+    removeClient(userId: string): void;
     joinRooms(user: { sub: string }, client: Socket): Promise<ChatRoom[]>;
     createMessage(payload: { sub: string }, { message, room }: CreateChatDto, qr: QueryRunner): Promise<Chat>;
     findOrCreateChatRoom( userIds: [string, string], qr: QueryRunner): Promise<ChatRoom>

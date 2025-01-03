@@ -82,7 +82,30 @@ export class CommunityController {
     ) {
     return this.communityService.findAll(lon, lat, limit, cursor);
   }
-
+  @Get('myposts')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '내 커뮤니티 게시글 조회' })
+  @ApiQuery({
+    name: 'limit',
+    description: '보여줄 게시글 수',
+    example: 10,
+    required: true,
+  })
+  @ApiQuery({
+    name: 'cursor',
+    description: '커서 기반 검색용',
+    example: 10,
+    required: false,
+  })
+  @ApiResponse({ status: 200, description: '게시글을 성공적으로 조회했습니다.' })
+  async getMyPost(
+    @Query('limit') limit: number,
+    @Query('cursor') cursor: number,
+    @Req() req: AuthenticatedRequest
+  ){
+    const userId = req.user.sub;
+    return this.communityService.getMyPost(limit, cursor, userId);
+  }
   @Get(':id')
   @ApiOperation({ summary: '특정 커뮤니티 게시글 조회' })
   @ApiParam({ 

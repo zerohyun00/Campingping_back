@@ -10,9 +10,10 @@ import { FindReviewParam, ParamReview } from './dto/param-review.dto';
 import { ReponseReviewDto } from './dto/response-review.dto';
 import { updateReviewDto } from './dto/update-review.dto';
 import { ReviewRepository } from './repository/review.repository';
+import { IReviewService } from './interface/review.service.interface';
 
 @Injectable()
-export class ReviewService {
+export class ReviewService implements IReviewService{
   constructor(
     private campingService: CampingService,
     private reviewRepository: ReviewRepository,
@@ -30,7 +31,7 @@ export class ReviewService {
       createReviewDto,
       user,
     );
-    return result;
+    return;
   }
   async getReview(findReviewParam: FindReviewParam) {
     const camping = await this.campingService.findOne(findReviewParam);

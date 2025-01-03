@@ -7,9 +7,10 @@ import { CampingParamDto } from './dto/find-camping-param.dto';
 import { CampingType } from './type/camping-create.type';
 import { XmlUtils } from 'src/common/utils/xml-util';
 import { ConfigService } from '@nestjs/config';
+import { ICampingService } from './interface/camping.service.interface';
 
 @Injectable()
-export class CampingService {
+export class CampingService implements ICampingService{
   private apiKeyManager: ApiKeyManager;
 
   constructor(
@@ -81,7 +82,7 @@ export class CampingService {
     const camping = new Camping();
     camping.lineIntro = data.lineIntro ?? null;
     camping.intro = data.intro ?? null;
-    camping.factDivNm = data.facltNm ?? null; // 'facltNm'이 API의 이름 필드라 가정
+    camping.facltNm = data.facltNm ?? null; // 'facltNm'이 API의 이름 필드라 가정
     camping.manageDivNm = data.manageDivNm ?? null;
     camping.bizrno = data.bizrno ?? null;
     camping.manageSttus = data.manageSttus ?? null;
@@ -91,7 +92,6 @@ export class CampingService {
     camping.induty = data.induty ?? null;
     camping.lccl = data.lctCl ?? null; // 'lctCl'이 API의 환경 필드라 가정
     camping.doNm = data.doNm ?? null;
-    camping.signguNm = data.signguNm ?? null;
     camping.addr1 = data.addr1 ?? null;
     camping.addr2 = data.addr2 ?? null;
     camping.setLocation(data.mapX, data.mapY);
@@ -110,7 +110,9 @@ export class CampingService {
     camping.themaEnvrnCl = data.themaEnvrnCl ?? null;
     camping.eqpmnLendCl = data.eqpmnLendCl ?? null;
     camping.animalCmgCl = data.animalCmgCl ?? null;
+    camping.firstImageUrl = data.firstImageUrl ?? null;
     camping.contentId = data.contentId ?? null;
+    camping.sigunguNm = data.sigunguNm ?? null;
 
     return camping;
   }
@@ -118,14 +120,14 @@ export class CampingService {
   async findAllForCron() {
     return await this.campingRepository.findAllForCron();
   }
-  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string) {
-    return await this.campingRepository.findAllWithDetails(limit, cursor,region, category);
+  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
+    return await this.campingRepository.findAllWithDetails(limit, cursor,region, category, userId);
   }
 
   async findOne(paramDto: CampingParamDto) {
     return await this.campingRepository.findOne(paramDto);
   }
-  async findNearbyCamping(lon: number, lat: number) {
-    return await this.campingRepository.findNearbyCamping(lon, lat);
+  async findNearbyCamping(lon: number, lat: number, userId?: string) {
+    return await this.campingRepository.findNearbyCamping(lon, lat, userId);
   }
 }

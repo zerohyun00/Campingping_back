@@ -1,12 +1,15 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-kakao';
 
+@Injectable() // 이 데코레이터를 추가해 NestJS 의존성 주입 활성화
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     super({
-      clientID: process.env.KAKAO_CLIENT_ID,
-      clientSecret: process.env.KAKAO_CLIENT_SECRET,
-      callbackURL: process.env.KAKAO_CALLBACK_URL,
+      clientID: configService.get<string>('KAKAO_CLIENT_ID'),
+      clientSecret: configService.get<string>('KAKAO_CLIENT_SECRET'),
+      callbackURL: configService.get<string>('KAKAO_CALLBACK_URL'),
     });
   }
 

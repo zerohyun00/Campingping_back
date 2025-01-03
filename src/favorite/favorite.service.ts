@@ -4,9 +4,10 @@ import { Repository } from 'typeorm';
 import { Favorite } from './entities/favorite.entity';
 import { Camping } from 'src/camping/entities/camping.entity';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
+import { IFavoriteService } from './interface/favorite.service.interface';
 
 @Injectable()
-export class FavoriteService {
+export class FavoriteService implements IFavoriteService {
   constructor(
     @InjectRepository(Favorite)
     private readonly favoriteRepository: Repository<Favorite>,
@@ -22,20 +23,22 @@ export class FavoriteService {
         'camping',
         'favorite.contentId = camping.contentId',
       )
-      .leftJoin('Image', 'image', 'favorite.contentId = image.typeId')
       .where('favorite.user.id = :userId', { userId })
       .andWhere('favorite.status = :status', { status: true })
       .select([
-        'favorite.id',
-        'camping.contentId',
-        'camping.factDivNm as campingName',
-        'camping.addr1',
-        'camping.lineIntro',
-        'camping.intro',
-        'image.url',
+        'favorite.id AS id',
+        'camping.id AS campingId',
+        'camping.contentId AS contentId',
+        'camping.facltNm AS facltNm',
+        'camping.addr1 AS addr1',
+        'camping.addr2 AS addr2',
+        'camping.doNm AS doNm',
+        'camping.sigunguNm AS sigunguNm',
+        'camping.lineIntro AS lineIntro',
+        'camping.intro AS intro',
+        'camping.firstImageUrl AS firstImageUrl',
       ])
-      .distinctOn(['favorite.contentId'])
-      .orderBy('favorite.contentId, image.id', 'ASC')
+      .orderBy('favorite.contentId', 'ASC')
       .getRawMany();
 
     return favorites;

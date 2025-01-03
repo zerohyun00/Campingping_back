@@ -7,9 +7,10 @@ import { User } from 'src/user/entities/user.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
 import { WsException } from '@nestjs/websockets';
+import { IChatService } from './interface/chat.service.interface';
 
 @Injectable()
-export class ChatService {
+export class ChatService implements IChatService{
   private readonly connectedClients = new Map<string, Socket>(); // 특정 사용자의 id값을 넣어주면 사용자가 접속한 소켓을 가져올 수 있음
 
   getClientById(userId: string): Socket | undefined {

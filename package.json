@@ -16,8 +16,14 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migration:generate": "ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js migration:generate",
+    "migration:create": "typeorm migration:create ./src/migrations/{name}",
+    "migration:run": "typeorm migration:run -d ./src/database/data-source.ts",
+    "migration:revert": "typeorm migration:revert -d ./src/database/data-source.ts",
+    "migration:show": "typeorm migration:show -d ./src/database/data-source.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.717.0",
@@ -38,7 +44,7 @@
     "@nestjs/websockets": "^10.4.15",
     "@types/multer": "^1.4.12",
     "axios": "^1.7.9",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "cache-manager": "^5.7.6",
     "cache-manager-ioredis": "^2.1.0",
     "class-transformer": "^0.5.1",
@@ -58,6 +64,7 @@
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
+    "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.20",
     "xml2js": "^0.6.2"
   },
@@ -65,7 +72,7 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
     "@types/cron": "^2.0.1",
     "@types/express": "^5.0.0",
