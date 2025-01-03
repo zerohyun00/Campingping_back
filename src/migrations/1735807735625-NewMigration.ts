@@ -4,6 +4,18 @@ export class NewMigration1735807735625 implements MigrationInterface {
     name = 'NewMigration1735807735625'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`
+            CREATE TABLE "user" (
+                "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+                "username" character varying NOT NULL,
+                "email" character varying NOT NULL,
+                "password" character varying,
+                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+                CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"),
+                CONSTRAINT "UQ_email" UNIQUE ("email")
+            )
+        `);
         await queryRunner.query(`CREATE TABLE "community" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "id" SERIAL NOT NULL, "title" character varying NOT NULL, "content" character varying NOT NULL, "location" character varying NOT NULL, "people" integer NOT NULL, "startDate" TIMESTAMP NOT NULL, "endDate" TIMESTAMP NOT NULL, "view" integer NOT NULL DEFAULT '0', "coordinate" geometry NOT NULL, "userId" uuid, CONSTRAINT "PK_cae794115a383328e8923de4193" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "comment" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "id" SERIAL NOT NULL, "content" character varying NOT NULL, "userId" uuid, "communityId" integer, CONSTRAINT "PK_0b0e4bbc8415ec426f87f3a88e2" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "chat" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "id" SERIAL NOT NULL, "message" character varying NOT NULL, "isRead" boolean NOT NULL DEFAULT false, "authorId" uuid, "chatRoomId" integer, CONSTRAINT "PK_9d0b2ba74336710fd31154738a5" PRIMARY KEY ("id"))`);
@@ -44,6 +56,7 @@ export class NewMigration1735807735625 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "community" DROP CONSTRAINT "FK_38d243246340bda9905ff8fd1e0"`);
         await queryRunner.query(`ALTER TABLE "user" ALTER COLUMN "password" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "type"`);
+        await queryRunner.query(`DROP TABLE "user"`);
         await queryRunner.query(`DROP TYPE "public"."user_type_enum"`);
         await queryRunner.query(`ALTER TABLE "user" DROP CONSTRAINT "UQ_e2364281027b926b879fa2fa1e0"`);
         await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "nickname"`);
@@ -59,6 +72,7 @@ export class NewMigration1735807735625 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "chat"`);
         await queryRunner.query(`DROP TABLE "comment"`);
         await queryRunner.query(`DROP TABLE "community"`);
+        
     }
 
 }

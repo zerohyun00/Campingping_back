@@ -14,9 +14,6 @@ RUN npm install -g @nestjs/cli
 COPY package*.json ./
 RUN npm install
 
-# bcrypt를 소스에서 다시 빌드
-RUN npm install bcrypt --build-from-source
-
 # NestJS 프로젝트 복사
 COPY . .
 
