@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { LoginType, Role, User } from 'src/user/entities/user.entity';
@@ -16,6 +15,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
 import { IAuthService } from './interface/auth.service.interface';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -129,18 +129,15 @@ export class AuthService implements IAuthService {
     const { email, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({ where: { email } });
-    try {
-      if (!user) {
-        throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
-      }
+    if (!user) {
+      throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log(isPasswordValid);
     if (!isPasswordValid) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
     }
-    } catch (error) {
-      console.log("문제?", error)
-    }
+    
     const [accessToken, refreshToken] = await Promise.all([
       this.issueToken(user, false),
       this.issueToken(user, true),
