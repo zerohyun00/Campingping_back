@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ImageService } from 'src/image/image.service';
 import { Cron } from '@nestjs/schedule';
 import { ICampingService } from './interface/camping.service.interface';
-import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class CampingCronHandler {
@@ -22,14 +21,14 @@ export class CampingCronHandler {
     }
   }
   
-  @Cron('0 10 22 * * *', { timeZone: 'Asia/Seoul' })
+  @Cron('0 20 22 * * *', { timeZone: 'Asia/Seoul' })
   async handleCampingImageCron() {
     console.log('CampingImageCron started');
     try {
       const campings = await this.campingService.findAllForCron();
-      await Promise.all(
-        campings.map((camp) => this.imageService.ImageCronHandler(camp.contentId)),
-      );
+      for (const camp of campings) {
+        await this.imageService.ImageCronHandler(camp.contentId);
+      }
       console.log('CampingImageCron completed successfully');
     } catch (error) {
       console.error('Error in CampingImageCron', error.stack);

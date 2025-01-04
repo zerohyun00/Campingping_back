@@ -31,7 +31,7 @@ export class ImageService {
     const numOfRows = 10;
     let pageNo = 1;
     let batchImages = [];
-    const batchSize = 10;
+    const batchSize = 20;
     while (true) {
       const apikey = this.apiKeyManager.getCurrentApiKey(); // 현재 API 키
       const url = `${apiurl}/imageList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&contentId=${contentId}&_type=json`;
