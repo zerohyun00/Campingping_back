@@ -8,7 +8,6 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
-import { CampingCronHandler } from './camping.cron.provider';
 import { CampingParamDto } from './dto/find-camping-param.dto';
 import { ICampingService } from './interface/camping.service.interface';
 import { CampingJwtAuthGuard, CampingUserRequest } from './guard/camping.jwt.guard';
@@ -19,12 +18,7 @@ export class CampingController {
   constructor(
     @Inject('ICampingService')
     private readonly campingService: ICampingService,
-    private readonly campingCron: CampingCronHandler,
   ) {}
-  @Get()
-  async handler() {
-    return await this.campingCron.handleCron();
-  }
   @Get('map')
   @UseGuards(CampingJwtAuthGuard)
   @ApiOperation({
