@@ -10,30 +10,29 @@ export class CampingCronHandler {
     @Inject('ICampingService')
     private readonly campingService: ICampingService,
     private readonly imageService: ImageService,
-    private readonly logger = new Logger(CampingCronHandler.name),
   ) {}
   @Cron('0 0 22 * * *', { timeZone: 'Asia/Seoul' })
   async handleCampingCron() {
-    this.logger.log('CampingCron started');
+    console.log('CampingCron started');
     try {
       await this.campingService.campingCronHandler();
-      this.logger.log('CampingCron completed successfully');
+      console.log('CampingCron completed successfully');
     } catch (error) {
-      this.logger.error('Error in CampingCron', error.stack);
+      console.error('Error in CampingCron', error.stack);
     }
   }
   
   @Cron('0 10 22 * * *', { timeZone: 'Asia/Seoul' })
   async handleCampingImageCron() {
-    this.logger.log('CampingImageCron started');
+    console.log('CampingImageCron started');
     try {
       const campings = await this.campingService.findAllForCron();
       await Promise.all(
         campings.map((camp) => this.imageService.ImageCronHandler(camp.contentId)),
       );
-      this.logger.log('CampingImageCron completed successfully');
+      console.log('CampingImageCron completed successfully');
     } catch (error) {
-      this.logger.error('Error in CampingImageCron', error.stack);
+      console.error('Error in CampingImageCron', error.stack);
     }
   }
 }
