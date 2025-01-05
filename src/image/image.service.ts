@@ -46,16 +46,22 @@ export class ImageService {
       const response = await axios.get(url);
       const responseBody = response.data?.response?.body;
 
-      // API 키 사용 초과 체크
-      if (response.data?.response?.header?.resultCode === '02') {
-        console.error(`API 키 사용 초과: ${apikey}, 다른 키로 전환.`);
-        this.apiKeyManager.switchToNextApiKey();
-        continue;
-      }
-
-      // 데이터가 없으면 종료
       if (!responseBody || !responseBody.items || responseBody.items === '') {
-        console.log(`처리할 데이터가 없습니다 (컨텐츠 아이디: ${contentId}, 페이지: ${pageNo})`);
+        console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo}, contentId: ${contentId})`);
+
+        if (XmlUtils.isXmlResponse(response.data)) {
+          const isXmlResponse = await XmlUtils.handleXmlError(
+            response.data,
+            apikey,
+            this.apiKeyManager,
+          );          
+          if(!isXmlResponse){
+            isboolean = false;
+            break;
+          }
+        } else {
+          console.error('XML이 아닌 오류 응답:', response.data);
+        }
         break;
       }
 
