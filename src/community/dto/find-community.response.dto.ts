@@ -6,8 +6,8 @@ export class FindResponseDto {
     content: string;
     location: string;
     people: number;
-    startdate: Date;
-    enddate: Date;
+    startDate: Date;
+    endDate: Date;
     view: number;
     createdAt: Date;
     updatedAt: Date;
@@ -21,8 +21,8 @@ export class FindResponseDto {
         this.content = community.content
         this.location = community.location
         this.people = community.people
-        this.startdate = community.startDate
-        this.enddate = community.endDate
+        this.startDate = community.startdate
+        this.endDate = community.enddate
         this.view = community.view
         this.createdAt = community.createdat
         this.updatedAt = community.createdat
