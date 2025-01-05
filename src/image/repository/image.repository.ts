@@ -26,6 +26,20 @@ export class ImageRepository {
       await queryRunner.release();
     }
   }
+  // 처리된 이미지를 가져오는 메서드
+  async getProcessedImages(contentId: string): Promise<string[]> {
+    const processedImages = await this.repository
+    .createQueryBuilder('image')
+      .select('image.url')
+      .where('image.typeId = :contentId', { contentId })
+      .andWhere('image.type = :type', { type: 'CAMPING' })
+      .getMany();
+
+    // 이미지 URL 리스트만 반환
+    return processedImages.map(image => image.url);
+  }
+
+
 
   async findOne(contentId: string, imageUrl: string) {
     const image = await this.repository.findOne({

@@ -11,7 +11,7 @@ export class CampingCronHandler {
     private readonly imageService: ImageService,
   ) {}
 
-  @Cron('0 23 2 * * *', { timeZone: 'Asia/Seoul' })
+  @Cron('0 44 2 * * *', { timeZone: 'Asia/Seoul' })
   async handleCombinedCampingCron() {
     console.log('CombinedCampingCron started');
     try {

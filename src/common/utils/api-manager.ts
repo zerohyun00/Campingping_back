@@ -45,4 +45,7 @@ export class ApiKeyManager {
       }
       return false;
     }
+    isOutOfKeys(): boolean {
+      return this.currentIndex >= this.apiKeys.length;
+    }
 }
