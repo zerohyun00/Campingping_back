@@ -33,6 +33,8 @@ export class CampingService implements ICampingService{
     const numOfRows = 100;
     let pageNo = 1;
     let isboolean = true;
+    let contentIds: string[] = [];
+
     while (isboolean) {
       const apikey = this.apiKeyManager.getCurrentApiKey();
       const url = `${apiurl}/basedList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
@@ -67,12 +69,15 @@ export class CampingService implements ICampingService{
         const entities = campData.map((item) => this.mapToEntity(item));
         await this.saveDataInBatches(entities, 100);
         console.log(`${campData.length}개의 데이터를 저장했습니다.`);
+        const ids = campData.map((item) => item.contentId);
+        contentIds = [...contentIds, ...ids]; // 기존 contentIds 배열에 추가
         pageNo++;
       } catch (error) {
         console.error('데이터 요청 중 오류 발생:', error.message);
         break;
       }
     }
+    return contentIds;
   }
   async saveDataInBatches(entities: Camping[], batchSize: number): Promise<void> {
     for (let i = 0; i < entities.length; i += batchSize) {

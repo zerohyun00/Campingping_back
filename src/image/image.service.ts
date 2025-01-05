@@ -42,7 +42,7 @@ export class ImageService {
         const responseBody = response.data?.response?.body;
 
         if (!responseBody || !responseBody.items || responseBody.items === '') {
-          console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
+          console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo}), 컨텐츠 아이디: ${contentId}`);
 
           if (XmlUtils.isXmlResponse(response.data)) {
             const isXmlResponse = await XmlUtils.handleXmlError(
@@ -61,7 +61,7 @@ export class ImageService {
         }
         const images = responseBody.items.item ?? [];
         console.log(
-          `현재 페이지: ${pageNo}, 받은 이미지 데이터 수: ${images.length}`,
+          `현재 페이지: ${pageNo}, 컨텐츠 아이디: ${contentId},받은 이미지 데이터 수: ${images.length}`,
         );
 
         // 가져온 이미지를 DB에 저장
