@@ -32,7 +32,8 @@ export class ImageService {
     let pageNo = 1;
     let batchImages = [];
     const batchSize = 20;
-    while (true) {
+    let isboolean = true;
+    while (isboolean) {
       const apikey = this.apiKeyManager.getCurrentApiKey(); // 현재 API 키
       const url = `${apiurl}/imageList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&contentId=${contentId}&_type=json`;
 
@@ -44,11 +45,15 @@ export class ImageService {
           console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
 
           if (XmlUtils.isXmlResponse(response.data)) {
-            await XmlUtils.handleXmlError(
+            const isXmlResponse = await XmlUtils.handleXmlError(
               response.data,
               apikey,
               this.apiKeyManager,
             );
+            if(!isXmlResponse){
+              isboolean = false;
+              break;
+            }
           } else {
             console.error('XML이 아닌 오류 응답:', response.data);
           }

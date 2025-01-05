@@ -32,8 +32,8 @@ export class CampingService implements ICampingService{
     const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 100;
     let pageNo = 1;
-  
-    while (true) {
+    let isboolean = true;
+    while (isboolean) {
       const apikey = this.apiKeyManager.getCurrentApiKey();
       const url = `${apiurl}/basedList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
   
@@ -45,7 +45,15 @@ export class CampingService implements ICampingService{
           console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
 
           if (XmlUtils.isXmlResponse(response.data)) {
-            await XmlUtils.handleXmlError(response.data, apikey, this.apiKeyManager);
+            const isXmlResponse = await XmlUtils.handleXmlError(
+              response.data,
+              apikey,
+              this.apiKeyManager,
+            );          
+            if(!isXmlResponse){
+              isboolean = false;
+              break;
+            }
           } else {
             console.error('XML이 아닌 오류 응답:', response.data);
           }
