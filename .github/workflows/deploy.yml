@@ -59,6 +59,8 @@ jobs:
               -e REDIS_HOST=host.docker.internal \
               -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
               -e ENV=${{ secrets.ENV }} \
+              -e ENV=${{ secrets.ENV_GMAIL_ADDRESS_KEY }} \
+              -e ENV=${{ secrets.ENV_GMAIL_PASSWORD_KEY }} \   
               -e GO_CAMPING_APIKEY1=${{ secrets.GO_CAMPING_APIKEY1 }} \
               -e GO_CAMPING_APIKEY2=${{ secrets.GO_CAMPING_APIKEY2 }} \
               -e GO_CAMPING_APIKEY3=${{ secrets.GO_CAMPING_APIKEY3 }} \
