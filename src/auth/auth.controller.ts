@@ -115,8 +115,13 @@ export class AuthController {
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.cookie('accessToken', accessToken, { httpOnly: true });
-
-    res.redirect('/');
+  const kakaoConfig = {    
+    clientID: this.configService.get<string>('KAKAO_CLIENT_ID'),
+    clientSecret: this.configService.get<string>('KAKAO_CLIENT_SECRET'),
+    callbackURL: this.configService.get<string>('KAKAO_CALLBACK_URL'),
+  }
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&redirect_uri=${kakaoConfig.callbackURL}&client_id=${kakaoConfig.clientID}`;
+    res.redirect(kakaoAuthUrl);
   }
 
   @Post('refresh')

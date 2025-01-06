@@ -20,7 +20,7 @@ async function bootstrap() {
     ignoreGlobalPrefix: false, // 글로벌 프리픽스 적용
   });
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: ['https://kdt-react-node-1-team03.elicecoding.com', 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
 
