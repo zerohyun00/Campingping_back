@@ -67,6 +67,10 @@ jobs:
             -e GO_CAMPING_APIKEY4=${{ secrets.GO_CAMPING_APIKEY4 }} \
             -e GO_CAMPING_APIKEY5=${{ secrets.GO_CAMPING_APIKEY5 }} \
             -e GO_CAMPING_APIKEY6=${{ secrets.GO_CAMPING_APIKEY6 }} \
+            -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            -e AWS_REGION=${{ secrets.AWS_REGION }} \
+            -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
             ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
             echo "=== Running migrations inside the container ==="
