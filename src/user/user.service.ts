@@ -41,13 +41,12 @@ export class UserService {
     .getRawOne();
     return {
       user:{
-        id: query.userId,
-        email: query.email,
+        email: query.useremail,
         nickName: query.nickname,
-        userType: query.userType,
+        userType: query.usertype,
         image:{
-          id: query.imageId,
-          url: query.imageUrl,
+          id: query.imageid,
+          url: query.imageurl,
         }
       }};
   }
