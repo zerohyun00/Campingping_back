@@ -84,7 +84,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.chatService.joinRooms(payload, client);
     } catch (error) {
       console.error(`[ERROR] Connection failed: ${error.message}`);
-      client.disconnect(); // 인증 실패 시 연결 끊기
+      client.disconnect();
     }
   }
 
