@@ -56,7 +56,12 @@ export class ChatService implements IChatService {
     { message, room }: CreateChatDto,
     qr: QueryRunner,
   ) {
+    // 사용자 정보를 이메일로 조회
     const user = await qr.manager.findOne(User, { where: { id: payload.sub } });
+    if (!user) {
+      throw new WsException('사용자를 찾을 수 없습니다.');
+    }
+
     const chatRoom = await qr.manager.findOne(ChatRoom, {
       where: { id: room },
       relations: ['users'],
@@ -68,12 +73,14 @@ export class ChatService implements IChatService {
       throw new WsException('해당 채팅방에 참여하고 있지 않습니다.');
     }
 
+    // 메시지 저장
     const chatMessage = await qr.manager.save(Chat, {
       author: user,
       message,
       chatRoom,
     });
 
+    // 연결된 클라이언트들에게 메시지 전송
     const clients = chatRoom.users.map((user) =>
       this.connectedClients.get(user.id),
     );
@@ -81,13 +88,18 @@ export class ChatService implements IChatService {
       if (client) {
         client.emit('newMessage', {
           roomId: chatRoom.id,
-          message,
-          sender: payload.sub,
+          message: chatMessage.message,
+          sender: user.email, // 이메일로 전송
+          createdAt: chatMessage.createdAt, // 생성 시간 포함
         });
       }
     });
 
-    return chatMessage;
+    return {
+      message: chatMessage.message,
+      sender: user.email,
+      createdAt: chatMessage.createdAt,
+    };
   }
 
   async findOrCreateChatRoom(

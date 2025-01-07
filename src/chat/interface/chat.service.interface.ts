@@ -15,7 +15,11 @@ export interface IChatService {
     payload: { sub: string },
     { message, room }: CreateChatDto,
     qr: QueryRunner,
-  ): Promise<Chat>;
+  ): Promise<{
+    message: string;
+    sender: string;
+    createdAt: Date;
+  }>;
   findOrCreateChatRoom(
     userIds: [string, string],
     qr: QueryRunner,
