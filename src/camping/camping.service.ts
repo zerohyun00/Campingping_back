@@ -45,7 +45,7 @@ export class CampingService implements ICampingService{
   
         if (!responseBody || !responseBody.items || responseBody.items === '') {
           console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
-
+          //주석
           if (XmlUtils.isXmlResponse(response.data)) {
             const isXmlResponse = await XmlUtils.handleXmlError(
               response.data,
