@@ -72,13 +72,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           token = authHeader.slice(7, authHeader.length);
         }
       }
-  
+      console.log(token, "토큰임 !!!!!!!!!");
       if (!token) {
         throw new UnauthorizedException('토큰이 없습니다.');
       }
-  
+
       // JWT 검증
       const payload = this.jwtService.verify(token); // `accessToken` 대신 `token` 사용
+      console.log(payload, "유저정보임 !!!!!!!!!");
       if (!payload) {
         throw new UnauthorizedException('유효하지 않은 토큰입니다.');
       }
