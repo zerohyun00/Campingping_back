@@ -125,7 +125,7 @@ export class AuthService implements IAuthService {
 
   async login(
     loginUserDto: LoginUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; email: string }> {
     const { email, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({ where: { email } });
@@ -137,17 +137,18 @@ export class AuthService implements IAuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
     }
-    
+
     const [accessToken, refreshToken] = await Promise.all([
       this.issueToken(user, false),
       this.issueToken(user, true),
     ]);
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, email: user.email };
   }
+
   async OAuthLogin(
     socialLoginDto: SocialLoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; email: string }> {
     const { email, nickname, type } = socialLoginDto;
 
     let user = await this.userRepository.findOne({ where: { email } });
@@ -168,7 +169,7 @@ export class AuthService implements IAuthService {
       this.issueToken(user, true),
     ]);
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, email: user.email };
   }
 
   async issueToken(

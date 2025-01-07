@@ -10,7 +10,7 @@ import { WsException } from '@nestjs/websockets';
 import { IChatService } from './interface/chat.service.interface';
 
 @Injectable()
-export class ChatService implements IChatService{
+export class ChatService implements IChatService {
   private readonly connectedClients = new Map<string, Socket>(); // 특정 사용자의 id값을 넣어주면 사용자가 접속한 소켓을 가져올 수 있음
 
   getClientById(userId: string): Socket | undefined {
@@ -128,9 +128,9 @@ export class ChatService implements IChatService{
     return savedRoom;
   }
 
-  async findUserByNickname(nickname: string): Promise<User | null> {
+  async findUserByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
-      where: { nickname },
+      where: { email },
     });
 
     return user || null;
@@ -175,5 +175,44 @@ export class ChatService implements IChatService{
     });
 
     return unreadCount;
+  }
+
+  async getChatRooms(userId: string): Promise<any[]> {
+    // 채팅방 및 유저 정보를 가져오고, 현재 유저를 제외한 나머지 유저를 필터링
+    const chatRooms = await this.chatRoomRepository
+      .createQueryBuilder('chatRoom')
+      .innerJoinAndSelect('chatRoom.users', 'user', 'user.id != :userId', {
+        userId,
+      }) // 현재 유저 제외
+      .innerJoinAndSelect('chatRoom.chats', 'chat', 'chat.deletedAt IS NULL') // 채팅 데이터
+      .where(
+        (qb) =>
+          'chatRoom.id IN ' +
+          qb
+            .subQuery()
+            .select('chatRoomUser.chatRoomId')
+            .from('chat_room_users_user', 'chatRoomUser')
+            .where('chatRoomUser.userId = :userId', { userId })
+            .getQuery(),
+      ) // 현재 유저가 속한 채팅방만
+      .andWhere('chatRoom.deletedAt IS NULL') // 삭제되지 않은 방만
+      .orderBy('chat.createdAt', 'DESC') // 최근 메시지 순 정렬
+      .getMany();
+    const result = chatRooms.map((room) => {
+      const lastChat = room.chats.length > 0 ? room.chats[0] : null; // 가장 최근 메시지
+      return {
+        roomId: room.id,
+        createdAt: room.createdAt,
+        users: room.users.map((user) => ({
+          email: user.email,
+          nickname: user.nickname,
+        })), // 상대방 유저 정보
+        lastMessage: lastChat ? lastChat.message : null,
+        lastMessageTime: lastChat ? lastChat.createdAt : null,
+        Isread: lastChat.isRead,
+      };
+    });
+
+    return result;
   }
 }

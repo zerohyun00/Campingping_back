@@ -2,7 +2,7 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Chat (Mock 데이터 구조만 봐야함!)')
-@Controller('chat')
+@Controller('chats')
 export class ChatMockController {
   @Post('sendMessage')
   @ApiOperation({
@@ -63,9 +63,9 @@ export class ChatMockController {
     schema: {
       type: 'object',
       properties: {
-        nickname: { type: 'string', example: 'MockBob' },
+        email: { type: 'string', example: 'test@naver.com' },
       },
-      required: ['nickname'],
+      required: ['email'],
     },
   })
   @ApiResponse({

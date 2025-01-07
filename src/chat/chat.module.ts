@@ -9,6 +9,7 @@ import { User } from 'src/user/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChatMockController } from './chat.mock.controller';
+import { ChatController } from './chat.controller';
 
 @Module({
   imports: [
@@ -29,6 +30,6 @@ import { ChatMockController } from './chat.mock.controller';
     },
     ChatGateway,
   ],
-  controllers: [ChatMockController],
+  controllers: [ChatMockController, ChatController],
 })
 export class ChatModule {}
