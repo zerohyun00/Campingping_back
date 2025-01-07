@@ -28,7 +28,7 @@ export class ImageService {
   }
  async ImageCronHandler(contentId: string) {
   const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
-  const numOfRows = 10;
+  const numOfRows = 50;
   let pageNo = 1;
   let batchImages = [];
   const batchSize = 20;
