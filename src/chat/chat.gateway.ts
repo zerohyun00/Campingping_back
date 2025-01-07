@@ -33,7 +33,7 @@ import { IChatService } from './interface/chat.service.interface';
     },
   namespace: 'chats',
 })
-// @UseGuards(JwtWsAuthGuard)
+@UseGuards(JwtWsAuthGuard)
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
