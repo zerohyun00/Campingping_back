@@ -28,12 +28,12 @@ import { IChatService } from './interface/chat.service.interface';
     cors: {
       origin: 'http://localhost:3000',
       methods: ['GET', 'POST'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin: *'],
       credentials: true,
     },
   namespace: 'chats',
 })
-@UseGuards(JwtWsAuthGuard)
+// @UseGuards(JwtWsAuthGuard)
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
