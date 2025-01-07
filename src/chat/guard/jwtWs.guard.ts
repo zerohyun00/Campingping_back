@@ -18,7 +18,6 @@ export class JwtWsAuthGuard implements CanActivate {
       token = parsedCookies['accessToken'];
     }
 
-    // 헤더에서 Authorization에서 토큰 추출 (Authorization: Bearer <token>)
     if (!token) {
       const authHeader = client.handshake.headers['authorization'];
       if (authHeader && authHeader.startsWith('Bearer ')) {
