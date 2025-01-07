@@ -8,6 +8,7 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
 import { WsException } from '@nestjs/websockets';
 import { IChatService } from './interface/chat.service.interface';
+import { ChatResType } from './type/chat.res.type';
 
 @Injectable()
 export class ChatService implements IChatService {
@@ -177,7 +178,7 @@ export class ChatService implements IChatService {
     return unreadCount;
   }
 
-  async getChatRooms(userId: string): Promise<any[]> {
+  async getChatRooms(userId: string): Promise<ChatResType[]> {
     // 채팅방 및 유저 정보를 가져오고, 현재 유저를 제외한 나머지 유저를 필터링
     const chatRooms = await this.chatRoomRepository
       .createQueryBuilder('chatRoom')
