@@ -25,7 +25,12 @@ import { QueryRunner } from 'typeorm';
 import { IChatService } from './interface/chat.service.interface';
 
 @WebSocketGateway({
-  // ws://localhost:3000/chats
+    cors: {
+      origin: 'http://localhost:3000',
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+    },
   namespace: 'chats',
 })
 @UseGuards(JwtWsAuthGuard)
