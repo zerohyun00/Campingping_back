@@ -90,7 +90,7 @@ export class CampingRepository {
       });
     }
     if (category) {
-      if (category === '펫') {
+      if (category === '반려동물') {
         queryBuilder.andWhere('camping.animalCmgCl ILIKE :possible', {
           possible: '가능%',
         });
