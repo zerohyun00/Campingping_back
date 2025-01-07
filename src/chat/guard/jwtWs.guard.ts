@@ -8,7 +8,7 @@ export class JwtWsAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const client = context.switchToWs().getClient();
-    // const rawCookies = client.handshake.headers.cookie;
+    //const rawCookies = client.handshake.headers.cookie;
 
     const rawCookies = client.handshake.headers.cookie || client.handshake.headers;
     let token: string | undefined;
@@ -18,6 +18,7 @@ export class JwtWsAuthGuard implements CanActivate {
       token = parsedCookies['accessToken'];
     }
 
+    // 헤더에서 Authorization에서 토큰 추출 (Authorization: Bearer <token>)
     if (!token) {
       const authHeader = client.handshake.headers['authorization'];
       if (authHeader && authHeader.startsWith('Bearer ')) {

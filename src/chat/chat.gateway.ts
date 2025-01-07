@@ -23,7 +23,6 @@ import { WsTransactionInterceptor } from 'src/common/interceptor/ws-transaction-
 import { WsQueryRunner } from 'src/common/decorator/ws-query-runner.decorator';
 import { QueryRunner } from 'typeorm';
 import { IChatService } from './interface/chat.service.interface';
-
 @WebSocketGateway({
     cors: {
       origin: 'http://localhost:3000',
@@ -33,7 +32,6 @@ import { IChatService } from './interface/chat.service.interface';
     },
   namespace: 'chats',
 })
-@UseGuards(JwtWsAuthGuard)
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
@@ -56,38 +54,51 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     console.log('[DEBUG] Inside handleConnection');
-
+  
     try {
-      const rawCookies = client.handshake.headers.cookie;
-      if (!rawCookies) {
-        throw new UnauthorizedException('쿠키가 없습니다.');
+      const rawCookies = client.handshake.headers.cookie || client.handshake.headers;
+      let token: string | undefined;
+  
+      // 쿠키에서 토큰 가져오기
+      if (typeof rawCookies === 'string') {
+        const parsedCookies = cookie.parse(rawCookies);
+        token = parsedCookies['accessToken'];
       }
-      const parsedCookies = cookie.parse(rawCookies);
-      console.log('[DEBUG] Parsed Cookies:', parsedCookies);
-
-      const accessToken = parsedCookies['accessToken'];
-      if (!accessToken) {
-        throw new UnauthorizedException('accessToken이 없습니다.');
+      
+      // Authorization 헤더에서 Bearer 토큰 가져오기
+      if (!token) {
+        const authHeader = client.handshake.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.slice(7, authHeader.length);  // 'Bearer ' 부분 제거
+        }
       }
-
-      const payload = this.jwtService.verify(accessToken);
+  
+      if (!token) {
+        throw new UnauthorizedException('토큰이 없습니다.');
+      }
+  
+      // JWT 검증
+      const payload = this.jwtService.verify(token); // `accessToken` 대신 `token` 사용
       if (!payload) {
         throw new UnauthorizedException('유효하지 않은 토큰입니다.');
       }
       console.log('[DEBUG] Verified User:', payload);
-
-      client.data.user = payload; // 인증된 사용자 데이터를 클라이언트에 저장
-      this.chatService.registerClient(payload.sub, client); // 사용자 ID와 클라이언트를 등록
-
+  
+      // 인증된 사용자 정보를 클라이언트 데이터에 저장
+      client.data.user = payload;
+      
+      // 사용자 ID와 클라이언트를 채팅 서비스에 등록
+      this.chatService.registerClient(payload.sub, client);
+  
       console.log(`[CONNECTED] User ${payload.sub} has connected.`);
-
+  
+      // 사용자 채팅방에 참여시키기
       await this.chatService.joinRooms(payload, client);
     } catch (error) {
       console.error(`[ERROR] Connection failed: ${error.message}`);
       client.disconnect();
     }
   }
-
   @SubscribeMessage('sendMessage')
   @UseInterceptors(WsTransactionInterceptor)
   async handleMessage(
