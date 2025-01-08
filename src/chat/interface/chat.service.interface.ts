@@ -17,7 +17,7 @@ export interface IChatService {
     qr: QueryRunner,
   ): Promise<{
     message: string;
-    sender: string;
+    sender: {email: string, nickname: string};
     createdAt: Date;
   }>;
   findOrCreateChatRoom(

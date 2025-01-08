@@ -89,7 +89,7 @@ export class ChatService implements IChatService {
         client.emit('newMessage', {
           roomId: chatRoom.id,
           message: chatMessage.message,
-          sender: user.email, // 이메일로 전송
+          sender: {email: user.email, nickname: user.nickname}, // 이메일로 전송
           createdAt: chatMessage.createdAt, // 생성 시간 포함
         });
       }
@@ -97,7 +97,7 @@ export class ChatService implements IChatService {
 
     return {
       message: chatMessage.message,
-      sender: user.email,
+      sender: {email: user.email, nickname: user.nickname},
       createdAt: chatMessage.createdAt,
     };
   }
