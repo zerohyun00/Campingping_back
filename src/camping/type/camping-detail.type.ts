@@ -1,5 +1,3 @@
-import { ImageDataType } from "src/image/type/image.data-type";
-
 export type CampingDetailType = {
   camping_id: number;
   camping_lineIntro: string;

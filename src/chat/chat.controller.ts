@@ -1,6 +1,5 @@
 import { Controller, Get, Inject, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
-import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { IChatService } from './interface/chat.service.interface';
 

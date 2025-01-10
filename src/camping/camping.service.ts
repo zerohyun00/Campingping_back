@@ -44,7 +44,6 @@ export class CampingService implements ICampingService{
         const responseBody = response.data?.response?.body;
   
         if (!responseBody || !responseBody.items || responseBody.items === '') {
-          console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
           //주석
           if (XmlUtils.isXmlResponse(response.data)) {
             const isXmlResponse = await XmlUtils.handleXmlError(
@@ -63,12 +62,10 @@ export class CampingService implements ICampingService{
         }
   
         const campData = responseBody.items.item ?? [];
-        console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${campData.length}`);
   
         // 데이터를 즉시 저장
         const entities = campData.map((item) => this.mapToEntity(item));
         await this.saveDataInBatches(entities, 100);
-        console.log(`${campData.length}개의 데이터를 저장했습니다.`);
         const ids = campData.map((item) => item.contentId);
         contentIds = [...contentIds, ...ids]; // 기존 contentIds 배열에 추가
         pageNo++;
@@ -84,7 +81,6 @@ export class CampingService implements ICampingService{
       const batch = entities.slice(i, i + batchSize);
       try {
         await this.campingRepository.saveDataWithTransaction(batch);
-        console.log(`배치 저장 성공: ${batch.length}개`);
       } catch (error) {
         console.error('배치 저장 실패:', error.message, batch);
       }

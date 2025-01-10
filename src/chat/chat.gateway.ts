@@ -7,18 +7,15 @@ import {
   WebSocketGateway,
   WsException,
 } from '@nestjs/websockets';
-import { ChatService } from './chat.service';
 import {
   Inject,
   UnauthorizedException,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import * as cookie from 'cookie';
 import { JwtService } from '@nestjs/jwt';
 import { CreateChatDto } from './dto/create-chat.dto';
-import { JwtWsAuthGuard } from './guard/jwtWs.guard';
 import { WsTransactionInterceptor } from 'src/common/interceptor/ws-transaction-interceptor';
 import { WsQueryRunner } from 'src/common/decorator/ws-query-runner.decorator';
 import { QueryRunner } from 'typeorm';

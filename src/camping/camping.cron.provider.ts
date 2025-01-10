@@ -13,11 +13,8 @@ export class CampingCronHandler {
 
   @Cron('0 53 2 * * *', { timeZone: 'Asia/Seoul' })
   async handleCombinedCampingCron() {
-    console.log('CombinedCampingCron started');
     try {
       const contentIds = await this.campingService.campingCronHandler();
-      console.log('CampingCron completed successfully');
-      console.log(contentIds, "컨텐츠 아이디임!");
       const BATCH_SIZE = 100;
       const MAX_CONCURRENT = 10;
 
@@ -29,11 +26,8 @@ export class CampingCronHandler {
         for (let j = 0; j < Math.min(MAX_CONCURRENT, queue.length); j++) {
           workers.push(this.processQueue(queue));
         }
-
         await Promise.all(workers);
       }
-
-      console.log('CampingImageCron completed successfully');
     } catch (error) {
       console.error('Error in CombinedCampingCron', error.stack);
     }

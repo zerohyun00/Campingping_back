@@ -1,5 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { Controller } from '@nestjs/common';
 
 @Controller()
 export class AppController {

@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { LoginType, Role, User } from 'src/user/entities/user.entity';
+import { Role, User } from 'src/user/entities/user.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as nodemailer from 'nodemailer';
 import { LoginUserDto } from './dto/login-user.dto';

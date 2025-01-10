@@ -11,8 +11,6 @@ import { UserService } from 'src/user/user.service';
 import { CampingModule } from 'src/camping/camping.module';
 import { CampingService } from 'src/camping/camping.service';
 import { CommonModule } from 'src/common/common.module';
-import { ImageService } from 'src/image/image.service';
-import { ImageRepository } from 'src/image/repository/image.repository';
 
 @Module({
   imports: [

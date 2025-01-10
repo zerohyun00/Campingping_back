@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { ImageRepository } from './repository/image.repository';
-import { parseStringPromise } from 'xml2js';
 import { ApiKeyManager } from 'src/common/utils/api-manager';
 import { XmlUtils } from 'src/common/utils/xml-util';
 import { ConfigService } from '@nestjs/config';
@@ -47,7 +46,6 @@ export class ImageService {
       const responseBody = response.data?.response?.body;
 
       if (!responseBody || !responseBody.items || responseBody.items === '') {
-        console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo}, contentId: ${contentId})`);
 
         if (XmlUtils.isXmlResponse(response.data)) {
           const isXmlResponse = await XmlUtils.handleXmlError(
@@ -66,7 +64,6 @@ export class ImageService {
       }
 
       const images = responseBody.items.item ?? [];
-      console.log(`컨텐츠 아이디: ${contentId}, 현재 페이지: ${pageNo}, 받은 이미지 데이터 수: ${images.length}`);
 
       // 이미 처리된 이미지는 건너뛰기
       const newImages = images.filter(image => !processedImages.includes(image.imageUrl));
@@ -86,7 +83,6 @@ export class ImageService {
       // 배치 이미지 저장
       if (batchImages.length >= batchSize) {
         await this.imageRepository.createBatchImages(batchImages);
-        console.log(`배치 이미지 저장 완료: ${batchImages.length}개`);
         batchImages = [];
       }
 
@@ -94,7 +90,6 @@ export class ImageService {
       if (images.length < numOfRows) {
         if (batchImages.length > 0) {
           await this.imageRepository.createBatchImages(batchImages);
-          console.log(`배치 이미지 저장 완료: ${batchImages.length}개`);
         }
         break; // 마지막 페이지에 도달했으므로 종료
       }
@@ -111,8 +106,6 @@ export class ImageService {
       break;
     }
   }
-
-  console.log(`총 ${processedCount}개의 이미지가 처리되었습니다.`);
 }
 
 

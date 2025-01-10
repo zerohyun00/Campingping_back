@@ -49,8 +49,7 @@ export class CommentService implements ICommentService{
       total,
       page,
       take,
-      },
-)
+      });
   }
 
   async createComment(

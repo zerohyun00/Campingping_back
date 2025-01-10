@@ -6,7 +6,6 @@ import {
   Req,
   Get,
   UseGuards,
-  UseInterceptors,
   HttpCode,
   UnauthorizedException,
   Inject,
@@ -16,7 +15,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Response as ExpressResponse, Request } from 'express';
