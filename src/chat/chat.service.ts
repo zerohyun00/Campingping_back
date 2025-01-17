@@ -45,7 +45,7 @@ export class ChatService implements IChatService {
 
     for (let room of chatRooms) {
       client.join(room.id.toString());
-      await this.markMessagesRead(user.sub, room.id);
+      await this.markMessagesRead(user.sub, room.id); // ## 동시에 처리해보자
     }
 
     return chatRooms; // 방 목록 반환
@@ -57,7 +57,11 @@ export class ChatService implements IChatService {
     qr: QueryRunner,
   ) {
     // 사용자 정보를 이메일로 조회
-    const user = await qr.manager.findOne(User, { where: { id: payload.sub } });
+    // ## 동시에 처리해보자: qr.manager.findOne, qr.manager.findOne
+    const user = await qr.manager.findOne(User, { where: { id: payload.sub } }).catch((error) => {
+      // https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/errorhandling/useonlythebuiltinerror.md
+      throw new AppError(commonError.DB_ERROR, 'user를 가져오는 도중 에러 발생', { httpStatusCode: commonErrorStatusCode.INTERNAL_SERVER_ERRROR, cause: error });
+    });
     if (!user) {
       throw new WsException('사용자를 찾을 수 없습니다.');
     }
@@ -146,7 +150,7 @@ export class ChatService implements IChatService {
       where: { email },
     });
 
-    return user || null;
+    return user;
   }
 
   async getChatHistory(
