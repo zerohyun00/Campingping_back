@@ -43,10 +43,18 @@ export class ChatService implements IChatService {
       })
       .getMany();
 
-    for (let room of chatRooms) {
-      client.join(room.id.toString());
-      await this.markMessagesRead(user.sub, room.id);
-    }
+    const joinAndMarkMessage = chatRooms.map(async (room) => {
+      try {
+        client.join(room.id.toString());
+        await this.markMessagesRead(user.sub, room.id);
+      } catch (error) {
+        console.error(
+          `방 ${room.id}에 참여하거나 메시지를 표시하지 못했습니다.`,
+          error,
+        );
+      }
+    });
+    await Promise.all(joinAndMarkMessage);
 
     return chatRooms; // 방 목록 반환
   }
@@ -89,7 +97,7 @@ export class ChatService implements IChatService {
         client.emit('newMessage', {
           roomId: chatRoom.id,
           message: chatMessage.message,
-          sender: {email: user.email, nickname: user.nickname}, // 이메일로 전송
+          sender: { email: user.email, nickname: user.nickname }, // 이메일로 전송
           createdAt: chatMessage.createdAt, // 생성 시간 포함
         });
       }
@@ -97,7 +105,7 @@ export class ChatService implements IChatService {
 
     return {
       message: chatMessage.message,
-      sender: {email: user.email, nickname: user.nickname},
+      sender: { email: user.email, nickname: user.nickname },
       createdAt: chatMessage.createdAt,
     };
   }
