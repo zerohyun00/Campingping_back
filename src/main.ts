@@ -3,10 +3,11 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppErrorFilter } from './common/filters/app-error-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
@@ -24,10 +25,9 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
 
-
   SwaggerModule.setup('api/doc', app, document);
 
-
+  app.useGlobalFilters(new AppErrorFilter());
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
