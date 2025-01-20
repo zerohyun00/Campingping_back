@@ -8,6 +8,7 @@ import {
   mapImageData,
   mapNearbycampingData,
 } from 'src/common/utils/camping-data-map.util';
+import { AppError, CommonError, CommonErrorStatusCode } from 'src/common/utils/app-error';
 
 @Injectable()
 export class CampingRepository {
@@ -65,9 +66,6 @@ export class CampingRepository {
         .execute();
     });
   }
-  async findAllForCron() {
-    return await this.repository.find();
-  }
   async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
@@ -122,8 +120,18 @@ export class CampingRepository {
     }
     queryBuilder.addOrderBy('camping.contentId', 'ASC')
     queryBuilder.limit(limit && limit > 0 ? limit : 10);
+
     const result = await queryBuilder.getRawMany();
 
+    if (!result || result.length === 0) {
+      throw new AppError(
+        CommonError.NOT_FOUND,
+        '캠핑장 데이터가 없습니다',
+        {
+          httpStatusCode: CommonErrorStatusCode.NOT_FOUND
+        }
+      )
+    }
     const nextCursor =
       result.length > 0 ? result[result.length - 1].id : null;
     const camping = mapCampingListData(result);
@@ -185,8 +193,15 @@ export class CampingRepository {
     ]);
   
   const result = await query.getRawMany();
+
     if (!result || result.length === 0) {
-      return null;
+      throw new AppError(
+        CommonError.NOT_FOUND,
+        '캠핑장 데이터가 없습니다',
+        {
+          httpStatusCode: CommonErrorStatusCode.NOT_FOUND
+        }
+      )
     }
     const campingData = mapCampingData(result);
     const images = mapImageData(result);
@@ -227,6 +242,15 @@ export class CampingRepository {
 
     const result = await query.getRawMany();
 
+    if (!result || result.length === 0) {
+      throw new AppError(
+        CommonError.NOT_FOUND,
+        '위치에 맞는 캠핑장 데이터가 없습니다',
+        {
+          httpStatusCode: CommonErrorStatusCode.NOT_FOUND
+        }
+      )
+    }
     return mapNearbycampingData(result);
   }
 }

@@ -87,7 +87,7 @@ export class CampingService implements ICampingService{
     }
   }
 
-  mapToEntity(data: CampingType): Camping {
+  private mapToEntity(data: CampingType): Camping {
     const camping = new Camping();
     camping.lineIntro = data.lineIntro ?? null;
     camping.intro = data.intro ?? null;
@@ -125,18 +125,14 @@ export class CampingService implements ICampingService{
 
     return camping;
   }
-
-  async findAllForCron() {
-    return await this.campingRepository.findAllForCron();
-  }
-  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
+  async getAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
     return await this.campingRepository.findAllWithDetails(limit, cursor,region, category, userId);
   }
 
-  async findOne(paramDto: CampingParamDto) {
+  async getOne(paramDto: CampingParamDto) {
     return await this.campingRepository.findOne(paramDto);
   }
-  async findNearbyCamping(lon: number, lat: number, userId?: string) {
+  async getNearbyCampings(lon: number, lat: number, userId?: string) {
     return await this.campingRepository.findNearbyCamping(lon, lat, userId);
   }
 }

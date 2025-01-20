@@ -11,6 +11,7 @@ import { ApiOperation, ApiResponse, ApiQuery, ApiTags, ApiParam } from '@nestjs/
 import { CampingParamDto } from './dto/find-camping-param.dto';
 import { ICampingService } from './interface/camping.service.interface';
 import { CampingJwtAuthGuard, CampingUserRequest } from './guard/camping.jwt.guard';
+import { QueryDto } from './dto/find-camping.-query.dto';
 
 @ApiTags('Camping')
 @Controller('campings')
@@ -38,16 +39,17 @@ export class CampingController {
     required: true,
   })
   @ApiResponse({ status: 200, description: '근처 캠핑장 목록을 반환합니다.' })
-  async findNearbyCamping(
-    @Query('lat') lat: number,
-    @Query('lon') lon: number,
+  async getNearbyCampings(
+    @Query() query: QueryDto,
     @Req() req?: CampingUserRequest
   ) {
+    const { lon, lat } = query;
     const userId = req?.user?.sub;
+    
     if(!userId){
-      return await this.campingService.findNearbyCamping(lon, lat);
+      return await this.campingService.getNearbyCampings(lon, lat);
     }
-    return await this.campingService.findNearbyCamping(lon, lat, userId);
+    return await this.campingService.getNearbyCampings(lon, lat, userId);
   }
   @Get('lists')
   @UseGuards(CampingJwtAuthGuard)
@@ -80,7 +82,7 @@ export class CampingController {
     required: false,
   })
   @ApiResponse({ status: 200, description: '캠핑장 목록을 반환합니다.' })
-  async findCamping(
+  async getCampings(
     @Query('limit') limit: number,
     @Query('cursor') cursor?:number,
     @Query('region') region?: string,
@@ -89,9 +91,9 @@ export class CampingController {
   ) {
     const userId = req?.user?.sub;
     if (!userId) {
-      return await this.campingService.findAllWithDetails(limit, cursor, region, category);
+      return await this.campingService.getAllWithDetails(limit, cursor, region, category);
     }
-    return await this.campingService.findAllWithDetails(limit, cursor,region, category, userId);
+    return await this.campingService.getAllWithDetails(limit, cursor,region, category, userId);
   }
   @Get('/lists/:contentId')
   @ApiOperation({
@@ -105,7 +107,7 @@ export class CampingController {
     required: true,
   })
   @ApiResponse({ status: 200, description: '특정 캠핑장의 세부 정보를 반환합니다.' })
-  async findOnecamping(@Param() paramDto: CampingParamDto) {
-    return await this.campingService.findOne(paramDto);
+  async getOnecamping(@Param() paramDto: CampingParamDto) {
+    return await this.campingService.getOne(paramDto);
   }
 }
