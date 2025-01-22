@@ -150,7 +150,6 @@ export class AuthService implements IAuthService {
     socialLoginDto: SocialLoginDto,
   ): Promise<{ accessToken: string; refreshToken: string; email: string }> {
     const { email, nickname, type } = socialLoginDto;
-
     let user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
