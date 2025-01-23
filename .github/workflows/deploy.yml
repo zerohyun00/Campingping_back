@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 3. Docker 이미지 빌드 및 Docker Hub로 푸시
+      # 3. Docker 이미지 빌드 및 Docker Hub로 푸시!
       - name: Build and push Docker image
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest .
