@@ -10,12 +10,7 @@ import {
   UnauthorizedException,
   Inject,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Response as ExpressResponse, Request } from 'express';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -126,13 +121,14 @@ export class AuthController {
   async kakaoLogin(
     @SocialUser() socialUser: SocialLoginDto,
     @Res({ passthrough: true }) res: ExpressResponse,
-  ): Promise<{ email: string }>{
+  ): Promise<void> {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.cookie('accessToken', accessToken, { httpOnly: true });
-    return {email};
+    res.send({ message: '카카오로그인', email });
+    res.redirect('/');
   }
 
   @Post('refresh')
