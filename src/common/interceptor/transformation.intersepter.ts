@@ -1,6 +1,6 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class TransformInterceptor implements NestInterceptor {
@@ -14,9 +14,9 @@ export class TransformInterceptor implements NestInterceptor {
 
     // 다른 엔드포인트는 정상적으로 인터셉터가 적용됨
     return next.handle().pipe(
-      tap((data) => {
+      map((data) => {
         return {
-          statusCode: context.switchToHttp().getResponse().statusCode,
+          statusCode: request.statusCode,
           data
         };
       }),
