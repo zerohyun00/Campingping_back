@@ -127,7 +127,6 @@ export class AuthController {
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.redirect('/');
     return { message: '카카오로그인', email };
   }
 
