@@ -8,9 +8,9 @@ export class TransformInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     
     // Prometheus와 Grafana 엔드포인트는 인터셉터를 거치지 않도록 설정
-    if (request.url.includes('/api/metrics') || request.url.includes('/api/grafana')) {
-      return next.handle(); // 인터셉터를 적용하지 않고 바로 처리
-    }
+    // if (request.url.includes('/api/metrics') || request.url.includes('/api/grafana')) {
+    //   return next.handle(); // 인터셉터를 적용하지 않고 바로 처리
+    // }
 
     // 다른 엔드포인트는 정상적으로 인터셉터가 적용됨
     return next.handle().pipe(
