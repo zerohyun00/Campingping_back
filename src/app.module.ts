@@ -20,6 +20,9 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LogInterceptor } from './common/interceptor/log-interceptor';
 import { TransformInterceptor } from './common/interceptor/transformation.intersepter';
+import { MetricsModule } from './metrics/metrics.module';
+import { MetricsInterceptor } from './metrics/interseptor/metrics.interceptor';
+import { MetricsService } from './metrics/metrics.service';
 dotenv.config();
 
 @Module({
@@ -54,10 +57,12 @@ dotenv.config();
     CommunityModule,
     ChatModule,
     FavoriteModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    MetricsService,
     {
       provide: APP_INTERCEPTOR,
       useClass: LogInterceptor,

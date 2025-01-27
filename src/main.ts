@@ -4,6 +4,8 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppErrorFilter } from './common/filters/app-error-filter';
+import { MetricsInterceptor } from './metrics/interseptor/metrics.interceptor';
+import { MetricsService } from './metrics/metrics.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,6 +28,8 @@ async function bootstrap() {
   });
 
   SwaggerModule.setup('api/doc', app, document);
+  
+  app.useGlobalInterceptors(new MetricsInterceptor(new MetricsService()));
 
   app.useGlobalFilters(new AppErrorFilter());
   app.use(cookieParser());
