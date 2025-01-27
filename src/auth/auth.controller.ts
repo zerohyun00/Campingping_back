@@ -121,13 +121,14 @@ export class AuthController {
   async kakaoLogin(
     @SocialUser() socialUser: SocialLoginDto,
     @Res({ passthrough: true }) res: ExpressResponse,
-  ): Promise<void> {
+  ) {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.send({ message: '카카오로그인', email });
+    res.redirect('/');
+    return { message: '카카오로그인', email };
   }
 
   @Post('refresh')
