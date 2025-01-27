@@ -127,7 +127,7 @@ export class AuthController {
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.redirect('/sign-in?fromKaKao=true&email=${email}');
+    res.redirect(`/sign-in?fromKaKao=true&email=${email}`);
   }
 
   @Post('refresh')
