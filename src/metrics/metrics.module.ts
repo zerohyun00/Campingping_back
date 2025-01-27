@@ -6,7 +6,7 @@ import { MetricsController } from "./metrics.controller";
 @Module({
     imports: [
         PrometheusModule.register({
-            path: 'api/metrics',
+            path: 'metrics',
             defaultMetrics: {
                 enabled: true,
             },
