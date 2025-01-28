@@ -23,7 +23,7 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: ['https://campingping.com', 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
 

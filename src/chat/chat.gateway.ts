@@ -22,7 +22,7 @@ import { QueryRunner } from 'typeorm';
 import { IChatService } from './interface/chat.service.interface';
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:3000',
+    origin: '*',
     methods: ['GET', 'POST'],
     allowedHeaders: [
       'Content-Type',
