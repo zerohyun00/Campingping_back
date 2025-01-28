@@ -23,8 +23,17 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: ['https://campingping.com'],
+    origin: (origin, callback) => {
+      const allowedOrigins = ['https://campingping.com'];
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,
   });
 
   SwaggerModule.setup('api/doc', app, document);
