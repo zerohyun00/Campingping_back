@@ -3,7 +3,7 @@ import { ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { IChatService } from './interface/chat.service.interface';
 
-@ApiTags('Chats')
+@ApiTags('Chats (이건 HTTP 요청)')
 @Controller('chats')
 export class ChatController {
   constructor(
