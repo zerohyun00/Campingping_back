@@ -22,8 +22,8 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
       email: generatedEmail,
       nickname,
       type: 'KAKAO',
-      accessToken,
-      refreshToken
+      kakaoAccessToken: accessToken,
+      kakaoRefreshToken: refreshToken,
     };
   }
 }

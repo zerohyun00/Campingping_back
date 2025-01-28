@@ -21,6 +21,8 @@ import { KakaoAuthGuard } from './guard/auth.guard';
 import { SocialUser } from './decorator/user.decorator';
 import { SocialLoginDto } from './dto/social-login.dto';
 import { IAuthService } from './interface/auth.service.interface';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { AuthenticatedRequest, JwtAuthGuard } from './guard/jwt.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -29,6 +31,8 @@ export class AuthController {
     @Inject('IAuthService')
     private readonly authService: IAuthService,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   @Post('send-verification')
@@ -83,19 +87,38 @@ export class AuthController {
     res.status(200).send({ message: '로그아웃 성공' });
   }
   @Get('kakao-logout')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: '카카오 로그아웃',
     description: '카카오 사용자를 로그아웃시킵니다.',
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
-  async kakaoLogout(@Req() req: Request, @Res() res: ExpressResponse) {
+  async kakaoLogout(@Req() req: AuthenticatedRequest, @Res() res: ExpressResponse) {
     try {
-      const accessToken = req.cookies['accessToken'];
-      if (!accessToken) {
-        throw new UnauthorizedException('토큰이 존재하지않습니다.');
+      // 레디스에서 accessToken 가져오기
+      const token = req.cookies['accessToken'];  // 쿠키에서 이메일을 가져온다고 가정
+      if (!token) {
+        throw new UnauthorizedException('쿠키가 존재하지않음');
       }
-      await this.authService.logoutFromKakao(accessToken);
+      const user = req.user;  // 인증된 사용자 정보 가져오기
 
+      // 레디스에서 해당 사용자 이메일로 토큰을 가져옴
+      const userKey = `user:${user.email}`;
+      const userValue = await this.cacheManager.get<string>(userKey);
+      if (!userValue) {
+        throw new UnauthorizedException('사용자 정보가 레디스에 존재하지 않습니다.');
+      }
+      
+      const { kakaoAccessToken } = JSON.parse(userValue);
+      
+      if (!kakaoAccessToken) {
+        throw new UnauthorizedException('카카오 토큰이 존재하지 않습니다.');
+      }
+  
+      // 카카오 로그아웃 호출
+      await this.authService.logoutFromKakao(kakaoAccessToken);
+  
+      // 쿠키 삭제
       res.clearCookie('accessToken');
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
