@@ -152,7 +152,7 @@ export class AuthService implements IAuthService {
   async OAuthLogin(
     socialLoginDto: SocialLoginDto,
   ): Promise<{ accessToken: string; refreshToken: string; email: string }> {
-    const { email, nickname, type, accessToken, refreshToken } = socialLoginDto;
+    const { email, nickname, type, kakaoAccessToken, kakaoRefreshToken } = socialLoginDto;
     let user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
@@ -164,7 +164,15 @@ export class AuthService implements IAuthService {
       });
 
       await this.userRepository.save(user);
-    }
+    } 
+    const userKey = `user:${email}`;
+    const userValue = JSON.stringify({ email, kakaoAccessToken, kakaoRefreshToken });
+    await this.cacheManager.set(userKey, userValue);
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.issueToken(user, false),
+      this.issueToken(user, true),
+    ]);
     return { accessToken, refreshToken, email: user.email };
   }
 

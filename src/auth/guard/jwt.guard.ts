@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 
 export interface AuthenticatedRequest extends Request {
-  user?: { sub: string };
+  user?: { sub: string, email:string };
   cookies: { [key: string]: string };
 }
 @Injectable()

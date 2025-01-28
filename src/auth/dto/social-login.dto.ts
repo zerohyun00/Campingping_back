@@ -12,6 +12,7 @@ export class SocialLoginDto {
 
   type: LoginType.KAKAO;
 
-  accessToken: string;
-  refreshToken: string
+  kakaoAccessToken: string;
+
+  kakaoRefreshToken: string;
 }

@@ -21,6 +21,8 @@ import { KakaoAuthGuard } from './guard/auth.guard';
 import { SocialUser } from './decorator/user.decorator';
 import { SocialLoginDto } from './dto/social-login.dto';
 import { IAuthService } from './interface/auth.service.interface';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { AuthenticatedRequest, JwtAuthGuard } from './guard/jwt.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -29,6 +31,8 @@ export class AuthController {
     @Inject('IAuthService')
     private readonly authService: IAuthService,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   @Post('send-verification')
@@ -83,18 +87,29 @@ export class AuthController {
     res.status(200).send({ message: '로그아웃 성공' });
   }
   @Get('kakao-logout')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: '카카오 로그아웃',
     description: '카카오 사용자를 로그아웃시킵니다.',
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
-  async kakaoLogout(@Req() req: Request, @Res() res: ExpressResponse) {
+  async kakaoLogout(@Req() req: AuthenticatedRequest, @Res() res: ExpressResponse) {
     try {
-      const accessToken = req.cookies['accessToken'];
-      if (!accessToken) {
-        throw new UnauthorizedException('토큰이 존재하지않습니다.');
+      const user = req.user;
+
+      const userKey = `user:${user.email}`;
+      const userValue = await this.cacheManager.get<string>(userKey);
+      if (!userValue) {
+        throw new UnauthorizedException('사용자 정보가 레디스에 존재하지 않습니다.');
       }
-      await this.authService.logoutFromKakao(accessToken);
+
+      const { kakaoAccessToken } = JSON.parse(userValue);
+      
+      if (!kakaoAccessToken) {
+        throw new UnauthorizedException('카카오 토큰이 존재하지 않습니다.');
+      }
+  
+      await this.authService.logoutFromKakao(kakaoAccessToken);
 
       res.clearCookie('accessToken');
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
