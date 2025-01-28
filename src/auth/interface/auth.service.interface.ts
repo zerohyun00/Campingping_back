@@ -22,4 +22,5 @@ export interface IAuthService {
   refreshAccessToken(
     refreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string }>;
+  logoutFromKakao(accessToken: string): Promise<void>;
 }

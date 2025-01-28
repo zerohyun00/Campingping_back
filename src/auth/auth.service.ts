@@ -3,6 +3,8 @@ import {
   BadRequestException,
   UnauthorizedException,
   Inject,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,6 +18,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
 import { IAuthService } from './interface/auth.service.interface';
 import * as bcrypt from 'bcryptjs';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -149,7 +152,7 @@ export class AuthService implements IAuthService {
   async OAuthLogin(
     socialLoginDto: SocialLoginDto,
   ): Promise<{ accessToken: string; refreshToken: string; email: string }> {
-    const { email, nickname, type } = socialLoginDto;
+    const { email, nickname, type, accessToken, refreshToken } = socialLoginDto;
     let user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
@@ -162,12 +165,6 @@ export class AuthService implements IAuthService {
 
       await this.userRepository.save(user);
     }
-
-    const [accessToken, refreshToken] = await Promise.all([
-      this.issueToken(user, false),
-      this.issueToken(user, true),
-    ]);
-
     return { accessToken, refreshToken, email: user.email };
   }
 
@@ -221,5 +218,36 @@ export class AuthService implements IAuthService {
       accessToken,
       refreshToken: newRefreshToken,
     };
+  }
+  async logoutFromKakao(accessToken: string){
+    const url = 'https://kapi.kakao.com/v1/user/logout';
+
+    try {
+      // 카카오 로그아웃 API 호출
+      const response = await axios.post(
+        url,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (response.status !== 200) {
+        throw new HttpException(
+          `Kakao logout failed: ${response.statusText}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      console.error('Failed to logout from Kakao:', error.message);
+
+      // 에러 메시지 및 상태 코드 처리
+      throw new HttpException(
+        `Failed to logout from Kakao: ${error.response?.data?.msg || error.message}`,
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

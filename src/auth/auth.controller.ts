@@ -9,6 +9,8 @@ import {
   HttpCode,
   UnauthorizedException,
   Inject,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -79,6 +81,27 @@ export class AuthController {
       sameSite: 'strict',
     });
     res.status(200).send({ message: '로그아웃 성공' });
+  }
+  @Get('kakao-logout')
+  @ApiOperation({
+    summary: '카카오 로그아웃',
+    description: '카카오 사용자를 로그아웃시킵니다.',
+  })
+  @ApiResponse({ status: 200, description: '로그아웃 성공.' })
+  async kakaoLogout(@Req() req: Request, @Res() res: ExpressResponse) {
+    try {
+      const accessToken = req.cookies['accessToken'];
+      if (!accessToken) {
+        throw new UnauthorizedException('토큰이 존재하지않습니다.');
+      }
+      await this.authService.logoutFromKakao(accessToken);
+
+      res.clearCookie('accessToken');
+      return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
+    } catch (error) {
+      console.error('Logout Error:', error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   @Post('login')
   @HttpCode(200)

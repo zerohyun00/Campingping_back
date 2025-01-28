@@ -18,11 +18,12 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     const kakaoId = profile.id;
     
     const generatedEmail = `${kakaoId}@kakao.com`;
-
     return {
       email: generatedEmail,
       nickname,
       type: 'KAKAO',
+      accessToken,
+      refreshToken
     };
   }
 }
