@@ -23,8 +23,18 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: ['*'],
+    origin: (origin, callback) => {
+      console.log('Origin:', origin);  // origin 값 출력
+      if (['https://campingping.com', 'http://localhost:3000'].includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error('CORS Error: Origin not allowed:', origin); // 에러 로그 출력
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,
   });
 
   SwaggerModule.setup('api/doc', app, document);
