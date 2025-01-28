@@ -100,13 +100,13 @@ export class AuthController {
       const userKey = `user:${user.email}`;
       const userValue = await this.cacheManager.get<string>(userKey);
       if (!userValue) {
-        throw new UnauthorizedException('사용자 정보가 레디스에 존재하지 않습니다.');
+        throw new UnauthorizedException('user_info_not_in_redis');
       }
 
       const { kakaoAccessToken } = JSON.parse(userValue);
       
       if (!kakaoAccessToken) {
-        throw new UnauthorizedException('카카오 토큰이 존재하지 않습니다.');
+        throw new UnauthorizedException('user_info_not_in_kakao_token');
       }
   
       await this.authService.logoutFromKakao(kakaoAccessToken);
