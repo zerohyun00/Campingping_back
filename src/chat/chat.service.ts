@@ -44,6 +44,7 @@ export class ChatService implements IChatService {
    */
   async joinRooms(user: { sub: string }, client: Socket): Promise<ChatRoom[]> {
     try {
+      // 현재 사용자가 참여한 채팅방 조회
       const chatRooms = await this.chatRoomRepository
         .createQueryBuilder('chatRoom')
         .innerJoin('chatRoom.users', 'user', 'user.id = :userId', {
@@ -51,44 +52,31 @@ export class ChatService implements IChatService {
         })
         .getMany();
 
+      // 참여할 채팅방이 없는 경우
       if (!chatRooms || chatRooms.length === 0) {
-        throw new AppError(
-          CommonError.VALIDATION_ERROR,
-          '참여할 채팅방이 없습니다.',
-          {
-            httpStatusCode: CommonErrorStatusCode.BAD_REQUEST,
-          },
-        );
+        this.logger.warn(`[WARN] User ${user.sub} 참여할 채팅방이 없습니다.`);
+        return []; // 빈 배열 반환
       }
 
+      // 채팅방 참여 및 메시지 읽음 처리
       const joinAndMarkPromises = chatRooms.map(async (room) => {
         try {
-          client.join(room.id.toString());
-          await this.markMessagesRead(user.sub, room.id);
+          client.join(room.id.toString()); // 클라이언트를 해당 방에 추가
+          await this.markMessagesRead(user.sub, room.id); // 메시지 읽음 처리
         } catch (error) {
           this.logger.error(
-            `방 ${room.id}에 참여하거나 메시지를 표시하지 못했습니다.`,
+            `Failed to join or mark messages in room ${room.id}`,
             error.stack,
-          );
-          throw new AppError(
-            CommonError.DB_ERROR,
-            `방 ${room.id}에 참여하거나 메시지를 표시하지 못했습니다.`,
-            {
-              httpStatusCode: CommonErrorStatusCode.INTERNAL_SERVER_ERROR,
-              cause: error,
-            },
           );
         }
       });
 
       await Promise.all(joinAndMarkPromises);
 
-      return chatRooms; // 방 목록 반환
+      return chatRooms; // 참여한 채팅방 목록 반환
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      this.logger.error('채팅방에 참여하는 도중 에러 발생', error.stack);
+      // DB 에러 처리
+      this.logger.error('Error while joining chat rooms', error.stack);
       throw new AppError(
         CommonError.DB_ERROR,
         '채팅방에 참여하는 도중 에러가 발생했습니다.',
