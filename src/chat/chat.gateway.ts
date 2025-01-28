@@ -22,7 +22,7 @@ import { QueryRunner } from 'typeorm';
 import { IChatService } from './interface/chat.service.interface';
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: 'https://campingping.com',
     methods: ['GET', 'POST'],
     allowedHeaders: [
       'Content-Type',
