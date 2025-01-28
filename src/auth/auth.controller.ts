@@ -95,11 +95,6 @@ export class AuthController {
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
   async kakaoLogout(@Req() req: AuthenticatedRequest, @Res() res: ExpressResponse) {
     try {
-      // 레디스에서 accessToken 가져오기
-      const token = req.cookies['accessToken'];
-      if (!token) {
-        throw new UnauthorizedException('쿠키가 존재하지않음');
-      }
       const user = req.user;
 
       const userKey = `user:${user.email}`;
