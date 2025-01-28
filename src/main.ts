@@ -23,8 +23,10 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: ['https://campingping.com/'],
+    origin: ['https://campingping.com', 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    exposedHeaders: ['cookie'],
   });
 
   SwaggerModule.setup('api/doc', app, document);
