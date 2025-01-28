@@ -96,29 +96,26 @@ export class AuthController {
   async kakaoLogout(@Req() req: AuthenticatedRequest, @Res() res: ExpressResponse) {
     try {
       // 레디스에서 accessToken 가져오기
-      const token = req.cookies['accessToken'];  // 쿠키에서 이메일을 가져온다고 가정
+      const token = req.cookies['accessToken'];
       if (!token) {
         throw new UnauthorizedException('쿠키가 존재하지않음');
       }
-      const user = req.user;  // 인증된 사용자 정보 가져오기
+      const user = req.user;
 
-      // 레디스에서 해당 사용자 이메일로 토큰을 가져옴
       const userKey = `user:${user.email}`;
       const userValue = await this.cacheManager.get<string>(userKey);
       if (!userValue) {
         throw new UnauthorizedException('사용자 정보가 레디스에 존재하지 않습니다.');
       }
-      
+
       const { kakaoAccessToken } = JSON.parse(userValue);
       
       if (!kakaoAccessToken) {
         throw new UnauthorizedException('카카오 토큰이 존재하지 않습니다.');
       }
   
-      // 카카오 로그아웃 호출
       await this.authService.logoutFromKakao(kakaoAccessToken);
-  
-      // 쿠키 삭제
+
       res.clearCookie('accessToken');
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
