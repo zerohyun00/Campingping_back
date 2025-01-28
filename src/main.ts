@@ -24,7 +24,7 @@ async function bootstrap() {
   });
   app.enableCors({
     origin: (origin, callback) => {
-      const allowedOrigins = ['https://campingping.com'];
+      const allowedOrigins = ['https://campingping.com/'];
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
