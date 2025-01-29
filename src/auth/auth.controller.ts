@@ -177,7 +177,7 @@ export class AuthController {
         maxAge: 3600000, // 1시간
       });
   
-    res.redirect(`https://campingping/sign-in?fromKaKao=true&email=${email}`);
+    res.redirect(`https://campingping.com/sign-in?fromKaKao=true&email=${email}`);
   }
 
   @Post('refresh')
