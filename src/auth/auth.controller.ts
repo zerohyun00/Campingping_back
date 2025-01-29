@@ -134,15 +134,15 @@ export class AuthController {
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
     });
 
@@ -165,7 +165,7 @@ export class AuthController {
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.redirect(`http://localhost:3000/sign-in?fromKaKao=true&email=${email}`);
+    res.redirect(`https://campingping/sign-in?fromKaKao=true&email=${email}`);
   }
 
   @Post('refresh')
