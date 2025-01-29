@@ -163,8 +163,20 @@ export class AuthController {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
-    res.cookie('accessToken', accessToken, { httpOnly: true });
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 3600000, // 1시간
+      });
+  
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 3600000, // 1시간
+      });
+  
     res.redirect(`https://campingping/sign-in?fromKaKao=true&email=${email}`);
   }
 
@@ -198,16 +210,18 @@ export class AuthController {
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 1000, // 1시간
+      secure: true,
+      sameSite: 'none',
+      maxAge: 3600000, // 1시간
     });
-    res.cookie('refreshToken', newRefreshToken, {
+
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 1000 * 24 * 7, // 7일
+      secure: true,
+      sameSite: 'none',
+      maxAge: 3600000, // 1시간
     });
+
 
     return {
       message: '엑세스 토큰 재발급 완료',
