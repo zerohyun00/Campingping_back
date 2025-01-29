@@ -81,8 +81,8 @@ export class AuthController {
   logout(@Res() res: ExpressResponse): void {
     res.clearCookie('accessToken', {
       httpOnly: true,
-      secure: false, // HTTPS에서만 전송
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
     });
     res.status(200).send({ message: '로그아웃 성공' });
   }
@@ -111,7 +111,11 @@ export class AuthController {
   
       await this.authService.logoutFromKakao(kakaoAccessToken);
 
-      res.clearCookie('accessToken');
+      res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      });
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
       console.error('Logout Error:', error);
