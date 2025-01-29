@@ -155,7 +155,7 @@ export class AuthController {
     summary: '카카오 로그인',
     description: '카카오 계정을 이용한 소셜 로그인을 수행합니다.',
   })
-  @ApiResponse({ status: 200, description: '카카오 로그인 성공' })
+  @ApiResponse({ status: 200, description: '카카오 로그인 성공!' })
   async kakaoLogin(
     @SocialUser() socialUser: SocialLoginDto,
     @Res({ passthrough: true }) res: ExpressResponse,
