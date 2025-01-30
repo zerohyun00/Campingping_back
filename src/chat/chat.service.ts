@@ -295,12 +295,12 @@ export class ChatService implements IChatService {
       const chatHistory = await this.chatRepository.find({
         where: { chatRoom: { id: roomId } },
         relations: ['author'],
-        order: { createdAt: 'ASC' },
+        order: { createdAt: 'DESC' },
         skip: offset,
         take: limit,
       });
 
-      return chatHistory;
+      return chatHistory.reverse();
     } catch (error) {
       this.logger.error('채팅 기록 조회 중 에러 발생', error.stack);
       throw new AppError(
