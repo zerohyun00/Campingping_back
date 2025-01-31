@@ -79,6 +79,9 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
   logout(@Res() res: ExpressResponse): void {
+
+    res.setHeader('Authorization', '');
+
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
@@ -111,6 +114,8 @@ export class AuthController {
   
       await this.authService.logoutFromKakao(kakaoAccessToken);
 
+      res.setHeader('Authorization', '');
+      
       res.clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
@@ -135,6 +140,9 @@ export class AuthController {
       await this.authService.login(loginUserDto);
 
     const isProduction = this.configService.get<string>('ENV') === 'prod';
+    
+    // 서드 파티 쿠키로 차단되었을때 사용하기 위해선 
+    res.setHeader('Authorization', `Bearer ${accessToken}`)
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
@@ -166,6 +174,9 @@ export class AuthController {
   ) {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
+
+      // 서드 파티 쿠키로 차단되었을때 사용하기 위해선 
+      res.setHeader('Authorization', `Bearer ${accessToken}`)
 
       res.cookie('accessToken', accessToken, {
         httpOnly: true,

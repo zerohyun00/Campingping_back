@@ -26,6 +26,8 @@ async function bootstrap() {
     origin: 'https://campingping.com',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
+    allowedHeaders: ['Authorization', 'Content-Type'], 
+    exposedHeaders: ['Authorization', 'Set-Cookie'],
   });
 
   SwaggerModule.setup('api/doc', app, document);
