@@ -61,7 +61,7 @@ export class CampingController {
     name: 'limit',
     description: '최대 조회 수',
     example: 10,
-    required: true,
+    required: false,
   })
   @ApiQuery({
     name: 'cursor',
@@ -73,6 +73,12 @@ export class CampingController {
     name: 'region',
     description: '캠핑장의 지역 (선택 사항)',
     example: '서울시',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'city',
+    description: '캠핑장의 (시, 군, 구) (선택 사항)',
+    example: '중구',
     required: false,
   })
   @ApiQuery({
