@@ -141,13 +141,15 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: 'https://campingping.com'
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 3600000, // 1시간
+      maxAge: 3600000,
+      domain: 'https://campingping.com'
     });
 
     return { message: '로그인 성공', email };
