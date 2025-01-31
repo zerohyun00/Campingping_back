@@ -83,17 +83,18 @@ export class CampingController {
   })
   @ApiResponse({ status: 200, description: '캠핑장 목록을 반환합니다.' })
   async getCampings(
-    @Query('limit') limit: number,
+    @Query('limit') limit?: number,
     @Query('cursor') cursor?:number,
     @Query('region') region?: string,
+    @Query('city') city?: string,
     @Query('category') category?: string,
     @Req() req?: CampingUserRequest,
   ) {
     const userId = req?.user?.sub;
     if (!userId) {
-      return await this.campingService.getAllWithDetails(limit, cursor, region, category);
+      return await this.campingService.getAllWithDetails(limit, cursor, region, city, category);
     }
-    return await this.campingService.getAllWithDetails(limit, cursor,region, category, userId);
+    return await this.campingService.getAllWithDetails(limit, cursor, region, city, category, userId);
   }
   @Get('/lists/:contentId')
   @ApiOperation({
