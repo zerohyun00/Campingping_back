@@ -17,7 +17,7 @@ export interface IChatService {
     qr: QueryRunner,
   ): Promise<{
     message: string;
-    sender: {email: string, nickname: string};
+    sender: { email: string; nickname: string };
     createdAt: Date;
   }>;
   findOrCreateChatRoom(
@@ -29,4 +29,5 @@ export interface IChatService {
   markMessagesRead(userId: string, roomId: number): Promise<void>;
   getUnreadMessageCount(roomId: number, userId: string): Promise<number>;
   getChatRooms(userId: string): Promise<ChatResType[]>;
+  leaveChatRoom(roomId: number, userId: string);
 }

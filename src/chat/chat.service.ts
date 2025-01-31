@@ -433,4 +433,35 @@ export class ChatService implements IChatService {
       );
     }
   }
+
+  async leaveChatRoom(roomId: number, userId: string) {
+    const chatRoom = await this.chatRoomRepository.findOne({
+      where: { id: roomId },
+      relations: ['users'],
+    });
+
+    if (!chatRoom) {
+      throw new AppError(CommonError.NOT_FOUND, '채팅방을 찾을 수 없습니다.', {
+        httpStatusCode: CommonErrorStatusCode.NOT_FOUND,
+      });
+    }
+
+    if (!chatRoom.users.some((u) => u.id === userId)) {
+      throw new AppError(
+        CommonError.VALIDATION_ERROR,
+        '해당 채팅방에 속해있지 않습니다.',
+        {
+          httpStatusCode: CommonErrorStatusCode.BAD_REQUEST,
+        },
+      );
+    }
+
+    await Promise.all([
+      this.chatRepository.delete({ chatRoom: { id: roomId } }),
+      this.chatRoomRepository.delete({ id: roomId }),
+    ]);
+
+    await this.chatRoomRepository.delete(roomId);
+    return { message: '채팅방이 삭제되었습니다.' };
+  }
 }
