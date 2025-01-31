@@ -23,6 +23,7 @@ import { SocialLoginDto } from './dto/social-login.dto';
 import { IAuthService } from './interface/auth.service.interface';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AuthenticatedRequest, JwtAuthGuard } from './guard/jwt.guard';
+import { serialize } from 'cookie';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -136,19 +137,21 @@ export class AuthController {
 
     const isProduction = this.configService.get<string>('ENV') === 'prod';
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 3600000, // 1시간
-    });
-
-    res.cookie('refreshToken', refreshToken, {
+    res.setHeader('Set-Cookie', serialize('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
       maxAge: 3600000,
-    });
+      path: '/',
+    }));
+
+    res.setHeader('Set-Cookie', serialize('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 3600000,
+      path: '/',
+    }));
 
     return { message: '로그인 성공', email };
   }
@@ -167,19 +170,21 @@ export class AuthController {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
 
-      res.cookie('accessToken', accessToken, {
+      res.setHeader('Set-Cookie', serialize('accessToken', accessToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        maxAge: 3600000, // 1시간
-      });
+        maxAge: 3600000,
+        path: '/',
+      }));
   
-      res.cookie('refreshToken', refreshToken, {
+      res.setHeader('Set-Cookie', serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        maxAge: 3600000, // 1시간
-      });
+        maxAge: 3600000,
+        path: '/',
+      }));
   
     res.redirect(`https://campingping.com/sign-in?fromKaKao=true&email=${email}`);
   }
@@ -212,19 +217,21 @@ export class AuthController {
 
     const isProduction = this.configService.get<string>('ENV') === 'prod';
 
-    res.cookie('accessToken', accessToken, {
+    res.setHeader('Set-Cookie', serialize('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 3600000, // 1시간
-    });
+      maxAge: 3600000,
+      path: '/',
+    }));
 
-    res.cookie('refreshToken', refreshToken, {
+    res.setHeader('Set-Cookie', serialize('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 3600000, // 1시간
-    });
+      maxAge: 3600000,
+      path: '/',
+    }));
 
 
     return {

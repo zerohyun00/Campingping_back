@@ -26,7 +26,6 @@ async function bootstrap() {
     origin: 'https://campingping.com',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-    exposedHeaders: ['Authorization'], // 필요할 경우 추가
   });
 
   SwaggerModule.setup('api/doc', app, document);
