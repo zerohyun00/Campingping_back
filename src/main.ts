@@ -23,10 +23,10 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: ['https://campingping.com'],
+    origin: 'https://campingping.com',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-    //exposedHeaders: ['cookie'],
+    exposedHeaders: ['Authorization'], // 필요할 경우 추가
   });
 
   SwaggerModule.setup('api/doc', app, document);
