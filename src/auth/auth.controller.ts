@@ -151,7 +151,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: 'campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -159,7 +158,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000,
-      domain: 'campingping.com',
     });
 
     return { message: '로그인 성공', email };
@@ -187,7 +185,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: 'campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -195,7 +192,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: 'campingping.com',
     });
 
     res.redirect(
@@ -236,7 +232,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: 'campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -244,7 +239,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: 'campingping.com',
     });
 
     return {
