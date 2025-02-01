@@ -29,7 +29,7 @@ async function bootstrap() {
   });
 
   SwaggerModule.setup('api/doc', app, document);
-  
+
   app.useGlobalInterceptors(new MetricsInterceptor(new MetricsService()));
 
   app.useGlobalFilters(new AppErrorFilter());
