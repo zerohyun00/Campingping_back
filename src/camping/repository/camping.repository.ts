@@ -128,15 +128,7 @@ export class CampingRepository {
       queryBuilder.limit(limit && limit > 0 ? limit : 10);
     }
     const result = await queryBuilder.getRawMany();
-    if (!result || result.length === 0) {
-      throw new AppError(
-        CommonError.NOT_FOUND,
-        '캠핑장 데이터가 없습니다',
-        {
-          httpStatusCode: CommonErrorStatusCode.NOT_FOUND
-        }
-      )
-    }
+
     const nextCursor =
       result.length > 0 ? result[result.length - 1].id : null;
     const camping = mapCampingListData(result);
