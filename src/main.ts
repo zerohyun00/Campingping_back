@@ -23,8 +23,8 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: 'https://campingping.com/',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: 'https://campingping.com',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     credentials: true,
   });
 
