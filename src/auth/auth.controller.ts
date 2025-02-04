@@ -175,8 +175,6 @@ export class AuthController {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
 
-    // 서드 파티 쿠키로 차단되었을때 사용하기 위해선
-
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
@@ -194,7 +192,7 @@ export class AuthController {
     });
 
     res.redirect(
-      `https://campingping.com/sign-in?fromKaKao=true&email=${email}`,
+      `/sign-in?fromKaKao=true&email=${email}`,
     );
   }
 
