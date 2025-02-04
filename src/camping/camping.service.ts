@@ -125,8 +125,8 @@ export class CampingService implements ICampingService{
 
     return camping;
   }
-  async getAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
-    return await this.campingRepository.findAllWithDetails(limit, cursor,region, category, userId);
+  async getAllWithDetails(limit?: number, cursor?: number, region?: string, city?: string, category?: string, userId?: string) {
+    return await this.campingRepository.findAllWithDetails(limit, cursor, region, city,category, userId);
   }
 
   async getOne(paramDto: CampingParamDto) {

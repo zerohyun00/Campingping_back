@@ -79,10 +79,12 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
   logout(@Res() res: ExpressResponse): void {
+
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
+      domain: '.campingping.com',
     });
     res.status(200).send({ message: '로그아웃 성공' });
   }
@@ -93,7 +95,10 @@ export class AuthController {
     description: '카카오 사용자를 로그아웃시킵니다.',
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
-  async kakaoLogout(@Req() req: AuthenticatedRequest, @Res() res: ExpressResponse) {
+  async kakaoLogout(
+    @Req() req: AuthenticatedRequest,
+    @Res() res: ExpressResponse,
+  ) {
     try {
       const user = req.user;
 
@@ -104,17 +109,18 @@ export class AuthController {
       }
 
       const { kakaoAccessToken } = JSON.parse(userValue);
-      
+
       if (!kakaoAccessToken) {
         throw new UnauthorizedException('user_info_not_in_kakao_token');
       }
-  
+
       await this.authService.logoutFromKakao(kakaoAccessToken);
 
       res.clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'none',
+        sameSite: 'lax',
+        domain: '.campingping.com',
       });
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
@@ -141,13 +147,15 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 3600000, // 1시간
+      maxAge: 3600000,
+      domain: '.campingping.com',
     });
 
     return { message: '로그인 성공', email };
@@ -167,21 +175,25 @@ export class AuthController {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
 
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 3600000, // 1시간
-      });
-  
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 3600000, // 1시간
-      });
-  
-    res.redirect(`https://campingping.com/sign-in?fromKaKao=true&email=${email}`);
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
+    });
+
+    res.redirect(
+      `/sign-in?fromKaKao=true&email=${email}`,
+    );
   }
 
   @Post('refresh')
@@ -217,6 +229,7 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -224,8 +237,8 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
-
 
     return {
       message: '엑세스 토큰 재발급 완료',

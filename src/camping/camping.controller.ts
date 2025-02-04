@@ -61,7 +61,7 @@ export class CampingController {
     name: 'limit',
     description: '최대 조회 수',
     example: 10,
-    required: true,
+    required: false,
   })
   @ApiQuery({
     name: 'cursor',
@@ -76,6 +76,12 @@ export class CampingController {
     required: false,
   })
   @ApiQuery({
+    name: 'city',
+    description: '캠핑장의 (시, 군, 구) (선택 사항)',
+    example: '중구',
+    required: false,
+  })
+  @ApiQuery({
     name: 'category',
     description: '캠핑장의 카테고리 (선택 사항)',
     example: '펫',
@@ -83,17 +89,18 @@ export class CampingController {
   })
   @ApiResponse({ status: 200, description: '캠핑장 목록을 반환합니다.' })
   async getCampings(
-    @Query('limit') limit: number,
+    @Query('limit') limit?: number,
     @Query('cursor') cursor?:number,
     @Query('region') region?: string,
+    @Query('city') city?: string,
     @Query('category') category?: string,
     @Req() req?: CampingUserRequest,
   ) {
     const userId = req?.user?.sub;
     if (!userId) {
-      return await this.campingService.getAllWithDetails(limit, cursor, region, category);
+      return await this.campingService.getAllWithDetails(limit, cursor, region, city, category);
     }
-    return await this.campingService.getAllWithDetails(limit, cursor,region, category, userId);
+    return await this.campingService.getAllWithDetails(limit, cursor, region, city, category, userId);
   }
   @Get('/lists/:contentId')
   @ApiOperation({

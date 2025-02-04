@@ -23,14 +23,14 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: ['https://campingping.com', 'http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: 'https://campingping.com',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ["Content-Type", "rsc"],  // rsc 헤더 허용
     credentials: true,
-    //exposedHeaders: ['cookie'],
   });
 
   SwaggerModule.setup('api/doc', app, document);
-  
+
   app.useGlobalInterceptors(new MetricsInterceptor(new MetricsService()));
 
   app.useGlobalFilters(new AppErrorFilter());

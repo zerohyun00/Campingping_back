@@ -66,7 +66,7 @@ export class CampingRepository {
         .execute();
     });
   }
-  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
+  async findAllWithDetails(limit?: number, cursor?: number, region?: string, city?: string, category?: string, userId?: string) {
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
@@ -85,6 +85,11 @@ export class CampingRepository {
     if (region) {
       queryBuilder.andWhere('camping.doNm ILIKE :region', {
         region: `%${region}%`,
+      });
+    }
+    if (city) {
+      queryBuilder.andWhere('camping.sigunguNm ILIKE :city', {
+        city: `%${city}%`,
       });
     }
     if (category) {
@@ -119,19 +124,11 @@ export class CampingRepository {
       .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC')
     }
     queryBuilder.addOrderBy('camping.contentId', 'ASC')
-    queryBuilder.limit(limit && limit > 0 ? limit : 10);
-
+    if(limit){
+      queryBuilder.limit(limit && limit > 0 ? limit : 10);
+    }
     const result = await queryBuilder.getRawMany();
 
-    if (!result || result.length === 0) {
-      throw new AppError(
-        CommonError.NOT_FOUND,
-        '캠핑장 데이터가 없습니다',
-        {
-          httpStatusCode: CommonErrorStatusCode.NOT_FOUND
-        }
-      )
-    }
     const nextCursor =
       result.length > 0 ? result[result.length - 1].id : null;
     const camping = mapCampingListData(result);
