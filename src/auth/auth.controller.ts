@@ -79,12 +79,12 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
   logout(@Res() res: ExpressResponse): void {
-    res.setHeader('Authorization', '');
 
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
+      domain: '.campingping.com',
     });
     res.status(200).send({ message: '로그아웃 성공' });
   }
@@ -119,7 +119,8 @@ export class AuthController {
       res.clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'none',
+        domain: '.campingping.com',
       });
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
@@ -141,20 +142,20 @@ export class AuthController {
 
     const isProduction = this.configService.get<string>('ENV') === 'prod';
 
-    // 서드 파티 쿠키로 차단되었을때 사용하기 위해선
-
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 3600000,
+      domain: '.campingping.com',
     });
 
     return { message: '로그인 성공', email };
@@ -179,15 +180,17 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
 
     res.redirect(
@@ -226,15 +229,17 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
+      domain: '.campingping.com',
     });
 
     return {
