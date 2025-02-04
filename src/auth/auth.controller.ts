@@ -84,7 +84,7 @@ export class AuthController {
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
     });
     res.status(200).send({ message: '로그아웃 성공' });
   }
@@ -116,12 +116,10 @@ export class AuthController {
 
       await this.authService.logoutFromKakao(kakaoAccessToken);
 
-      res.setHeader('Authorization', '');
-
       res.clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'none',
+        sameSite: 'strict',
       });
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
@@ -144,19 +142,18 @@ export class AuthController {
     const isProduction = this.configService.get<string>('ENV') === 'prod';
 
     // 서드 파티 쿠키로 차단되었을때 사용하기 위해선
-    res.setHeader('Authorization', `Bearer ${accessToken}`);
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: 3600000, // 1시간
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: 3600000,
     });
 
@@ -178,19 +175,18 @@ export class AuthController {
       await this.authService.OAuthLogin(socialUser);
 
     // 서드 파티 쿠키로 차단되었을때 사용하기 위해선
-    res.setHeader('Authorization', `Bearer ${accessToken}`);
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: 3600000, // 1시간
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: 3600000, // 1시간
     });
 
@@ -230,14 +226,14 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: 3600000, // 1시간
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: 3600000, // 1시간
     });
 
