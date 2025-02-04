@@ -25,6 +25,7 @@ async function bootstrap() {
   app.enableCors({
     origin: 'https://campingping.com',
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ["Content-Type", "rsc"],  // rsc 헤더 허용
     credentials: true,
   });
 
