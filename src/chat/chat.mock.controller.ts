@@ -165,7 +165,7 @@ export class ChatMockController {
 
   @Post('getChatHistory')
   @ApiOperation({
-    summary: '[Request] 채팅 기록 요청',
+    summary: '[Event] 채팅 기록 요청',
     description:
       '사용자가 특정 채팅방의 이전 메시지 기록을 요청합니다. 성공 시 chatHistory 이벤트가 발생합니다.',
   })
