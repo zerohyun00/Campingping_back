@@ -79,7 +79,6 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
   logout(@Res() res: ExpressResponse): void {
-
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
@@ -147,7 +146,7 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
+      // domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -155,7 +154,7 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000,
-      domain: '.campingping.com',
+      // domain: '.campingping.com',
     });
 
     return { message: '로그인 성공', email };
@@ -191,9 +190,7 @@ export class AuthController {
       domain: '.campingping.com',
     });
 
-    res.redirect(
-      `/sign-in?fromKaKao=true&email=${email}`,
-    );
+    res.redirect(`/sign-in?fromKaKao=true&email=${email}`);
   }
 
   @Post('refresh')
@@ -229,7 +226,7 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
+      // domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -237,7 +234,7 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
+      // domain: '.campingping.com',
     });
 
     return {

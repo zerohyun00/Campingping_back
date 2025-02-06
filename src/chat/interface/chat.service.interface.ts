@@ -5,6 +5,7 @@ import { ChatRoom } from '../entities/chat-room.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Chat } from '../entities/chat.entity';
 import { ChatResType } from '../type/chat.res.type';
+import { ChatHistoryDto } from '../dto/chat-history.dto';
 
 export interface IChatService {
   getClientById(userId: string): Socket | undefined;
@@ -25,7 +26,11 @@ export interface IChatService {
     qr: QueryRunner,
   ): Promise<ChatRoom>;
   findUserByEmail(email: string): Promise<User>;
-  getChatHistory(roomId: number, page: number, limit: number): Promise<Chat[]>;
+  getChatHistory(
+    roomId: number,
+    page: number,
+    limit: number,
+  ): Promise<ChatHistoryDto[]>;
   markMessagesRead(userId: string, roomId: number): Promise<void>;
   getUnreadMessageCount(roomId: number, userId: string): Promise<number>;
   getChatRooms(userId: string): Promise<ChatResType[]>;

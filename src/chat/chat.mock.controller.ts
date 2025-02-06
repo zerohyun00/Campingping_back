@@ -4,10 +4,6 @@ import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 @ApiTags('Chat (Mock 데이터 구조만 봐야함!)')
 @Controller('chats')
 export class ChatMockController {
-  /**
-   * [Event] 채팅방 생성 요청 (createRoom)
-   * - 사용자가 특정 상대방 이메일로 채팅방을 생성하거나 기존 채팅방을 찾습니다.
-   */
   @Post('createRoom')
   @ApiOperation({
     summary: '[Event] 채팅방 생성 요청',
@@ -29,7 +25,7 @@ export class ChatMockController {
     schema: {
       example: {
         roomId: 101,
-        message: 'Mock room with ID 101 created successfully.',
+        message: 'Room with ID 101 created successfully.',
       },
     },
   })
@@ -40,10 +36,6 @@ export class ChatMockController {
     };
   }
 
-  /**
-   * [Event] 채팅방 생성 알림 (roomCreated)
-   * - 서버가 채팅방이 생성되었음을 클라이언트에 알립니다.
-   */
   @Post('roomCreated')
   @ApiOperation({
     summary: '[Event] 채팅방 생성 알림',
@@ -57,6 +49,7 @@ export class ChatMockController {
         roomId: { type: 'number', example: 101 },
         message: { type: 'string', example: 'Room created successfully' },
       },
+      required: ['roomId', 'message'],
     },
   })
   @ApiResponse({
@@ -76,10 +69,6 @@ export class ChatMockController {
     };
   }
 
-  /**
-   * [Request] 채팅 메시지 전송 요청 (sendMessage)
-   * - 사용자가 특정 채팅방에 메시지를 보냅니다. 성공하면 newMessage 이벤트가 발생합니다.
-   */
   @Post('sendMessage')
   @ApiOperation({
     summary: '[Event] 채팅 메시지 전송 요청',
@@ -105,13 +94,8 @@ export class ChatMockController {
         message: 'Hello, Mock World!',
         isRead: false,
         createdAt: '2025-01-04T10:00:00.000Z',
-        author: {
-          id: 'mockUser123',
-          nickname: 'MockAlice',
-        },
-        chatRoom: {
-          id: 1,
-        },
+        author: { id: 'mockUser123', nickname: 'MockAlice' },
+        chatRoom: { id: 1 },
       },
     },
   })
@@ -121,20 +105,11 @@ export class ChatMockController {
       message: body.message,
       isRead: false,
       createdAt: new Date().toISOString(),
-      author: {
-        id: 'mockUser123',
-        nickname: 'MockAlice',
-      },
-      chatRoom: {
-        id: body.room,
-      },
+      author: { id: 'mockUser123', nickname: 'MockAlice' },
+      chatRoom: { id: body.room },
     };
   }
 
-  /**
-   * [Event] 새 메시지 알림 (newMessage)
-   * - 서버가 새 메시지를 특정 채팅방에 전달합니다.
-   */
   @Post('newMessage')
   @ApiOperation({
     summary: '[Event] 새 메시지 알림',
@@ -156,6 +131,7 @@ export class ChatMockController {
         },
         createdAt: { type: 'string', example: '2025-01-04T10:10:00.000Z' },
       },
+      required: ['roomId', 'message', 'sender', 'createdAt'],
     },
   })
   @ApiResponse({
@@ -165,10 +141,7 @@ export class ChatMockController {
       example: {
         roomId: 101,
         message: 'New message content',
-        sender: {
-          email: 'mockUser123@domain.com',
-          nickname: 'MockAlice',
-        },
+        sender: { email: 'mockUser123@domain.com', nickname: 'MockAlice' },
         createdAt: '2025-01-04T10:10:00.000Z',
       },
     },
@@ -190,15 +163,11 @@ export class ChatMockController {
     };
   }
 
-  /**
-   * [Request] 채팅 기록 요청 (getChatHistory)
-   * - 사용자가 특정 채팅방의 이전 메시지 기록을 요청합니다.
-   */
   @Post('getChatHistory')
   @ApiOperation({
-    summary: '[Event] 채팅 기록 요청',
+    summary: '[Request] 채팅 기록 요청',
     description:
-      '사용자가 특정 채팅방의 이전 메시지 기록을 요청합니다. 성공하면 chatHistory 이벤트가 발생합니다.',
+      '사용자가 특정 채팅방의 이전 메시지 기록을 요청합니다. 성공 시 chatHistory 이벤트가 발생합니다.',
   })
   @ApiBody({
     schema: {
@@ -217,23 +186,21 @@ export class ChatMockController {
     schema: {
       example: [
         {
-          id: 1,
-          message: 'Mock Message 1',
+          message: '답장햇자나',
+          createdAt: '2025-02-06T12:11:54.114Z',
           isRead: true,
-          createdAt: '2025-01-04T10:00:00.000Z',
           author: {
-            id: 'mockUser123',
-            nickname: 'MockAlice',
+            email: 'test@gmail.com',
+            nickname: 'test1',
           },
         },
         {
-          id: 2,
-          message: 'Mock Message 2',
-          isRead: false,
-          createdAt: '2025-01-04T10:01:00.000Z',
+          message: '룸테스트 답장',
+          createdAt: '2025-02-06T12:11:05.388Z',
+          isRead: true,
           author: {
-            id: 'mockUser456',
-            nickname: 'MockBob',
+            email: 'test4@gmail.com',
+            nickname: 'test5',
           },
         },
       ],
@@ -244,89 +211,101 @@ export class ChatMockController {
   ) {
     return [
       {
-        id: 1,
-        message: 'Mock Message 1',
+        message: '답장햇자나',
+        createdAt: '2025-02-06T12:11:54.114Z',
         isRead: true,
-        createdAt: '2025-01-04T10:00:00.000Z',
-        author: {
-          id: 'mockUser123',
-          nickname: 'MockAlice',
-        },
+        author: { email: 'test@gmail.com', nickname: 'test1' },
       },
       {
-        id: 2,
-        message: 'Mock Message 2',
-        isRead: false,
-        createdAt: '2025-01-04T10:01:00.000Z',
-        author: {
-          id: 'mockUser456',
-          nickname: 'MockBob',
-        },
+        message: '룸테스트 답장',
+        createdAt: '2025-02-06T12:11:05.388Z',
+        isRead: true,
+        author: { email: 'test4@gmail.com', nickname: 'test5' },
+      },
+      {
+        message: 'hi',
+        createdAt: '2025-02-06T12:10:28.684Z',
+        isRead: true,
+        author: { email: 'test@gmail.com', nickname: 'test1' },
+      },
+      {
+        message: '룸테스트 답장',
+        createdAt: '2025-02-06T12:07:35.244Z',
+        isRead: true,
+        author: { email: 'test@gmail.com', nickname: 'test1' },
+      },
+      {
+        message: '룸테스트',
+        createdAt: '2025-02-06T12:06:40.200Z',
+        isRead: true,
+        author: { email: 'test4@gmail.com', nickname: 'test5' },
       },
     ];
   }
 
-  /**
-   * [Event] 채팅 기록 응답 (chatHistory)
-   * - 서버가 채팅방의 이전 메시지 기록을 클라이언트에 전달합니다.
-   */
-  @Post('chatHistory')
+  @Post('getChatRooms')
   @ApiOperation({
-    summary: '[Event] 채팅 기록 응답',
+    summary: '[Request] 채팅방 목록 조회 요청',
     description:
-      '서버가 요청된 채팅방의 메시지 기록을 클라이언트에 전달합니다.',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        roomId: { type: 'number', example: 101 },
-        history: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              message: { type: 'string', example: 'Chat message content' },
-              createdAt: {
-                type: 'string',
-                example: '2025-01-04T10:00:00.000Z',
-              },
-              sender: {
-                type: 'object',
-                properties: {
-                  email: { type: 'string', example: 'mockUser123@domain.com' },
-                  nickname: { type: 'string', example: 'MockAlice' },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+      '사용자가 참여 중인 모든 채팅방의 목록을 조회합니다. 응답에는 각 채팅방의 ID, 생성일, 상대방 사용자 정보, 마지막 메시지, 마지막 메시지 전송 시각, 읽지 않은 메시지 수가 포함됩니다.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Mock chatHistory 이벤트 응답입니다.',
+    description: '채팅방 목록 조회 성공',
+    schema: {
+      example: [
+        {
+          roomId: 1,
+          createdAt: '2025-01-01T10:00:00.000Z',
+          users: [{ email: 'test@example.com', nickname: 'TestUser' }],
+          lastMessage: '안녕하세요',
+          lastMessageTime: '2025-01-01T10:05:00.000Z',
+          unreadCount: 2,
+        },
+      ],
+    },
+  })
+  getChatRooms(@Body() body: { userId: string }) {
+    return [
+      {
+        roomId: 1,
+        createdAt: new Date('2025-01-01T10:00:00.000Z').toISOString(),
+        users: [{ email: 'test@example.com', nickname: 'TestUser' }],
+        lastMessage: '안녕하세요',
+        lastMessageTime: new Date('2025-01-01T10:05:00.000Z').toISOString(),
+        unreadCount: 2,
+      },
+    ];
+  }
+
+  @Post('chatRooms')
+  @ApiOperation({
+    summary: '[Event] 채팅방 목록 조회 응답',
+    description:
+      '서버가 요청된 채팅방 목록을 클라이언트에 전달합니다. 응답에는 각 채팅방의 ID, 생성일, 상대방 사용자 정보, 마지막 메시지, 마지막 메시지 전송 시각, 읽지 않은 메시지 수가 포함됩니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '채팅방 목록 조회 성공',
     schema: {
       example: {
-        roomId: 101,
-        history: [
-          {
-            message: 'Chat message content',
-            createdAt: '2025-01-04T10:00:00.000Z',
-            sender: {
-              email: 'mockUser123@domain.com',
-              nickname: 'MockAlice',
-            },
-          },
-        ],
+        roomId: 1,
+        createdAt: '2025-01-01T10:00:00.000Z',
+        users: [{ email: 'test@example.com', nickname: 'TestUser' }],
+        lastMessage: '안녕하세요',
+        lastMessageTime: '2025-01-01T10:05:00.000Z',
+        unreadCount: 2,
       },
     },
   })
-  emitChatHistory(@Body() body: { roomId: number; history: any[] }) {
+  chatRooms(@Body() body: { userId: string }) {
     return {
-      roomId: body.roomId,
-      history: body.history,
+      roomId: 1,
+      createdAt: new Date('2025-01-01T10:00:00.000Z').toISOString(),
+      users: [{ email: 'test@example.com', nickname: 'TestUser' }],
+      lastMessage: '안녕하세요',
+      lastMessageTime: new Date('2025-01-01T10:05:00.000Z').toISOString(),
+      unreadCount: 2,
     };
   }
 }

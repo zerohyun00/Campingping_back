@@ -7,11 +7,7 @@ import {
   WebSocketGateway,
   WsException,
 } from '@nestjs/websockets';
-import {
-  Inject,
-  UnauthorizedException,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Inject, UnauthorizedException, UseInterceptors } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import * as cookie from 'cookie';
 import { JwtService } from '@nestjs/jwt';
@@ -181,6 +177,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (error) {
       console.error(`[ERROR] Failed to fetch chat history: ${error.message}`);
       client.emit('error', { message: '채팅 기록을 가져오는데 실패했습니다.' });
+    }
+  }
+
+  @SubscribeMessage('getChatRooms')
+  async handleGetChatRooms(@ConnectedSocket() client: Socket): Promise<void> {
+    try {
+      const user = client.data.user;
+
+      const chatRooms = await this.chatService.getChatRooms(user.sub);
+
+      client.emit('chatRooms', chatRooms);
+    } catch (error) {
+      client.emit('error', { message: error.message });
     }
   }
 }
