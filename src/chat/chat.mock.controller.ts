@@ -245,9 +245,9 @@ export class ChatMockController {
 
   @Post('getChatRooms')
   @ApiOperation({
-    summary: '[Request] 채팅방 목록 조회 요청',
+    summary: '[Event] 채팅방 목록 조회 요청',
     description:
-      '사용자가 참여 중인 모든 채팅방의 목록을 조회합니다. 응답에는 각 채팅방의 ID, 생성일, 상대방 사용자 정보, 마지막 메시지, 마지막 메시지 전송 시각, 읽지 않은 메시지 수가 포함됩니다.',
+      '사용자가 참여 중인 모든 채팅방의 목록을 조회합니다. 성공시 chatRooms 이벤트가 발생합니다.',
   })
   @ApiResponse({
     status: 200,
@@ -276,36 +276,5 @@ export class ChatMockController {
         unreadCount: 2,
       },
     ];
-  }
-
-  @Post('chatRooms')
-  @ApiOperation({
-    summary: '[Event] 채팅방 목록 조회 응답',
-    description:
-      '서버가 요청된 채팅방 목록을 클라이언트에 전달합니다. 응답에는 각 채팅방의 ID, 생성일, 상대방 사용자 정보, 마지막 메시지, 마지막 메시지 전송 시각, 읽지 않은 메시지 수가 포함됩니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '채팅방 목록 조회 성공',
-    schema: {
-      example: {
-        roomId: 1,
-        createdAt: '2025-01-01T10:00:00.000Z',
-        users: [{ email: 'test@example.com', nickname: 'TestUser' }],
-        lastMessage: '안녕하세요',
-        lastMessageTime: '2025-01-01T10:05:00.000Z',
-        unreadCount: 2,
-      },
-    },
-  })
-  chatRooms(@Body() body: { userId: string }) {
-    return {
-      roomId: 1,
-      createdAt: new Date('2025-01-01T10:00:00.000Z').toISOString(),
-      users: [{ email: 'test@example.com', nickname: 'TestUser' }],
-      lastMessage: '안녕하세요',
-      lastMessageTime: new Date('2025-01-01T10:05:00.000Z').toISOString(),
-      unreadCount: 2,
-    };
   }
 }
