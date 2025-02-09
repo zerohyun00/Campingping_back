@@ -148,12 +148,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('getChatHistory')
   async handleGetChatHistory(
-    @MessageBody() body: { roomId: number; page: number; limit: number }, // page와 limit 추가
+    @MessageBody() body: { roomId: number; page?: number; limit?: number },
     @ConnectedSocket() client: Socket,
   ) {
+    const page = body.page ?? 1;
+    const limit = body.limit ?? 50;
+
     try {
       const payload = client.data.user;
-
       // 사용자가 해당 방에 속해 있는지 확인
       const chatRooms = await this.chatService.joinRooms(
         { sub: payload.sub },
@@ -166,11 +168,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // 채팅 기록 조회
+      // 채팅 기록 조회 시 기본값을 사용하여 offset 계산
       const chatHistory = await this.chatService.getChatHistory(
         body.roomId,
-        body.page,
-        body.limit,
+        page,
+        limit,
       );
 
       client.emit('chatHistory', chatHistory);
