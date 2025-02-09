@@ -296,7 +296,7 @@ export class ChatService implements IChatService {
       const chatHistory = await this.chatRepository.find({
         where: { chatRoom: { id: roomId } },
         relations: ['author'],
-        order: { createdAt: 'DESC' },
+        order: { createdAt: 'ASC' },
         skip: offset,
         take: limit,
       });
