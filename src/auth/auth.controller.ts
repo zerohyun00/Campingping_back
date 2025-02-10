@@ -83,7 +83,6 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '.campingping.com',
     });
     res.status(200).send({ message: '로그아웃 성공' });
   }
