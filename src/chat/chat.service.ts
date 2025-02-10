@@ -159,7 +159,7 @@ export class ChatService implements IChatService {
           const pushSubscription = recipient.pushSubscription;
           if (pushSubscription) {
             await this.webPushService.sendNotification(pushSubscription, {
-              title: '새로운 메시지',
+              title: chatMessage.author.nickname,
               body: message,
               roomId: chatRoom.id,
             });
