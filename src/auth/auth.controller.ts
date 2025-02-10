@@ -84,6 +84,11 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
     });
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    });
     res.status(200).send({ message: '로그아웃 성공' });
   }
   @Get('kakao-logout')
@@ -118,7 +123,11 @@ export class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        domain: '.campingping.com',
+      });
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
       });
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
@@ -145,7 +154,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      // domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -153,7 +161,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000,
-      // domain: '.campingping.com',
     });
 
     return { message: '로그인 성공', email };
@@ -178,7 +185,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -186,7 +192,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
     });
 
     res.redirect(`/sign-in?fromKaKao=true&email=${email}`);
@@ -225,7 +230,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      // domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -233,7 +237,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      // domain: '.campingping.com',
     });
 
     return {
