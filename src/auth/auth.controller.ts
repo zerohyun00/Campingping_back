@@ -118,7 +118,7 @@ export class AuthController {
       res.clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         domain: '.campingping.com',
       });
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
@@ -177,7 +177,7 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
       domain: '.campingping.com',
     });
@@ -185,7 +185,7 @@ export class AuthController {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
       domain: '.campingping.com',
     });
