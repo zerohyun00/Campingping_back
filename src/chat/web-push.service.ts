@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as webPush from 'web-push';
 
 @Injectable()
 export class WebPushService {
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     webPush.setVapidDetails(
       'mailto:kyhh39@gmail.com', // VAPID 이메일
-      process.env.VAPID_PUBLIC_KEY,
-      process.env.VAPID_PRIVATE_KEY,
+      this.configService.get<string>('VAPID_PUBLIC_KEY'),
+      this.configService.get<string>('VAPID_PRIVATE_KEY'),
     );
   }
 
