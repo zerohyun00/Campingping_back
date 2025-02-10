@@ -28,9 +28,9 @@ export interface IChatService {
   findUserByEmail(email: string): Promise<User>;
   getChatHistory(
     roomId: number,
-    page: number,
-    limit: number,
-  ): Promise<ChatHistoryDto[]>;
+    cursor?: number,
+    limit?: number,
+  ): Promise<{ chatHistory: ChatHistoryDto[]; nextCursor?: number }>;
   markMessagesRead(userId: string, roomId: number): Promise<void>;
   getUnreadMessageCount(roomId: number, userId: string): Promise<number>;
   getChatRooms(userId: string): Promise<ChatResType[]>;

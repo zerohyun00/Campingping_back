@@ -303,42 +303,44 @@ export class ChatService implements IChatService {
    */
   async getChatHistory(
     roomId: number,
-    page: number,
-    limit: number,
-  ): Promise<ChatHistoryDto[]> {
-    try {
-      const offset = (page - 1) * limit;
+    cursor?: number, // 마지막으로 불러온 메시지의 ID (이전 메시지를 가져오기 위한 기준)
+    limit: number = 50,
+  ): Promise<{ chatHistory: ChatHistoryDto[]; nextCursor?: number }> {
+    // ✅ nextCursor 추가!
+    const query = this.chatRepository
+      .createQueryBuilder('chat')
+      .innerJoinAndSelect('chat.author', 'author')
+      .where('chat.chatRoomId = :roomId', { roomId })
+      .orderBy('chat.id', 'DESC') // 최신 메시지부터 가져오기
+      .take(limit + 1); // nextcursor를 위한 `limit + 1`개 가져옴
 
-      const chatHistory = await this.chatRepository.find({
-        where: { chatRoom: { id: roomId } },
-        relations: ['author'],
-        order: { createdAt: 'ASC' },
-        skip: offset,
-        take: limit,
-      });
+    if (cursor) {
+      query.andWhere('chat.id < :cursor', { cursor }); // 이전 메시지만 가져오기
+    }
 
-      const formattedHistory = chatHistory.map((chat) => ({
+    const chatHistory = await query.getMany();
+
+    // `nextCursor` 설정 (가장 오래된 메시지의 ID)
+    let nextCursor: number | undefined = undefined;
+    if (chatHistory.length > limit) {
+      nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
+    }
+
+    return {
+      chatHistory: chatHistory.map((chat) => ({
         message: chat.message,
-        createdAt: chat.createdAt.toISOString(),
+        createdAt: chat.createdAt.toLocaleString('ko-KR', {
+          timeZone: 'Asia/Seoul',
+        }),
+        id: chat.id,
         isRead: chat.isRead,
         author: {
           email: chat.author.email,
           nickname: chat.author.nickname,
         },
-      }));
-
-      return formattedHistory;
-    } catch (error) {
-      this.logger.error('채팅 기록 조회 중 에러 발생', error.stack);
-      throw new AppError(
-        CommonError.DB_ERROR,
-        '채팅 기록을 조회하는 도중 에러가 발생했습니다.',
-        {
-          httpStatusCode: CommonErrorStatusCode.INTERNAL_SERVER_ERROR,
-          cause: error,
-        },
-      );
-    }
+      })),
+      nextCursor,
+    };
   }
 
   /**

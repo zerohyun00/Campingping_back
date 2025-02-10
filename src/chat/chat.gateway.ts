@@ -148,10 +148,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('getChatHistory')
   async handleGetChatHistory(
-    @MessageBody() body: { roomId: number; page?: number; limit?: number },
+    @MessageBody() body: { roomId: number; cursor?: number; limit?: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const page = body.page ?? 1;
     const limit = body.limit ?? 50;
 
     try {
@@ -172,7 +171,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // 채팅 기록 가져오기
       const chatHistory = await this.chatService.getChatHistory(
         body.roomId,
-        page,
+        body.cursor,
         limit,
       );
 
