@@ -193,12 +193,6 @@ export class ChatMockController {
           description:
             '이전 메시지를 불러올 때 사용하는 메시지 ID (없으면 최신 메시지 조회)',
         },
-        limit: {
-          type: 'number',
-          example: 20,
-          default: 50,
-          description: '가져올 메시지 개수 (기본값: 50)',
-        },
       },
       required: ['roomId'],
     },
