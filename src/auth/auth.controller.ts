@@ -180,8 +180,8 @@ export class AuthController {
   ) {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
-    console.log(`[REQ] ${req.method} ${req.url}`)
-    res.cookie('accessToken', accessToken, {
+
+      res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
