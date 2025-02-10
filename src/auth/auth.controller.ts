@@ -194,7 +194,7 @@ export class AuthController {
       maxAge: 3600000, // 1시간
     });
 
-    res.redirect(`/sign-in?fromKaKao=true&email=${email}`);
+    return res.redirect(`/sign-in?fromKaKao=true&email=${email}`);
   }
 
   @Post('refresh')
