@@ -11,6 +11,7 @@ import { ChatResType } from './type/chat.res.type';
 import { AppError } from 'src/common/utils/app-error';
 import { CommonError, CommonErrorStatusCode } from 'src/common/utils/app-error';
 import { ChatHistoryDto } from './dto/chat-history.dto';
+import { WebPushService } from './web-push.service';
 @Injectable()
 export class ChatService implements IChatService {
   private readonly connectedClients = new Map<string, Socket>(); // 특정 사용자의 id값을 넣어주면 사용자가 접속한 소켓을 가져올 수 있음
@@ -23,6 +24,7 @@ export class ChatService implements IChatService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Chat)
     private readonly chatRepository: Repository<Chat>,
+    private readonly webPushService: WebPushService,
   ) {}
 
   getClientById(userId: string): Socket | undefined {
@@ -149,6 +151,20 @@ export class ChatService implements IChatService {
         author: user,
         message,
         chatRoom,
+      });
+
+      // 웹 푸시 전송
+      chatRoom.users.forEach(async (recipient) => {
+        if (recipient.id !== user.id) {
+          const pushSubscription = recipient.pushSubscription;
+          if (pushSubscription) {
+            await this.webPushService.sendNotification(pushSubscription, {
+              title: '새로운 메시지',
+              body: message,
+              roomId: chatRoom.id,
+            });
+          }
+        }
       });
 
       // 연결된 클라이언트들에게 메시지 전송
