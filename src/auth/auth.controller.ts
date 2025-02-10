@@ -176,10 +176,11 @@ export class AuthController {
   async kakaoLogin(
     @SocialUser() socialUser: SocialLoginDto,
     @Res({ passthrough: true }) res: ExpressResponse,
+    @Req() req: Request,
   ) {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
-
+    console.log(`[REQ] ${req.method} ${req.url}`)
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
