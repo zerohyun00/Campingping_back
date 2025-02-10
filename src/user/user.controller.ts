@@ -70,7 +70,8 @@ export class UserController {
     summary: '웹 푸시 구독 정보 저장',
     description:
       '✅ 이 API는 **사용자의 푸시 구독 정보를 서버에 저장하는 API입니다.** \n\n' +
-      '⚠️ *푸시 알림을 받으려면 반드시 이 API를 호출하여 서버에 구독 정보를 저장해야 합니다.*',
+      '⚠️ *푸시 알림을 받으려면 반드시 이 API를 호출하여 서버에 구독 정보를 저장해야 합니다.* \n\n' +
+      'subscription 객체를 바디에 담아서 보내주시면 됩니다.',
   })
   @ApiBody({
     schema: {
