@@ -167,7 +167,7 @@ export class ChatMockController {
   @ApiOperation({
     summary: '[Event] 채팅 기록 요청',
     description:
-      '사용자가 특정 채팅방의 이전 메시지 기록을 요청합니다. 성공 시 chatHistory 이벤트가 발생합니다.',
+      '사용자가 특정 채팅방의 이전 메시지 기록을 요청합니다. 성공 시 chatHistory, updateRead 이벤트가 발생합니다.',
   })
   @ApiBody({
     schema: {
@@ -182,65 +182,79 @@ export class ChatMockController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Mock 채팅 기록 응답입니다.',
+    description: 'Mock 채팅 기록 응답입니다. chatHistory + updateRead 포함.',
     schema: {
-      example: [
-        {
-          message: '답장햇자나',
-          createdAt: '2025-02-06T12:11:54.114Z',
-          isRead: true,
-          author: {
-            email: 'test@gmail.com',
-            nickname: 'test1',
+      example: {
+        chatHistory: [
+          {
+            message: '답장햇자나',
+            createdAt: '2025-02-06T12:11:54.114Z',
+            isRead: true,
+            author: {
+              email: 'test@gmail.com',
+              nickname: 'test1',
+            },
           },
-        },
-        {
-          message: '룸테스트 답장',
-          createdAt: '2025-02-06T12:11:05.388Z',
-          isRead: true,
-          author: {
-            email: 'test4@gmail.com',
-            nickname: 'test5',
+          {
+            message: '룸테스트 답장',
+            createdAt: '2025-02-06T12:11:05.388Z',
+            isRead: true,
+            author: {
+              email: 'test4@gmail.com',
+              nickname: 'test5',
+            },
           },
+        ],
+        updateRead: {
+          roomId: 10,
+          email: 'test4@gmail.com',
+          isRead: true,
         },
-      ],
+      },
     },
   })
   getChatHistory(
     @Body() body: { roomId: number; page: number; limit: number },
   ) {
-    return [
-      {
-        message: '답장햇자나',
-        createdAt: '2025-02-06T12:11:54.114Z',
-        isRead: true,
-        author: { email: 'test@gmail.com', nickname: 'test1' },
+    return {
+      chatHistory: [
+        {
+          message: '답장햇자나',
+          createdAt: '2025-02-06T12:11:54.114Z',
+          isRead: true,
+          author: { email: 'test@gmail.com', nickname: 'test1' },
+        },
+        {
+          message: '룸테스트 답장',
+          createdAt: '2025-02-06T12:11:05.388Z',
+          isRead: true,
+          author: { email: 'test4@gmail.com', nickname: 'test5' },
+        },
+        {
+          message: 'hi',
+          createdAt: '2025-02-06T12:10:28.684Z',
+          isRead: true,
+          author: { email: 'test@gmail.com', nickname: 'test1' },
+        },
+        {
+          message: '룸테스트 답장',
+          createdAt: '2025-02-06T12:07:35.244Z',
+          isRead: true,
+          author: { email: 'test@gmail.com', nickname: 'test1' },
+        },
+        {
+          message: '룸테스트',
+          createdAt: '2025-02-06T12:06:40.200Z',
+          isRead: true,
+          author: { email: 'test4@gmail.com', nickname: 'test5' },
+        },
+      ],
+      updateRead: {
+        roomId: body.roomId,
+        email: 'test4@gmail.com', // 현재 요청한 사용자의 이메일 (Mock 데이터)
+        isRead: true, // 모든 메시지가 읽음 처리됨
       },
-      {
-        message: '룸테스트 답장',
-        createdAt: '2025-02-06T12:11:05.388Z',
-        isRead: true,
-        author: { email: 'test4@gmail.com', nickname: 'test5' },
-      },
-      {
-        message: 'hi',
-        createdAt: '2025-02-06T12:10:28.684Z',
-        isRead: true,
-        author: { email: 'test@gmail.com', nickname: 'test1' },
-      },
-      {
-        message: '룸테스트 답장',
-        createdAt: '2025-02-06T12:07:35.244Z',
-        isRead: true,
-        author: { email: 'test@gmail.com', nickname: 'test1' },
-      },
-      {
-        message: '룸테스트',
-        createdAt: '2025-02-06T12:06:40.200Z',
-        isRead: true,
-        author: { email: 'test4@gmail.com', nickname: 'test5' },
-      },
-    ];
+    };
   }
 
   @Post('getChatRooms')

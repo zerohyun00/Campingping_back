@@ -156,6 +156,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       const payload = client.data.user;
+
       // 사용자가 해당 방에 속해 있는지 확인
       const chatRooms = await this.chatService.joinRooms(
         { sub: payload.sub },
@@ -168,12 +169,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // 채팅 기록 조회 시 기본값을 사용하여 offset 계산
+      // 채팅 기록 가져오기
       const chatHistory = await this.chatService.getChatHistory(
         body.roomId,
         page,
         limit,
       );
+
+      // 읽음 처리 후 상대방에게 알림
+      await this.chatService.markMessagesRead(payload.sub, body.roomId);
+
+      // 방에 있는 모든 사용자에게 "읽음" 상태 전송
+      client.to(body.roomId.toString()).emit('updateRead', {
+        roomId: body.roomId,
+        email: payload.email, // email 전송
+        isRead: true, // 읽음 여부 포함
+      });
 
       client.emit('chatHistory', chatHistory);
     } catch (error) {
@@ -192,6 +203,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('chatRooms', chatRooms);
     } catch (error) {
       client.emit('error', { message: error.message });
+    }
+  }
+
+  @SubscribeMessage('openChatRoom')
+  async handleOpenChatRoom(
+    @MessageBody() body: { roomId: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const payload = client.data.user;
+
+      // 해당 채팅방 메시지를 읽음 처리
+      await this.chatService.markMessagesRead(payload.sub, body.roomId);
+
+      // 해당 채팅방에 있는 모든 클라이언트에게 읽음 상태 업데이트 전송
+      client.to(body.roomId.toString()).emit('updateReadStatus', {
+        roomId: body.roomId,
+        userId: payload.sub,
+      });
+
+      console.log(
+        `[INFO] User ${payload.sub} marked messages as read in Room ${body.roomId}`,
+      );
+    } catch (error) {
+      console.error(
+        `[ERROR] Failed to mark messages as read: ${error.message}`,
+      );
+      client.emit('error', {
+        message: '메시지 읽음 처리 중 오류가 발생했습니다.',
+      });
     }
   }
 }
