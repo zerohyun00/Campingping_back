@@ -311,7 +311,7 @@ export class ChatService implements IChatService {
       .createQueryBuilder('chat')
       .innerJoinAndSelect('chat.author', 'author')
       .where('chat.chatRoomId = :roomId', { roomId })
-      .orderBy('chat.id', 'ASC') // 최신 메시지부터 가져오기
+      .orderBy('chat.id', 'DESC') // 최신 메시지부터 가져오기
       .take(limit + 1); // nextcursor를 위한 `limit + 1`개 가져옴
 
     if (cursor) {
@@ -319,15 +319,17 @@ export class ChatService implements IChatService {
     }
 
     const chatHistory = await query.getMany();
-
+    
     // `nextCursor` 설정 (가장 오래된 메시지의 ID)
     let nextCursor: number | undefined = undefined;
     if (chatHistory.length > limit) {
       nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
     }
 
+    const chats = chatHistory.reverse()
+
     return {
-      chatHistory: chatHistory.map((chat) => ({
+      chatHistory: chats.map((chat) => ({
         message: chat.message,
         createdAt: chat.createdAt,
         // createdAt: chat.createdAt.toLocaleString('ko-KR', {
