@@ -311,7 +311,7 @@ export class ChatService implements IChatService {
       .createQueryBuilder('chat')
       .innerJoinAndSelect('chat.author', 'author')
       .where('chat.chatRoomId = :roomId', { roomId })
-      .orderBy('chat.id', 'DESC') // 최신 메시지부터 가져오기
+      .orderBy('chat.id', 'ASC') // 최신 메시지부터 가져오기
       .take(limit + 1); // nextcursor를 위한 `limit + 1`개 가져옴
 
     if (cursor) {
@@ -329,9 +329,10 @@ export class ChatService implements IChatService {
     return {
       chatHistory: chatHistory.map((chat) => ({
         message: chat.message,
-        createdAt: chat.createdAt.toLocaleString('ko-KR', {
-          timeZone: 'Asia/Seoul',
-        }),
+        createdAt: chat.createdAt,
+        // createdAt: chat.createdAt.toLocaleString('ko-KR', {
+        //   timeZone: 'Asia/Seoul',
+        // }),
         id: chat.id,
         isRead: chat.isRead,
         author: {
