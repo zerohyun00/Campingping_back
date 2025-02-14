@@ -315,18 +315,16 @@ export class ChatService implements IChatService {
       .take(limit + 1); // nextcursor를 위한 `limit + 1`개 가져옴
 
     if (cursor) {
-      query.andWhere('chat.id < :cursor', { cursor }); // 이전 메시지만 가져오기
+      query.andWhere('chat.id <= :cursor', { cursor }); // 이전 메시지만 가져오기
     }
 
     const chatHistory = await query.getMany();
     
     // `nextCursor` 설정 (가장 오래된 메시지의 ID)
-    // let nextCursor: number | undefined = undefined;
-    // if (chatHistory.length > limit) {
-    //   nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
-    // }
-    const nextCursor =
-      chatHistory.length > 0 ? chatHistory[chatHistory.length - 1].id : null;
+    let nextCursor: number | undefined = undefined;
+    if (chatHistory.length > limit) {
+      nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
+    }
 
     const chats = chatHistory.reverse()
 
