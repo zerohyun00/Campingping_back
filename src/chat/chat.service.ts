@@ -321,10 +321,12 @@ export class ChatService implements IChatService {
     const chatHistory = await query.getMany();
     
     // `nextCursor` 설정 (가장 오래된 메시지의 ID)
-    let nextCursor: number | undefined = undefined;
-    if (chatHistory.length > limit) {
-      nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
-    }
+    // let nextCursor: number | undefined = undefined;
+    // if (chatHistory.length > limit) {
+    //   nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
+    // }
+    const nextCursor =
+      chatHistory.length > 0 ? chatHistory[chatHistory.length - 1].id : null;
 
     const chats = chatHistory.reverse()
 
