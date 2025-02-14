@@ -326,8 +326,10 @@ export class ChatService implements IChatService {
       nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
     }
 
+    const chats = chatHistory.reverse()
+
     return {
-      chatHistory: chatHistory.map((chat) => ({
+      chatHistory: chats.map((chat) => ({
         message: chat.message,
         createdAt: chat.createdAt,
         // createdAt: chat.createdAt.toLocaleString('ko-KR', {
