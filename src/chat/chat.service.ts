@@ -319,14 +319,14 @@ export class ChatService implements IChatService {
     }
 
     const chatHistory = await query.getMany();
-    
+
     // `nextCursor` 설정 (가장 오래된 메시지의 ID)
     let nextCursor: number | undefined = undefined;
     if (chatHistory.length > limit) {
       nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
     }
 
-    const chats = chatHistory.reverse()
+    const chats = chatHistory.reverse();
 
     return {
       chatHistory: chats.map((chat) => ({
@@ -500,5 +500,13 @@ export class ChatService implements IChatService {
 
     await this.chatRoomRepository.delete(roomId);
     return { message: '채팅방이 삭제되었습니다.' };
+  }
+  async isUserInRoom(userId: string, roomId: number): Promise<boolean> {
+    const room = await this.chatRoomRepository.findOne({
+      where: { id: roomId },
+      relations: ['users'],
+    });
+
+    return room ? room.users.some((user) => user.id === userId) : false;
   }
 }
