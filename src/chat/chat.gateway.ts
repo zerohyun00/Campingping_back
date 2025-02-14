@@ -151,25 +151,37 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() body: { roomId: number; cursor?: number; limit?: number },
     @ConnectedSocket() client: Socket,
   ) {
+    const limit = body.limit ?? 50;
+
     try {
       const payload = client.data.user;
 
-      const { chatHistory, nextCursor } = await this.chatService.getChatHistory(
+      // ✅ 사용자가 현재 방에 속해 있는지 확인
+      const chatRooms = await this.chatService.joinRooms(
+        { sub: payload.sub },
+        client,
+      );
+      const isMember = chatRooms.some((room) => room.id === body.roomId);
+
+      if (!isMember) {
+        client.emit('error', { message: '해당 채팅방에 속하지 않았습니다.' });
+        return;
+      }
+
+      // ✅ 사용자가 해당 채팅방을 "현재 보고 있는지" 확인 후 읽음 처리
+      const isViewingChat = this.chatService
+        .getClientById(payload.sub)
+        ?.rooms.has(body.roomId.toString());
+
+      const chatHistory = await this.chatService.getChatHistory(
         body.roomId,
         body.cursor,
-        body.limit ?? 50,
+        limit,
       );
 
-      // ✅ 사용자가 실제로 해당 채팅방에 입장했을 때만 읽음 처리
-      const isUserInRoom = await this.chatService.isUserInRoom(
-        payload.sub,
-        body.roomId,
-      );
-
-      if (isUserInRoom) {
+      if (isViewingChat) {
         await this.chatService.markMessagesRead(payload.sub, body.roomId);
 
-        // ✅ 읽음 상태를 업데이트
         client.to(body.roomId.toString()).emit('updateRead', {
           roomId: body.roomId,
           email: payload.email,
@@ -177,8 +189,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }
 
-      client.emit('chatHistory', { chatHistory, nextCursor });
+      client.emit('chatHistory', chatHistory);
     } catch (error) {
+      console.error(`[ERROR] Failed to fetch chat history: ${error.message}`);
       client.emit('error', { message: '채팅 기록을 가져오는데 실패했습니다.' });
     }
   }
