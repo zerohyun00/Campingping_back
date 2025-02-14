@@ -156,7 +156,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const payload = client.data.user;
 
-      // ✅ 사용자가 현재 방에 속해 있는지 확인
+      // 사용자가 해당 방에 속해 있는지 확인
       const chatRooms = await this.chatService.joinRooms(
         { sub: payload.sub },
         client,
@@ -168,26 +168,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // ✅ 사용자가 해당 채팅방을 "현재 보고 있는지" 확인 후 읽음 처리
-      const isViewingChat = this.chatService
-        .getClientById(payload.sub)
-        ?.rooms.has(body.roomId.toString());
-
+      // 채팅 기록 가져오기
       const chatHistory = await this.chatService.getChatHistory(
         body.roomId,
         body.cursor,
         limit,
       );
 
-      if (isViewingChat) {
-        await this.chatService.markMessagesRead(payload.sub, body.roomId);
-
-        client.to(body.roomId.toString()).emit('updateRead', {
-          roomId: body.roomId,
-          email: payload.email,
-          isRead: true,
-        });
-      }
+      // 읽음 처리 후 상대방에게 알림
+      await this.chatService.markMessagesRead(payload.sub, body.roomId);
 
       client.emit('chatHistory', chatHistory);
     } catch (error) {
@@ -217,22 +206,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const payload = client.data.user;
 
-      // ✅ 사용자가 채팅방에 입장했을 때만 읽음 처리
-      const isUserInRoom = await this.chatService.isUserInRoom(
-        payload.sub,
-        body.roomId,
+      // ✅ 유저가 직접 채팅방을 열었을 때만 메시지를 읽음 처리
+      await this.chatService.markMessagesRead(payload.sub, body.roomId);
+
+      // ✅ 채팅방에 있는 모든 클라이언트에게 읽음 상태 업데이트 전송
+      client.to(body.roomId.toString()).emit('updateRead', {
+        roomId: body.roomId,
+        email: payload.email,
+        isRead: true,
+      });
+
+      console.log(
+        `[INFO] User ${payload.sub} marked messages as read in Room ${body.roomId}`,
       );
-
-      if (isUserInRoom) {
-        await this.chatService.markMessagesRead(payload.sub, body.roomId);
-
-        client.to(body.roomId.toString()).emit('updateRead', {
-          roomId: body.roomId,
-          email: payload.email,
-          isRead: true,
-        });
-      }
     } catch (error) {
+      console.error(
+        `[ERROR] Failed to mark messages as read: ${error.message}`,
+      );
       client.emit('error', {
         message: '메시지 읽음 처리 중 오류가 발생했습니다.',
       });

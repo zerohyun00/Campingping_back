@@ -321,4 +321,46 @@ export class ChatMockController {
       },
     ];
   }
+  @Post('openChatRoom')
+  @ApiOperation({
+    summary: '[Event] 채팅방 입장 (읽음 처리)',
+    description:
+      '사용자가 특정 채팅방을 클릭하여 입장하면 해당 채팅방의 모든 읽지 않은 메시지를 읽음 처리합니다.\n\n' +
+      '✔ 이 API를 호출하면 해당 유저의 모든 읽지 않은 메시지가 읽음 상태(`isRead: true`)로 업데이트됩니다.\n' +
+      '✔ 해당 채팅방에 있는 다른 유저들에게 `updateRead` 이벤트가 발생하여 읽음 상태가 동기화됩니다.\n\n' +
+      '✅ 프론트 요청 예시:\n' +
+      '```json\n' +
+      '{ "roomId": 10 }\n' +
+      '```',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        roomId: { type: 'number', example: 10, description: '채팅방 ID' },
+      },
+      required: ['roomId'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      '채팅방 입장 시 메시지 읽음 처리가 완료된 응답입니다.\n\n' +
+      '✔ `updateRead` 이벤트가 발생하여 해당 방의 다른 유저에게 읽음 상태가 동기화됩니다.\n' +
+      '✅ 응답 예시:',
+    schema: {
+      example: {
+        roomId: 10,
+        email: 'test4@gmail.com',
+        isRead: true,
+      },
+    },
+  })
+  openChatRoom(@Body() body: { roomId: number }) {
+    return {
+      roomId: body.roomId,
+      email: 'test4@gmail.com', // 예제 데이터
+      isRead: true,
+    };
+  }
 }

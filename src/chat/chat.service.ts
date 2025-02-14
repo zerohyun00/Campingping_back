@@ -315,7 +315,7 @@ export class ChatService implements IChatService {
       .take(limit + 1); // nextcursor를 위한 `limit + 1`개 가져옴
 
     if (cursor) {
-      query.andWhere('chat.id <= :cursor', { cursor }); // 이전 메시지만 가져오기
+      query.andWhere('chat.id < :cursor', { cursor }); // 이전 메시지만 가져오기
     }
 
     const chatHistory = await query.getMany();
@@ -500,13 +500,5 @@ export class ChatService implements IChatService {
 
     await this.chatRoomRepository.delete(roomId);
     return { message: '채팅방이 삭제되었습니다.' };
-  }
-  async isUserInRoom(userId: string, roomId: number): Promise<boolean> {
-    const room = await this.chatRoomRepository.findOne({
-      where: { id: roomId },
-      relations: ['users'],
-    });
-
-    return room ? room.users.some((user) => user.id === userId) : false;
   }
 }
