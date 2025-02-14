@@ -66,6 +66,7 @@ export class UserController {
   }
 
   @Post('subscribe')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: '웹 푸시 구독 정보 저장',
     description:
