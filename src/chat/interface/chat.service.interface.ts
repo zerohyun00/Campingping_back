@@ -35,4 +35,5 @@ export interface IChatService {
   getUnreadMessageCount(roomId: number, userId: string): Promise<number>;
   getChatRooms(userId: string): Promise<ChatResType[]>;
   leaveChatRoom(roomId: number, userId: string);
+  isUserInRoom(userId: string, roomId: number): Promise<boolean>;
 }

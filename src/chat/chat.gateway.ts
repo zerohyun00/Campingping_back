@@ -151,43 +151,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() body: { roomId: number; cursor?: number; limit?: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const limit = body.limit ?? 50;
-
     try {
       const payload = client.data.user;
 
-      // 사용자가 해당 방에 속해 있는지 확인
-      const chatRooms = await this.chatService.joinRooms(
-        { sub: payload.sub },
-        client,
-      );
-      const isMember = chatRooms.some((room) => room.id === body.roomId);
-
-      if (!isMember) {
-        client.emit('error', { message: '해당 채팅방에 속하지 않았습니다.' });
-        return;
-      }
-
-      // 채팅 기록 가져오기
-      const chatHistory = await this.chatService.getChatHistory(
+      const { chatHistory, nextCursor } = await this.chatService.getChatHistory(
         body.roomId,
         body.cursor,
-        limit,
+        body.limit ?? 50,
       );
 
-      // 읽음 처리 후 상대방에게 알림
-      await this.chatService.markMessagesRead(payload.sub, body.roomId);
+      // ✅ 사용자가 실제로 해당 채팅방에 입장했을 때만 읽음 처리
+      const isUserInRoom = await this.chatService.isUserInRoom(
+        payload.sub,
+        body.roomId,
+      );
 
-      // 방에 있는 모든 사용자에게 "읽음" 상태 전송
-      client.to(body.roomId.toString()).emit('updateRead', {
-        roomId: body.roomId,
-        email: payload.email, // email 전송
-        isRead: true, // 읽음 여부 포함
-      });
+      if (isUserInRoom) {
+        await this.chatService.markMessagesRead(payload.sub, body.roomId);
 
-      client.emit('chatHistory', chatHistory);
+        // ✅ 읽음 상태를 업데이트
+        client.to(body.roomId.toString()).emit('updateRead', {
+          roomId: body.roomId,
+          email: payload.email,
+          isRead: true,
+        });
+      }
+
+      client.emit('chatHistory', { chatHistory, nextCursor });
     } catch (error) {
-      console.error(`[ERROR] Failed to fetch chat history: ${error.message}`);
       client.emit('error', { message: '채팅 기록을 가져오는데 실패했습니다.' });
     }
   }
@@ -213,22 +204,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const payload = client.data.user;
 
-      // 해당 채팅방 메시지를 읽음 처리
-      await this.chatService.markMessagesRead(payload.sub, body.roomId);
-
-      // 해당 채팅방에 있는 모든 클라이언트에게 읽음 상태 업데이트 전송
-      client.to(body.roomId.toString()).emit('updateReadStatus', {
-        roomId: body.roomId,
-        userId: payload.sub,
-      });
-
-      console.log(
-        `[INFO] User ${payload.sub} marked messages as read in Room ${body.roomId}`,
+      // ✅ 사용자가 채팅방에 입장했을 때만 읽음 처리
+      const isUserInRoom = await this.chatService.isUserInRoom(
+        payload.sub,
+        body.roomId,
       );
+
+      if (isUserInRoom) {
+        await this.chatService.markMessagesRead(payload.sub, body.roomId);
+
+        client.to(body.roomId.toString()).emit('updateRead', {
+          roomId: body.roomId,
+          email: payload.email,
+          isRead: true,
+        });
+      }
     } catch (error) {
-      console.error(
-        `[ERROR] Failed to mark messages as read: ${error.message}`,
-      );
       client.emit('error', {
         message: '메시지 읽음 처리 중 오류가 발생했습니다.',
       });
