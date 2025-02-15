@@ -14,10 +14,14 @@ export class WebPushService {
 
   async sendNotification(subscription: any, payload: any) {
     try {
+      console.log(`[DEBUG] 푸시 전송 대상:`, subscription);
+      console.log(`[DEBUG] 푸시 메시지:`, payload);
+
       await webPush.sendNotification(subscription, JSON.stringify(payload));
-      console.log('[INFO] 웹 푸시 전송 성공');
+
+      console.log('✅ 웹 푸시 전송 성공');
     } catch (error) {
-      console.error('[ERROR] 웹 푸시 전송 실패:', error);
+      console.error('🚨 [ERROR] 웹 푸시 전송 실패:', error);
     }
   }
 }

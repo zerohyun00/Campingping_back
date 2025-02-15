@@ -156,13 +156,24 @@ export class ChatService implements IChatService {
       // 웹 푸시 전송
       chatRoom.users.forEach(async (recipient) => {
         if (recipient.id !== user.id) {
-          const pushSubscription = recipient.pushSubscription;
-          if (pushSubscription) {
-            await this.webPushService.sendNotification(pushSubscription, {
-              title: chatMessage.author.nickname,
-              body: message,
-              roomId: chatRoom.id,
-            });
+          console.log(
+            `[DEBUG] ${recipient.nickname}의 pushSubscription:`,
+            recipient.pushSubscription,
+          );
+
+          if (recipient.pushSubscription) {
+            await this.webPushService.sendNotification(
+              recipient.pushSubscription,
+              {
+                title: chatMessage.author.nickname,
+                body: message,
+                roomId: chatRoom.id,
+              },
+            );
+          } else {
+            console.warn(
+              `[WARN] ${recipient.nickname}에게 보낼 pushSubscription이 없습니다.`,
+            );
           }
         }
       });
