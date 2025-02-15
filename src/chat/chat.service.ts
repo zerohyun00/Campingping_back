@@ -342,10 +342,7 @@ export class ChatService implements IChatService {
     return {
       chatHistory: chats.map((chat) => ({
         message: chat.message,
-        createdAt: chat.createdAt,
-        // createdAt: chat.createdAt.toLocaleString('ko-KR', {
-        //   timeZone: 'Asia/Seoul',
-        // }),
+        createdAt: chat.createdAt.toISOString(),
         id: chat.id,
         isRead: chat.isRead,
         author: {

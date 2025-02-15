@@ -1,6 +1,6 @@
 export type ChatHistoryDto = {
   message: string;
-  createdAt: Date;
+  createdAt: string;
   isRead: boolean;
   id: number;
   author: {
