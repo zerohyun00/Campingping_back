@@ -49,13 +49,17 @@ export class UserService {
   }
 
   async savePushSubscription(subscription: PushSubscriptions, userId: string) {
+    console.log('[DEBUG] 저장할 subscription:', subscription);
+
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
+      console.error('🚨 [ERROR] 존재하지 않는 사용자:', userId);
       throw new NotFoundException('존재하지 않는 사용자입니다!');
     }
 
-    user.pushSubscription = subscription; // 구독 정보 저장
+    user.pushSubscription = subscription;
     await this.userRepository.save(user);
+    console.log('✅ 구독 정보 저장 성공:', subscription);
 
     return { message: '푸시 구독 정보가 저장되었습니다.' };
   }
