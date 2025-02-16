@@ -495,7 +495,8 @@ export class ChatService implements IChatService {
       });
     }
 
-    if (!chatRoom.users.some((u) => u.id === userId)) {
+    const leavingUser = chatRoom.users.find((u) => u.id === userId);
+    if (!leavingUser) {
       throw new AppError(
         CommonError.VALIDATION_ERROR,
         '해당 채팅방에 속해있지 않습니다.',
@@ -517,8 +518,8 @@ export class ChatService implements IChatService {
         if (client) {
           client.emit('userLeftRoom', {
             roomId,
-            userId,
-            message: `유저 ${userId} 가 방에서 나갔습니다.`,
+            email: leavingUser.email,
+            message: `유저 ${leavingUser.email} 가 방에서 나갔습니다.`,
           });
         }
       }
