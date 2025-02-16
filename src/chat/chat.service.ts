@@ -510,7 +510,20 @@ export class ChatService implements IChatService {
       this.chatRoomRepository.delete({ id: roomId }),
     ]);
 
-    await this.chatRoomRepository.delete(roomId);
+    chatRoom.users.forEach((user) => {
+      if (user.id !== userId) {
+        // ✅ 나간 사용자가 아닌 다른 사용자에게만 이벤트 보냄
+        const client = this.connectedClients.get(user.id);
+        if (client) {
+          client.emit('userLeftRoom', {
+            roomId,
+            userId,
+            message: `유저 ${userId} 가 방에서 나갔습니다.`,
+          });
+        }
+      }
+    });
+
     return { message: '채팅방이 삭제되었습니다.' };
   }
 }
