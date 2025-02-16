@@ -105,7 +105,7 @@ export class ChatService implements IChatService {
   ): Promise<{
     message: string;
     sender: { email: string; nickname: string };
-    createdAt: Date;
+    createdAt: string;
   }> {
     try {
       const [user, chatRoom] = await Promise.all([
@@ -188,7 +188,7 @@ export class ChatService implements IChatService {
             roomId: chatRoom.id,
             message: chatMessage.message,
             sender: { email: user.email, nickname: user.nickname }, // 이메일로 전송
-            createdAt: chatMessage.createdAt, // 생성 시간 포함
+            createdAt: chatMessage.createdAt.toISOString(), // 생성 시간 포함
           });
         }
       });
@@ -196,7 +196,7 @@ export class ChatService implements IChatService {
       return {
         message: chatMessage.message,
         sender: { email: user.email, nickname: user.nickname },
-        createdAt: chatMessage.createdAt,
+        createdAt: chatMessage.createdAt.toISOString(),
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -314,30 +314,34 @@ export class ChatService implements IChatService {
    */
   async getChatHistory(
     roomId: number,
-    cursor?: number, // 마지막으로 불러온 메시지의 ID (이전 메시지를 가져오기 위한 기준)
+    cursor?: number,
     limit: number = 50,
   ): Promise<{ chatHistory: ChatHistoryDto[]; nextCursor?: number }> {
-    // ✅ nextCursor 추가!
     const query = this.chatRepository
       .createQueryBuilder('chat')
       .innerJoinAndSelect('chat.author', 'author')
       .where('chat.chatRoomId = :roomId', { roomId })
-      .orderBy('chat.id', 'DESC') // 최신 메시지부터 가져오기
-      .take(limit + 1); // nextcursor를 위한 `limit + 1`개 가져옴
+      .orderBy('chat.id', 'DESC')
+      .take(limit + 1);
 
     if (cursor) {
-      query.andWhere('chat.id < :cursor', { cursor }); // 이전 메시지만 가져오기
+      query.andWhere('chat.id < :cursor', { cursor });
     }
 
     const chatHistory = await query.getMany();
 
-    // `nextCursor` 설정 (가장 오래된 메시지의 ID)
     let nextCursor: number | undefined = undefined;
     if (chatHistory.length > limit) {
-      nextCursor = chatHistory.pop()?.id; // 가장 오래된 메시지의 ID를 `nextCursor`로 설정
+      nextCursor = chatHistory.pop()?.id;
     }
 
     const chats = chatHistory.reverse();
+
+    // // ✅ 콘솔 로그 추가 (UTC인지 확인)
+    // chats.forEach((chat) => {
+    //   console.log('📌 원본 createdAt (Date 객체):', chat.createdAt);
+    //   console.log('📌 toISOString() 변환 후:', chat.createdAt.toISOString());
+    // });
 
     return {
       chatHistory: chats.map((chat) => ({

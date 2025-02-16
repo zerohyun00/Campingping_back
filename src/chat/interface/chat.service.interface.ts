@@ -19,7 +19,7 @@ export interface IChatService {
   ): Promise<{
     message: string;
     sender: { email: string; nickname: string };
-    createdAt: Date;
+    createdAt: string;
   }>;
   findOrCreateChatRoom(
     userIds: [string, string],
