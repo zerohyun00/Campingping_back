@@ -7,11 +7,7 @@ import {
   WebSocketGateway,
   WsException,
 } from '@nestjs/websockets';
-import {
-  Inject,
-  UnauthorizedException,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Inject, UnauthorizedException, UseInterceptors } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import * as cookie from 'cookie';
 import { JwtService } from '@nestjs/jwt';
@@ -152,9 +148,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('getChatHistory')
   async handleGetChatHistory(
-    @MessageBody() body: { roomId: number; page: number; limit: number }, // page와 limit 추가
+    @MessageBody() body: { roomId: number; cursor?: number; limit?: number },
     @ConnectedSocket() client: Socket,
   ) {
+    const limit = body.limit ?? 50;
+
     try {
       const payload = client.data.user;
 
@@ -170,17 +168,64 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // 채팅 기록 조회
+      // 채팅 기록 가져오기
       const chatHistory = await this.chatService.getChatHistory(
         body.roomId,
-        body.page,
-        body.limit,
+        body.cursor,
+        limit,
       );
+
+      // 읽음 처리 후 상대방에게 알림
+      await this.chatService.markMessagesRead(payload.sub, body.roomId);
 
       client.emit('chatHistory', chatHistory);
     } catch (error) {
       console.error(`[ERROR] Failed to fetch chat history: ${error.message}`);
       client.emit('error', { message: '채팅 기록을 가져오는데 실패했습니다.' });
+    }
+  }
+
+  @SubscribeMessage('getChatRooms')
+  async handleGetChatRooms(@ConnectedSocket() client: Socket): Promise<void> {
+    try {
+      const user = client.data.user;
+
+      const chatRooms = await this.chatService.getChatRooms(user.sub);
+
+      client.emit('chatRooms', chatRooms);
+    } catch (error) {
+      client.emit('error', { message: error.message });
+    }
+  }
+
+  @SubscribeMessage('openChatRoom')
+  async handleOpenChatRoom(
+    @MessageBody() body: { roomId: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const payload = client.data.user;
+
+      // ✅ 유저가 직접 채팅방을 열었을 때만 메시지를 읽음 처리
+      await this.chatService.markMessagesRead(payload.sub, body.roomId);
+
+      // ✅ 채팅방에 있는 모든 클라이언트에게 읽음 상태 업데이트 전송
+      client.to(body.roomId.toString()).emit('updateRead', {
+        roomId: body.roomId,
+        email: payload.email,
+        isRead: true,
+      });
+
+      console.log(
+        `[INFO] User ${payload.sub} marked messages as read in Room ${body.roomId}`,
+      );
+    } catch (error) {
+      console.error(
+        `[ERROR] Failed to mark messages as read: ${error.message}`,
+      );
+      client.emit('error', {
+        message: '메시지 읽음 처리 중 오류가 발생했습니다.',
+      });
     }
   }
 }

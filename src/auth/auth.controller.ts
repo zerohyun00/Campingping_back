@@ -79,12 +79,15 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: '로그아웃 성공.' })
   logout(@Res() res: ExpressResponse): void {
-
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '.campingping.com',
+    });
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     });
     res.status(200).send({ message: '로그아웃 성공' });
   }
@@ -119,8 +122,12 @@ export class AuthController {
       res.clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
-        domain: '.campingping.com',
+        sameSite: 'none',
+      });
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
       });
       return res.status(HttpStatus.OK).send({ message: '로그아웃 성공' });
     } catch (error) {
@@ -147,7 +154,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -155,7 +161,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000,
-      domain: '.campingping.com',
     });
 
     return { message: '로그인 성공', email };
@@ -171,29 +176,26 @@ export class AuthController {
   async kakaoLogin(
     @SocialUser() socialUser: SocialLoginDto,
     @Res({ passthrough: true }) res: ExpressResponse,
+    @Req() req: Request,
   ) {
     const { accessToken, refreshToken, email } =
       await this.authService.OAuthLogin(socialUser);
 
-    res.cookie('accessToken', accessToken, {
+      res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
     });
 
-    res.redirect(
-      `/sign-in?fromKaKao=true&email=${email}`,
-    );
+    return res.redirect(`/sign-in?fromKaKao=true&email=${email}`);
   }
 
   @Post('refresh')
@@ -229,7 +231,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -237,7 +238,6 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       maxAge: 3600000, // 1시간
-      domain: '.campingping.com',
     });
 
     return {

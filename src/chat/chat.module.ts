@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChatMockController } from './chat.mock.controller';
 import { ChatController } from './chat.controller';
+import { WebPushService } from './web-push.service';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ChatController } from './chat.controller';
       useClass: ChatService,
     },
     ChatGateway,
+    WebPushService,
   ],
   controllers: [ChatMockController, ChatController],
 })

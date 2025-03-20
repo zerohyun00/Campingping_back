@@ -23,6 +23,15 @@ export enum LoginType {
   NORMAL = 'NORMAL',
   KAKAO = 'KAKAO',
 }
+
+export interface PushSubscriptions {
+  endpoint: string; // 푸시 서버의 URL
+  expirationTime: number | null; // 구독 만료 시간 (null 가능)
+  keys: {
+    p256dh: string; // 공개 키
+    auth: string; // 인증 키
+  };
+}
 @Entity()
 export class User extends BaseTable {
   @PrimaryGeneratedColumn('uuid')
@@ -94,4 +103,10 @@ export class User extends BaseTable {
 
   @OneToMany(() => Favorite, (favorite) => favorite.user)
   favorites: Favorite[];
+
+  @Column({
+    type: 'json',
+    nullable: true,
+  })
+  pushSubscription: PushSubscriptions | null;
 }

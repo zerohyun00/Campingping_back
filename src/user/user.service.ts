@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { PushSubscriptions, User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -23,27 +23,44 @@ export class UserService {
   }
   async getUserProfileImages(userId: string) {
     const query = await this.userRepository
-    .createQueryBuilder('user')
-    .where('user.id = :userId', { userId })
-    .leftJoin('image', 'image', 'image.typeId = CAST(user.id AS varchar)')
-    .select([
-      'user.id AS userId',
-      'user.email AS userEmail',
-      'user.type AS userType',
-      'user.nickname AS nickname',
-      'image.id AS imageId',
-      'image.url AS imageUrl',
-    ])
-    .getRawOne();
+      .createQueryBuilder('user')
+      .where('user.id = :userId', { userId })
+      .leftJoin('image', 'image', 'image.typeId = CAST(user.id AS varchar)')
+      .select([
+        'user.id AS userId',
+        'user.email AS userEmail',
+        'user.type AS userType',
+        'user.nickname AS nickname',
+        'image.id AS imageId',
+        'image.url AS imageUrl',
+      ])
+      .getRawOne();
     return {
-      user:{
+      user: {
         email: query.useremail,
         nickName: query.nickname,
         userType: query.usertype,
-        image:{
+        image: {
           id: query.imageid,
           url: query.imageurl,
-        }
-      }};
+        },
+      },
+    };
+  }
+
+  async savePushSubscription(subscription: PushSubscriptions, userId: string) {
+    console.log('[DEBUG] 저장할 subscription:', subscription);
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      console.error('🚨 [ERROR] 존재하지 않는 사용자:', userId);
+      throw new NotFoundException('존재하지 않는 사용자입니다!');
+    }
+
+    user.pushSubscription = subscription;
+    await this.userRepository.save(user);
+    console.log('✅ 구독 정보 저장 성공:', subscription);
+
+    return { message: '푸시 구독 정보가 저장되었습니다.' };
   }
 }

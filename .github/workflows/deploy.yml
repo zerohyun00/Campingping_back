@@ -25,7 +25,7 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-      # 4. AWS EC2에 Docker 이미지 배포 및 마이그레이션 실행!!!!
+      # 4. AWS EC2에 Docker 이미지 배포 및 마이그레이션 실행!!!!@
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -71,6 +71,8 @@ jobs:
             -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             -e AWS_REGION=${{ secrets.AWS_REGION }} \
             -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
+            -e VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }} \
+            -e VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }} \
             ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
             echo "=== Running migrations inside the container ==="

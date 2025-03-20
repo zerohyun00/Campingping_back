@@ -35,7 +35,7 @@ export class ChatController {
     description:
       '로그인한 사용자가 속한 채팅방 목록을 반환합니다. (채팅방 ID, 유저 목록, 마지막 메시지 포함)',
   })
-  @ApiBearerAuth() // JWT 인증 필요
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: '채팅방 목록 조회 성공',
@@ -79,16 +79,16 @@ export class ChatController {
   /**
    * @description 사용자가 특정 채팅방을 나가고, 해당 채팅방을 삭제하는 API (1:1 채팅방)
    * @param roomId 나갈 채팅방의 ID
-   * @returns 채팅방 삭제 성공 메시지
+   * @returns 채팅방 삭제 성공 메시지 및 userLeftRoom 이벤트 발생
    */
   @Delete('rooms/:roomId')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: '채팅방 나가기 (채팅방 삭제)',
     description:
-      '로그인한 사용자가 특정 채팅방을 나갑니다. (1:1 채팅방 특성 상 한 명이라도 나가면 채팅기록 , 채팅방 자동삭제)',
+      '로그인한 사용자가 특정 채팅방을 나갑니다. userLeftRoom 이벤트 발생하여 채팅방의 다른 사용자에게 알림\n(1:1 채팅방 특성 상 한 명이라도 나가면 채팅기록 , 채팅방 자동삭제)',
   })
-  @ApiBearerAuth() // JWT 인증 필요
+  @ApiBearerAuth()
   @ApiParam({
     name: 'roomId',
     required: true,
@@ -102,6 +102,17 @@ export class ChatController {
       example: {
         statusCode: 200,
         message: '채팅방이 삭제되었습니다.',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'userLeftRoom 이벤트 수신 시 해당 상대방에게 알림',
+    schema: {
+      example: {
+        roomId: 1,
+        userEmail: 'test@example.com',
+        message: '유저 test@example.com 가 방에서 나갔습니다.',
       },
     },
   })
@@ -132,76 +143,5 @@ export class ChatController {
   async leaveChatRoom(@Req() req, @Param('roomId') roomId: number) {
     const userId = req.user.sub;
     return await this.chatService.leaveChatRoom(roomId, userId);
-  }
-
-  /**
-   * @description 특정 채팅방에서 사용자가 읽지 않은 메시지 개수를 조회하는 API
-   * @param roomId 조회할 채팅방의 ID
-   * @returns 해당 채팅방에서 읽지 않은 메시지 개수
-   */
-  @UseGuards(JwtAuthGuard)
-  @Get('unread/:roomId')
-  @ApiOperation({
-    summary: '읽지 않은 메시지 개수 조회',
-    description:
-      '특정 채팅방에서 사용자가 읽지 않은 메시지 개수를 조회합니다. (내가 보낸 메시지는 제외됨)',
-  })
-  @ApiBearerAuth() // JWT 인증 필요
-  @ApiParam({
-    name: 'roomId',
-    required: true,
-    description: '조회할 채팅방의 ID',
-    example: 9,
-  })
-  @ApiResponse({
-    status: 200,
-    description: '읽지 않은 메시지 개수 조회 성공',
-    schema: {
-      example: {
-        roomId: 9,
-        unreadCount: 3,
-      },
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: '잘못된 요청 (예: 채팅방 ID가 숫자가 아님)',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: 'Invalid roomId',
-        error: 'Bad Request',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'JWT 토큰이 없거나 유효하지 않은 경우',
-    schema: {
-      example: {
-        statusCode: 401,
-        message: 'Unauthorized',
-        error: 'Unauthorized',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 404,
-    description: '존재하지 않는 채팅방일 경우',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: '채팅방을 찾을 수 없습니다.',
-        error: 'Not Found',
-      },
-    },
-  })
-  async getUnreadMessageCount(@Param('roomId') roomId: number, @Req() req) {
-    const userId = req.user.sub;
-    const unreadCount = await this.chatService.getUnreadMessageCount(
-      roomId,
-      userId,
-    );
-    return { roomId, unreadCount };
   }
 }

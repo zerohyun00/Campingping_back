@@ -10,6 +10,8 @@ import { IChatService } from './interface/chat.service.interface';
 import { ChatResType } from './type/chat.res.type';
 import { AppError } from 'src/common/utils/app-error';
 import { CommonError, CommonErrorStatusCode } from 'src/common/utils/app-error';
+import { ChatHistoryDto } from './dto/chat-history.dto';
+import { WebPushService } from './web-push.service';
 @Injectable()
 export class ChatService implements IChatService {
   private readonly connectedClients = new Map<string, Socket>(); // 특정 사용자의 id값을 넣어주면 사용자가 접속한 소켓을 가져올 수 있음
@@ -22,6 +24,7 @@ export class ChatService implements IChatService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Chat)
     private readonly chatRepository: Repository<Chat>,
+    private readonly webPushService: WebPushService,
   ) {}
 
   getClientById(userId: string): Socket | undefined {
@@ -102,7 +105,7 @@ export class ChatService implements IChatService {
   ): Promise<{
     message: string;
     sender: { email: string; nickname: string };
-    createdAt: Date;
+    createdAt: string;
   }> {
     try {
       const [user, chatRoom] = await Promise.all([
@@ -150,6 +153,31 @@ export class ChatService implements IChatService {
         chatRoom,
       });
 
+      // 웹 푸시 전송
+      chatRoom.users.forEach(async (recipient) => {
+        if (recipient.id !== user.id) {
+          console.log(
+            `[DEBUG] ${recipient.nickname}의 pushSubscription:`,
+            recipient.pushSubscription,
+          );
+
+          if (recipient.pushSubscription) {
+            await this.webPushService.sendNotification(
+              recipient.pushSubscription,
+              {
+                title: chatMessage.author.nickname,
+                body: message,
+                roomId: chatRoom.id,
+              },
+            );
+          } else {
+            console.warn(
+              `[WARN] ${recipient.nickname}에게 보낼 pushSubscription이 없습니다.`,
+            );
+          }
+        }
+      });
+
       // 연결된 클라이언트들에게 메시지 전송
       const clients = chatRoom.users.map((user) =>
         this.connectedClients.get(user.id),
@@ -160,7 +188,7 @@ export class ChatService implements IChatService {
             roomId: chatRoom.id,
             message: chatMessage.message,
             sender: { email: user.email, nickname: user.nickname }, // 이메일로 전송
-            createdAt: chatMessage.createdAt, // 생성 시간 포함
+            createdAt: chatMessage.createdAt.toISOString(), // 생성 시간 포함
           });
         }
       });
@@ -168,7 +196,7 @@ export class ChatService implements IChatService {
       return {
         message: chatMessage.message,
         sender: { email: user.email, nickname: user.nickname },
-        createdAt: chatMessage.createdAt,
+        createdAt: chatMessage.createdAt.toISOString(),
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -286,32 +314,48 @@ export class ChatService implements IChatService {
    */
   async getChatHistory(
     roomId: number,
-    page: number,
-    limit: number,
-  ): Promise<Chat[]> {
-    try {
-      const offset = (page - 1) * limit;
+    cursor?: number,
+    limit: number = 50,
+  ): Promise<{ chatHistory: ChatHistoryDto[]; nextCursor?: number }> {
+    const query = this.chatRepository
+      .createQueryBuilder('chat')
+      .innerJoinAndSelect('chat.author', 'author')
+      .where('chat.chatRoomId = :roomId', { roomId })
+      .orderBy('chat.id', 'DESC')
+      .take(limit + 1);
 
-      const chatHistory = await this.chatRepository.find({
-        where: { chatRoom: { id: roomId } },
-        relations: ['author'],
-        order: { createdAt: 'DESC' },
-        skip: offset,
-        take: limit,
-      });
-
-      return chatHistory;
-    } catch (error) {
-      this.logger.error('채팅 기록 조회 중 에러 발생', error.stack);
-      throw new AppError(
-        CommonError.DB_ERROR,
-        '채팅 기록을 조회하는 도중 에러가 발생했습니다.',
-        {
-          httpStatusCode: CommonErrorStatusCode.INTERNAL_SERVER_ERROR,
-          cause: error,
-        },
-      );
+    if (cursor) {
+      query.andWhere('chat.id < :cursor', { cursor });
     }
+
+    const chatHistory = await query.getMany();
+
+    let nextCursor: number | undefined = undefined;
+    if (chatHistory.length > limit) {
+      nextCursor = chatHistory.pop()?.id;
+    }
+
+    const chats = chatHistory.reverse();
+
+    // // ✅ 콘솔 로그 추가 (UTC인지 확인)
+    // chats.forEach((chat) => {
+    //   console.log('📌 원본 createdAt (Date 객체):', chat.createdAt);
+    //   console.log('📌 toISOString() 변환 후:', chat.createdAt.toISOString());
+    // });
+
+    return {
+      chatHistory: chats.map((chat) => ({
+        message: chat.message,
+        createdAt: chat.createdAt.toISOString(),
+        id: chat.id,
+        isRead: chat.isRead,
+        author: {
+          email: chat.author.email,
+          nickname: chat.author.nickname,
+        },
+      })),
+      nextCursor,
+    };
   }
 
   /**
@@ -405,20 +449,25 @@ export class ChatService implements IChatService {
         .orderBy('chat.createdAt', 'DESC') // 최근 메시지 순 정렬
         .getMany();
 
-      const result = chatRooms.map((room) => {
-        const lastChat = room.chats.length > 0 ? room.chats[0] : null; // 가장 최근 메시지
-        return {
-          roomId: room.id,
-          createdAt: room.createdAt,
-          users: room.users.map((user) => ({
-            email: user.email,
-            nickname: user.nickname,
-          })), // 상대방 유저 정보
-          lastMessage: lastChat ? lastChat.message : null,
-          lastMessageTime: lastChat ? lastChat.createdAt : null,
-          Isread: lastChat ? lastChat.isRead : null,
-        };
-      });
+      const result = await Promise.all(
+        chatRooms.map(async (room) => {
+          const lastChat = room.chats.length > 0 ? room.chats[0] : null;
+          // unreadCount 조회 (본인이 보낸 메시지는 제외)
+          const unreadCount = await this.getUnreadMessageCount(room.id, userId);
+
+          return {
+            roomId: room.id,
+            createdAt: room.createdAt,
+            users: room.users.map((user) => ({
+              email: user.email,
+              nickname: user.nickname,
+            })),
+            lastMessage: lastChat ? lastChat.message : null,
+            lastMessageTime: lastChat ? lastChat.createdAt : null,
+            unreadCount,
+          };
+        }),
+      );
 
       return result;
     } catch (error) {
@@ -446,7 +495,8 @@ export class ChatService implements IChatService {
       });
     }
 
-    if (!chatRoom.users.some((u) => u.id === userId)) {
+    const leavingUser = chatRoom.users.find((u) => u.id === userId);
+    if (!leavingUser) {
       throw new AppError(
         CommonError.VALIDATION_ERROR,
         '해당 채팅방에 속해있지 않습니다.',
@@ -461,7 +511,20 @@ export class ChatService implements IChatService {
       this.chatRoomRepository.delete({ id: roomId }),
     ]);
 
-    await this.chatRoomRepository.delete(roomId);
+    chatRoom.users.forEach((user) => {
+      if (user.id !== userId) {
+        // ✅ 나간 사용자가 아닌 다른 사용자에게만 이벤트 보냄
+        const client = this.connectedClients.get(user.id);
+        if (client) {
+          client.emit('userLeftRoom', {
+            roomId,
+            email: leavingUser.email,
+            message: `유저 ${leavingUser.email} 가 방에서 나갔습니다.`,
+          });
+        }
+      }
+    });
+
     return { message: '채팅방이 삭제되었습니다.' };
   }
 }

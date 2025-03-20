@@ -69,6 +69,7 @@
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.20",
     "uuid": "^11.0.5",
+    "web-push": "^3.6.7",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
@@ -87,6 +88,7 @@
     "@types/passport-kakao": "^1.0.3",
     "@types/socket.io": "^3.0.1",
     "@types/supertest": "^6.0.0",
+    "@types/web-push": "^3.6.4",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",

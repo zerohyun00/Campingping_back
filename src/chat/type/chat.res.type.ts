@@ -4,5 +4,5 @@ export type ChatResType = {
   users: { email: string; nickname: string }[];
   lastMessage: string;
   lastMessageTime: Date;
-  Isread: Boolean;
+  unreadCount: number;
 };
