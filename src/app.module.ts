@@ -23,11 +23,38 @@ import { TransformInterceptor } from './common/interceptor/transformation.inters
 import { MetricsModule } from './metrics/metrics.module';
 import { MetricsInterceptor } from './metrics/interseptor/metrics.interceptor';
 import { MetricsService } from './metrics/metrics.service';
-dotenv.config();
+import * as Joi from 'joi';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.number().required(),
+        DB_USER: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_DATABASE: Joi.string().required(),
+        DB_LOGGING: Joi.boolean().required(),
+        HASH_ROUNDS: Joi.number().required(),
+        JWT_ACCESS_SECRET: Joi.string().required(),
+        JWT_REFRESH_SECRET: Joi.string().required(),
+        ENV_GMAIL_ADDRESS_KEY: Joi.string().email().required(),
+        ENV_GMAIL_PASSWORD_KEY: Joi.string().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
+        ENV: Joi.string().valid('dev', 'prod').required(),
+        KAKAO_CLIENT_ID: Joi.string().required(),
+        KAKAO_CLIENT_SECRET: Joi.string().required(),
+        KAKAO_CALLBACK_URL: Joi.string().uri().required(),
+        AWS_ACCESS_KEY: Joi.string().required(),
+        AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+        AWS_S3_BUCKET: Joi.string().required(),
+        AWS_REGION: Joi.string().required(),
+        VAPID_PUBLIC_KEY: Joi.string().required(),
+        VAPID_PRIVATE_KEY: Joi.string().required(),
+      }),
+    }),
     TypeOrmModule.forRootAsync({
       imports: [MyConfigModule],
       useClass: MyConfigService,
