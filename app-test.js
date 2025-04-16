@@ -8,9 +8,9 @@ import { group, sleep } from 'k6';
 export const options = {
   vus: 3,
   stages: [
-    { duration: '1m', target: 10 },
-    { duration: '1m', target: 30 },
-    { duration: '1m', target: 0 },
+    { duration: '1m', target: 50 },
+    { duration: '2m', target: 100 },
+    { duration: '1m', target: 0 }, // 정리
   ],
   // 성능 목표(예시): 95%의 요청이 1초 이내에 완료되도록 설정
   thresholds: {
