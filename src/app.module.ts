@@ -24,6 +24,7 @@ import { MetricsModule } from './metrics/metrics.module';
 import { MetricsInterceptor } from './metrics/interseptor/metrics.interceptor';
 import { MetricsService } from './metrics/metrics.service';
 import * as Joi from 'joi';
+import { WebhookInterceptor } from './common/interceptor/webhook-interceptor';
 
 @Module({
   imports: [
@@ -97,6 +98,10 @@ import * as Joi from 'joi';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: WebhookInterceptor,
     },
   ],
 })

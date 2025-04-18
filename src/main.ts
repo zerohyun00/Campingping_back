@@ -6,9 +6,15 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppErrorFilter } from './common/filters/app-error-filter';
 import { MetricsInterceptor } from './metrics/interseptor/metrics.interceptor';
 import { MetricsService } from './metrics/metrics.service';
+import * as Sentry from '@sentry/node';
+import { WebhookInterceptor } from './common/interceptor/webhook-interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+  });
+  app.useGlobalInterceptors(new WebhookInterceptor());
 
   app.setGlobalPrefix('api');
 
@@ -25,7 +31,7 @@ async function bootstrap() {
   app.enableCors({
     origin: 'https://campingping.com',
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    allowedHeaders: ["Content-Type", "rsc"],  // rsc 헤더 허용
+    allowedHeaders: ['Content-Type', 'rsc'], // rsc 헤더 허용
     credentials: true,
   });
 
