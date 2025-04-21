@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as cookie from 'cookie'; // 쿠키 파싱 모듈
+import * as cookie from 'cookie';
 
 @Injectable()
 export class JwtWsAuthGuard implements CanActivate {
