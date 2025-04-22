@@ -43,6 +43,7 @@ jobs:
             echo "=== Running the new container ==="
             docker run -d \
             --name nestjs-app \
+            --add-host=host.docker.internal:host-gateway \
             -p 5000:5000 \
             -e DB_HOST=${{ secrets.DB_HOST }} \
             -e DB_PORT=${{ secrets.DB_PORT }} \
@@ -55,7 +56,7 @@ jobs:
             -e HASH_ROUNDS=${{ secrets.HASH_ROUNDS }} \
             -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
             -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
-            -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
+            -e REDIS_HOST=host.docker.internal \
             -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
             -e ENV=${{ secrets.ENV }} \
             -e ENV_GMAIL_ADDRESS_KEY=${{ secrets.ENV_GMAIL_ADDRESS_KEY }} \
