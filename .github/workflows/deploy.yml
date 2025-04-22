@@ -45,7 +45,7 @@ jobs:
             --name nestjs-app \
             --add-host=host.docker.internal:host-gateway \
             -p 5000:5000 \
-            -e DB_HOST=host.docker.internal \
+            -e DB_HOST=172.31.2.138 \
             -e DB_PORT=${{ secrets.DB_PORT }} \
             -e DB_USER=${{ secrets.DB_USER }} \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
