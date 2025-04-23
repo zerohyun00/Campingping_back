@@ -25,7 +25,7 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-      # 4. AWS EC2에 Docker 이미지 배포 및 실행
+      # 4. AWS EC2에 Docker 이미지 배포 및 마이그레이션 실행합니다.sdfsdfsdfsdf
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -33,18 +33,19 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            echo "=== Stop & Remove existing container ==="
+            echo "=== Stopping and removing existing container ==="
             docker stop nestjs-app || true
             docker rm -f nestjs-app || true
 
-            echo "=== Pull latest Docker image ==="
+            echo "=== Pulling the latest Docker image ==="
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-            echo "=== Run new container with --network host ==="
+            echo "=== Running the new container ==="
             docker run -d \
             --name nestjs-app \
-            --network host \
-            -e DB_HOST=127.0.0.1 \
+            --add-host=host.docker.internal:host-gateway \
+            -p 5000:5000 \
+            -e DB_HOST=${{ secrets.DB_HOST }} \
             -e DB_PORT=${{ secrets.DB_PORT }} \
             -e DB_USER=${{ secrets.DB_USER }} \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
@@ -55,7 +56,7 @@ jobs:
             -e HASH_ROUNDS=${{ secrets.HASH_ROUNDS }} \
             -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
             -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
-            -e REDIS_HOST=127.0.0.1 \
+            -e REDIS_HOST=host.docker.internal \
             -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
             -e ENV=${{ secrets.ENV }} \
             -e ENV_GMAIL_ADDRESS_KEY=${{ secrets.ENV_GMAIL_ADDRESS_KEY }} \
@@ -74,8 +75,8 @@ jobs:
             -e VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }} \
             ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-            echo "=== Run DB migrations ==="
+            echo "=== Running migrations inside the container ==="
             docker exec nestjs-app npm run typeorm -- migration:run -d ./dist/database/data-source.js
 
-            echo "=== Done. Verifying container ==="
+            echo "=== Verifying the running container ==="
             docker exec nestjs-app env
