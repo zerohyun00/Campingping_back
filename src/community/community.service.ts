@@ -124,10 +124,11 @@ export class CommunityService implements ICommunityService {
       where: { id },
       relations: ['user'],
     });
-    if (result) {
-      result.view += 1;
-      await this.communityRepository.save(result);
-    }
+    if(!result) throw new NotFoundException('게시글이 존재하지않습니다!')
+    
+    result.view += 1;
+    await this.communityRepository.save(result);
+    
     return result;
   }
 

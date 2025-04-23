@@ -8,6 +8,11 @@ import {
   mapImageData,
   mapNearbycampingData,
 } from 'src/common/utils/camping-data-map.util';
+import {
+  AppError,
+  CommonError,
+  CommonErrorStatusCode,
+} from 'src/common/utils/app-error';
 
 @Injectable()
 export class CampingRepository {
@@ -65,10 +70,14 @@ export class CampingRepository {
         .execute();
     });
   }
-  async findAllForCron() {
-    return await this.repository.find();
-  }
-  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
+  async findAllWithDetails(
+    limit?: number,
+    cursor?: number,
+    region?: string,
+    city?: string,
+    category?: string,
+    userId?: string,
+  ) {
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
@@ -83,14 +92,19 @@ export class CampingRepository {
         'camping.intro AS intro',
         'camping.sigunguNm AS sigunguNm',
         'ST_AsGeoJSON(camping.location) AS location',
-      ])
+      ]);
     if (region) {
       queryBuilder.andWhere('camping.doNm ILIKE :region', {
         region: `%${region}%`,
       });
     }
+    if (city) {
+      queryBuilder.andWhere('camping.sigunguNm ILIKE :city', {
+        city: `%${city}%`,
+      });
+    }
     if (category) {
-      if (category === '펫') {
+      if (category === '반려동물') {
         queryBuilder.andWhere('camping.animalCmgCl ILIKE :possible', {
           possible: '가능%',
         });
@@ -109,23 +123,25 @@ export class CampingRepository {
     if (cursor) {
       queryBuilder.andWhere('camping.id > :cursor', { cursor });
     }
-    if(userId) {
+    if (userId) {
       queryBuilder
-      .leftJoinAndSelect(
-        'favorite',
-        'favorite',
-        'camping.contentId = favorite.contentId AND favorite.user = :userId',
-        { userId }
-      )
-      .addSelect('favorite.status', 'favorite')
-      .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC')
+        .leftJoinAndSelect(
+          'favorite',
+          'favorite',
+          'camping.contentId = favorite.contentId AND favorite.user = :userId',
+          { userId },
+        )
+        .addSelect('favorite.status', 'favorite')
+        .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC');
     }
-    queryBuilder.addOrderBy('camping.contentId', 'ASC')
+    queryBuilder.addOrderBy('camping.contentId', 'ASC');
     queryBuilder.limit(limit && limit > 0 ? limit : 10);
-    const result = await queryBuilder.getRawMany();
 
-    const nextCursor =
-      result.length > 0 ? result[result.length - 1].id : null;
+    // 레디스를 이용한 캐싱
+    queryBuilder.cache(true);
+
+    const result = await queryBuilder.getRawMany();
+    const nextCursor = result.length > 0 ? result[result.length - 1].id : null;
     const camping = mapCampingListData(result);
     return {
       result: camping,
@@ -134,99 +150,120 @@ export class CampingRepository {
   }
   async findOne(paramDto: CampingParamDto) {
     const query = this.repository
-    .createQueryBuilder('camping')
-    .leftJoinAndSelect('image', 'image', 'image.deletedAt IS NULL AND image.typeId = camping.contentId')
-    .where('camping.deletedAt IS NULL')
-    .andWhere('camping.contentId = :contentId', {
-      contentId: paramDto.contentId,
-    })
-    .orderBy('image.typeId', 'ASC')
-    .take(10)
-    .select([
-      'camping.id',
-      'camping.createdAt',
-      'camping.updatedAt',
-      'camping.deletedAt',
-      'camping.lineIntro',
-      'camping.intro',
-      'camping.facltNm',
-      'camping.manageDivNm',
-      'camping.bizrno',
-      'camping.manageSttus',
-      'camping.hvofBgnde',
-      'camping.hvofEndde',
-      'camping.featureNm',
-      'camping.induty',
-      'camping.lccl',
-      'camping.doNm',
-      'camping.sigunguNm',
-      'camping.addr1',
-      'camping.addr2',
-      'camping.tel',
-      'camping.homepage',
-      'camping.gplnInnerFclty',
-      'camping.caravnInnerFclty',
-      'camping.operPdCl',
-      'camping.operDeCl',
-      'camping.trlerAcmpnyAt',
-      'camping.caravAcmpnyAt',
-      'camping.sbrsCl',
-      'camping.toiletCo',
-      'camping.swrmCo',
-      'camping.posblFcltyCl',
-      'camping.themaEnvrnCl',
-      'camping.eqpmnLendCl',
-      'camping.animalCmgCl',
-      'camping.contentId',
-      'camping.firstImageUrl',
-      'ST_AsGeoJSON(camping.location) as location',
-      'image.id AS image_id',
-      'image.url AS image_url',
-    ]);
-  
-  const result = await query.getRawMany();
+      .createQueryBuilder('camping')
+      .leftJoinAndSelect(
+        'image',
+        'image',
+        'image.deletedAt IS NULL AND image.typeId = camping.contentId',
+      )
+      .where('camping.deletedAt IS NULL')
+      .andWhere('camping.contentId = :contentId', {
+        contentId: paramDto.contentId,
+      })
+      .orderBy('image.typeId', 'ASC')
+      .take(10)
+      .select([
+        'camping.id',
+        'camping.createdAt',
+        'camping.updatedAt',
+        'camping.deletedAt',
+        'camping.lineIntro',
+        'camping.intro',
+        'camping.facltNm',
+        'camping.manageDivNm',
+        'camping.bizrno',
+        'camping.manageSttus',
+        'camping.hvofBgnde',
+        'camping.hvofEndde',
+        'camping.featureNm',
+        'camping.induty',
+        'camping.lccl',
+        'camping.doNm',
+        'camping.sigunguNm',
+        'camping.addr1',
+        'camping.addr2',
+        'camping.tel',
+        'camping.homepage',
+        'camping.gplnInnerFclty',
+        'camping.caravnInnerFclty',
+        'camping.operPdCl',
+        'camping.operDeCl',
+        'camping.trlerAcmpnyAt',
+        'camping.caravAcmpnyAt',
+        'camping.sbrsCl',
+        'camping.toiletCo',
+        'camping.swrmCo',
+        'camping.posblFcltyCl',
+        'camping.themaEnvrnCl',
+        'camping.eqpmnLendCl',
+        'camping.animalCmgCl',
+        'camping.contentId',
+        'camping.firstImageUrl',
+        'ST_AsGeoJSON(camping.location) as location',
+        'image.id AS image_id',
+        'image.url AS image_url',
+      ]);
+
+    const result = await query.getRawMany();
+
     if (!result || result.length === 0) {
-      return null;
+      throw new AppError(CommonError.NOT_FOUND, '캠핑장 데이터가 없습니다', {
+        httpStatusCode: CommonErrorStatusCode.NOT_FOUND,
+      });
     }
     const campingData = mapCampingData(result);
     const images = mapImageData(result);
 
     return { ...campingData, images };
   }
-  async findNearbyCamping(lon: number, lat: number,  userId?: string, radius: number = 5000) {
+  async findNearbyCamping(
+    lon: number,
+    lat: number,
+    userId?: string,
+    radius: number = 5000,
+  ) {
     const query = this.repository
-    .createQueryBuilder('camping')
-    .select([
-      'camping.id AS id',
-      'camping.contentId AS contentId',
-      'camping.firstImageUrl AS firstImageUrl',
-      'camping.facltNm AS facltNm',
-      'camping.addr1 AS addr1',
-      'camping.addr2 AS addr2',
-      'camping.lineIntro AS lineIntro',
-      'ST_AsGeoJSON(camping.location) AS location',
-      '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
-    ])
-    .setParameters({ lat, lon, radius })
-    .where(
-      '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= :radius',
-    )
-    .andWhere('camping.deletedAt IS NULL')
-    if(userId) {
-      query
-      .leftJoinAndSelect(
-        'favorite',
-        'favorite',
-        'camping.contentId = favorite.contentId AND favorite.user = :userId',
-        { userId }
+      .createQueryBuilder('camping')
+      .select([
+        'camping.id AS id',
+        'camping.contentId AS contentId',
+        'camping.firstImageUrl AS firstImageUrl',
+        'camping.facltNm AS facltNm',
+        'camping.addr1 AS addr1',
+        'camping.addr2 AS addr2',
+        'camping.lineIntro AS lineIntro',
+        'ST_AsGeoJSON(camping.location) AS location',
+        '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) as distance',
+      ])
+      .setParameters({ lat, lon, radius })
+      .where(
+        '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= :radius',
       )
-      .addSelect('favorite.status', 'favorite')
-      .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC')
+      .andWhere('camping.deletedAt IS NULL');
+    if (userId) {
+      query
+        .leftJoinAndSelect(
+          'favorite',
+          'favorite',
+          'camping.contentId = favorite.contentId AND favorite.user = :userId',
+          { userId },
+        )
+        .addSelect('favorite.status', 'favorite')
+        .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC');
     }
-    query.addOrderBy('distance', 'ASC')
+    query.addOrderBy('distance', 'ASC');
 
     const result = await query.getRawMany();
 
+    if (!result || result.length === 0) {
+      throw new AppError(
+        CommonError.NOT_FOUND,
+        '위치에 맞는 캠핑장 데이터가 없습니다',
+        {
+          httpStatusCode: CommonErrorStatusCode.NOT_FOUND,
+        },
+      );
+    }
     return mapNearbycampingData(result);
   }
 }

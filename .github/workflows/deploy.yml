@@ -1,4 +1,4 @@
-name: Deploy to GCP VM
+name: Deploy to AWS EC2
 
 on:
   push:
@@ -25,13 +25,13 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
-      # 4. GCP VM에 Docker 이미지 배포 및 마이그레이션 실행
-      - name: Deploy to GCP VM
+      # 4. AWS EC2에 Docker 이미지 배포 및 마이그레이션 실행합니다.12312
+      - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.GCP_VM_IP }}
-          username: ${{ secrets.GCP_VM_USER }}
-          key: ${{ secrets.GCP_PRIVATE_KEY }}
+          host: ${{ secrets.AWS_EC2_IP }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             echo "=== Stopping and removing existing container ==="
             docker stop nestjs-app || true
@@ -42,30 +42,37 @@ jobs:
 
             echo "=== Running the new container ==="
             docker run -d \
-              --name nestjs-app \
-              --add-host=host.docker.internal:host-gateway \
-              -p 5000:5000 \
-              -e DB_HOST=host.docker.internal \
-              -e DB_PORT=${{ secrets.DB_PORT }} \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
-              -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-              -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
-              -e KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }} \
-              -e HASH_ROUNDS=${{ secrets.HASH_ROUNDS }} \
-              -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
-              -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
-              -e REDIS_HOST=host.docker.internal \
-              -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-              -e ENV=${{ secrets.ENV }} \
-              -e GO_CAMPING_APIKEY1=${{ secrets.GO_CAMPING_APIKEY1 }} \
-              -e GO_CAMPING_APIKEY2=${{ secrets.GO_CAMPING_APIKEY2 }} \
-              -e GO_CAMPING_APIKEY3=${{ secrets.GO_CAMPING_APIKEY3 }} \
-              -e GO_CAMPING_APIKEY4=${{ secrets.GO_CAMPING_APIKEY4 }} \
-              -e GO_CAMPING_APIKEY5=${{ secrets.GO_CAMPING_APIKEY5 }} \
-              -e GO_CAMPING_APIKEY6=${{ secrets.GO_CAMPING_APIKEY6 }} \
-              ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
+            --name nestjs-app \
+            -p 5000:5000 \
+            -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_PORT=${{ secrets.DB_PORT }} \
+            -e DB_USER=${{ secrets.DB_USER }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+            -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+            -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+            -e KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }} \
+            -e HASH_ROUNDS=${{ secrets.HASH_ROUNDS }} \
+            -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
+            -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
+            -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
+            -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+            -e ENV=${{ secrets.ENV }} \
+            -e ENV_GMAIL_ADDRESS_KEY=${{ secrets.ENV_GMAIL_ADDRESS_KEY }} \
+            -e ENV_GMAIL_PASSWORD_KEY=${{ secrets.ENV_GMAIL_PASSWORD_KEY }} \
+            -e GO_CAMPING_APIKEY1=${{ secrets.GO_CAMPING_APIKEY1 }} \
+            -e GO_CAMPING_APIKEY2=${{ secrets.GO_CAMPING_APIKEY2 }} \
+            -e GO_CAMPING_APIKEY3=${{ secrets.GO_CAMPING_APIKEY3 }} \
+            -e GO_CAMPING_APIKEY4=${{ secrets.GO_CAMPING_APIKEY4 }} \
+            -e GO_CAMPING_APIKEY5=${{ secrets.GO_CAMPING_APIKEY5 }} \
+            -e GO_CAMPING_APIKEY6=${{ secrets.GO_CAMPING_APIKEY6 }} \
+            -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            -e AWS_REGION=${{ secrets.AWS_REGION }} \
+            -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
+            -e VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }} \
+            -e VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }} \
+            ${{ secrets.DOCKER_HUB_USERNAME }}/nestjs-app:latest
 
             echo "=== Running migrations inside the container ==="
             docker exec nestjs-app npm run typeorm -- migration:run -d ./dist/database/data-source.js

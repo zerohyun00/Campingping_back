@@ -8,7 +8,6 @@ import { ImageModule } from 'src/image/image.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ImageService } from 'src/image/image.service';
-import { ImageRepository } from 'src/image/repository/image.repository';
 
 @Module({
   imports: [

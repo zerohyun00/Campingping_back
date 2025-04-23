@@ -27,30 +27,39 @@ export class CommentService implements ICommentService{
     paginationDto: PagePaginationDto,
   ) {
     const { page, take } = paginationDto;
-
+  
     const community = await this.communityRepository.findOne({
-      where: {
-        id: communityId,
-      },
+      where: { id: communityId },
     });
-
+  
     if (!community) {
       throw new NotFoundException('해당 커뮤니티 게시글이 없습니다.');
     }
+  
+    const queryBuilder = this.commentRepository
+    .createQueryBuilder('comment')
+    .leftJoinAndSelect('comment.user', 'user')
+    .leftJoinAndSelect('comment.community', 'community')
+    .leftJoinAndSelect(
+      'image',
+      'image',
+      'image.typeId = CAST(user.id AS varchar) AND image.type = :imageType', 
+      { imageType: 'USER' }
+    )
+    .where('community.id = :communityId', { communityId })
+    .andWhere('comment.deletedAt IS NULL')
+    .orderBy('comment.createdAt', 'DESC')
+    .skip((page - 1) * take)
+    .take(take);
 
-    const [comments, total] = await this.commentRepository.findAndCount({
-      where: { community: { id: communityId } },
-      relations: ['user', 'community'],
-      skip: (page - 1) * take,
-      take,
-      order: { createdAt: 'DESC' },
-    });
+    const total = await queryBuilder.getCount(); // 전체 개수 조회
+    const comments = await queryBuilder.getRawMany();
+
     return FindCommentDto.allList(comments, {
       total,
       page,
       take,
-      },
-)
+    });
   }
 
   async createComment(

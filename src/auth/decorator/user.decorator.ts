@@ -12,7 +12,6 @@ export interface SocialUserAfterAuth extends Request {
 export const SocialUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<SocialUserAfterAuth>();
-    console.log(request.user, '유저 데코레이터~!');
     return request.user;
   },
 );

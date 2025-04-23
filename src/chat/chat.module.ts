@@ -8,6 +8,9 @@ import { Chat } from './entities/chat.entity';
 import { User } from 'src/user/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ChatMockController } from './chat.mock.controller';
+import { ChatController } from './chat.controller';
+import { WebPushService } from './web-push.service';
 
 @Module({
   imports: [
@@ -26,7 +29,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       provide: 'IChatService',
       useClass: ChatService,
     },
-    ChatGateway, 
+    ChatGateway,
+    WebPushService,
   ],
+  controllers: [ChatMockController, ChatController],
 })
 export class ChatModule {}

@@ -50,15 +50,6 @@ export class CommentController {
       paginationDto,
     );
   }
-
-  // @Get(':commentId')
-  // async getComment(
-  //   @Param('communityId', ParseIntPipe) communityId: number,
-  //   @Param('commentId', ParseIntPipe) commentId: number,
-  // ) {
-  //   return this.commentService.findOneComment(communityId, commentId);
-  // }
-
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ 
@@ -114,7 +105,6 @@ export class CommentController {
       updateCommentDto,
     );
   }
-
   @Delete(':commentsId')
   @UseGuards(JwtAuthGuard, IsCommentMineOrAdminGuard)
   @ApiOperation({ 

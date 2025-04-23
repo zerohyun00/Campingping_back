@@ -6,9 +6,8 @@ import { NearbyCampingResType } from "../type/camping-near-map.type";
 
 
 export interface ICampingService {
-    campingCronHandler():Promise<void>;
-    findAllForCron():Promise<Camping[]>;
-    findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string): Promise<CampingWithDetails>;
-    findOne(paramDto: CampingParamDto): Promise<CampingfindOneType>;
-    findNearbyCamping(lon: number, lat: number, userId?: string):Promise <NearbyCampingResType[]>;
+    campingCronHandler():Promise<string[]>;
+    getAllWithDetails(limit: number, cursor?: number, region?: string, city?: string, category?: string, userId?: string): Promise<CampingWithDetails>;
+    getOne(paramDto: CampingParamDto): Promise<CampingfindOneType>;
+    getNearbyCampings(lon: number, lat: number, userId?: string):Promise <NearbyCampingResType[]>;
 }

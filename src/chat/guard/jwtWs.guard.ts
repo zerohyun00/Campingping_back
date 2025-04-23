@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as cookie from 'cookie'; // 쿠키 파싱 모듈
+import * as cookie from 'cookie';
 
 @Injectable()
 export class JwtWsAuthGuard implements CanActivate {
@@ -10,11 +10,6 @@ export class JwtWsAuthGuard implements CanActivate {
     const client = context.switchToWs().getClient();
     const rawCookies = client.handshake.headers.cookie;
 
-    if (!rawCookies) {
-      console.error('[ERROR] 쿠키가 없습니다.');
-      return false;
-    }
-
     const parsedCookies = cookie.parse(rawCookies);
     const token = parsedCookies['accessToken'];
 
@@ -22,7 +17,6 @@ export class JwtWsAuthGuard implements CanActivate {
       console.error('[ERROR] accessToken이 없습니다.');
       return false;
     }
-
     try {
       const user = this.jwtService.verify(token);
       client.data.user = user;

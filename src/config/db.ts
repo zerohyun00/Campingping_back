@@ -18,6 +18,14 @@ export class MyConfigService implements TypeOrmOptionsFactory {
       migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
       migrationsRun: true,
       synchronize: true,
+      cache: {
+        type: 'redis',
+        options: {
+          host: '127.0.0.1',
+          port: 6379,
+        },
+        duration: 60000,
+      },
     };
   }
 }

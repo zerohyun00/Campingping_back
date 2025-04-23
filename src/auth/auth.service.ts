@@ -3,12 +3,14 @@ import {
   BadRequestException,
   UnauthorizedException,
   Inject,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { LoginType, Role, User } from 'src/user/entities/user.entity';
+import { Role, User } from 'src/user/entities/user.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as nodemailer from 'nodemailer';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -16,6 +18,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
 import { IAuthService } from './interface/auth.service.interface';
 import * as bcrypt from 'bcryptjs';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -125,7 +128,7 @@ export class AuthService implements IAuthService {
 
   async login(
     loginUserDto: LoginUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; email: string }> {
     const { email, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({ where: { email } });
@@ -137,19 +140,19 @@ export class AuthService implements IAuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 잘못되었습니다.');
     }
-    
+
     const [accessToken, refreshToken] = await Promise.all([
       this.issueToken(user, false),
       this.issueToken(user, true),
     ]);
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, email: user.email };
   }
+
   async OAuthLogin(
     socialLoginDto: SocialLoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const { email, nickname, type } = socialLoginDto;
-
+  ): Promise<{ accessToken: string; refreshToken: string; email: string }> {
+    const { email, nickname, type, kakaoAccessToken, kakaoRefreshToken } = socialLoginDto;
     let user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
@@ -161,14 +164,16 @@ export class AuthService implements IAuthService {
       });
 
       await this.userRepository.save(user);
-    }
+    } 
+    const userKey = `user:${email}`;
+    const userValue = JSON.stringify({ email, kakaoAccessToken, kakaoRefreshToken });
+    await this.cacheManager.set(userKey, userValue);
 
     const [accessToken, refreshToken] = await Promise.all([
       this.issueToken(user, false),
       this.issueToken(user, true),
     ]);
-
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, email: user.email };
   }
 
   async issueToken(
@@ -221,5 +226,36 @@ export class AuthService implements IAuthService {
       accessToken,
       refreshToken: newRefreshToken,
     };
+  }
+  async logoutFromKakao(accessToken: string){
+    const url = 'https://kapi.kakao.com/v1/user/logout';
+
+    try {
+      // 카카오 로그아웃 API 호출
+      const response = await axios.post(
+        url,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (response.status !== 200) {
+        throw new HttpException(
+          `Kakao logout failed: ${response.statusText}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      console.error('Failed to logout from Kakao:', error.message);
+
+      // 에러 메시지 및 상태 코드 처리
+      throw new HttpException(
+        `Failed to logout from Kakao: ${error.response?.data?.msg || error.message}`,
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

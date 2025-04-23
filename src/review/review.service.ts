@@ -24,7 +24,7 @@ export class ReviewService implements IReviewService{
     const user = await this.userService.findOne(userId);
     if (!user) throw new NotFoundException('로그인이 필요한 서비스 입니다.');
 
-    const camping = await this.campingService.findOne(createReviewDto);
+    const camping = await this.campingService.getOne(createReviewDto);
     if (!camping) throw new NotFoundException('조회할 캠핑장이 없습니다.');
 
     const result = await this.reviewRepository.createReview(
@@ -34,7 +34,7 @@ export class ReviewService implements IReviewService{
     return;
   }
   async getReview(findReviewParam: FindReviewParam) {
-    const camping = await this.campingService.findOne(findReviewParam);
+    const camping = await this.campingService.getOne(findReviewParam);
     if (!camping) throw new NotFoundException('조회할 캠핑장이 없습니다.');
 
     const result = await this.reviewRepository.getReview(

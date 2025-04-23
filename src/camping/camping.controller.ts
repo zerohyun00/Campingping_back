@@ -8,10 +8,10 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
-import { CampingCronHandler } from './camping.cron.provider';
 import { CampingParamDto } from './dto/find-camping-param.dto';
 import { ICampingService } from './interface/camping.service.interface';
 import { CampingJwtAuthGuard, CampingUserRequest } from './guard/camping.jwt.guard';
+import { QueryDto } from './dto/find-camping.-query.dto';
 
 @ApiTags('Camping')
 @Controller('campings')
@@ -19,12 +19,7 @@ export class CampingController {
   constructor(
     @Inject('ICampingService')
     private readonly campingService: ICampingService,
-    private readonly campingCron: CampingCronHandler,
   ) {}
-  @Get()
-  async handler() {
-    return await this.campingCron.handleCron();
-  }
   @Get('map')
   @UseGuards(CampingJwtAuthGuard)
   @ApiOperation({
@@ -44,16 +39,17 @@ export class CampingController {
     required: true,
   })
   @ApiResponse({ status: 200, description: '근처 캠핑장 목록을 반환합니다.' })
-  async findNearbyCamping(
-    @Query('lat') lat: number,
-    @Query('lon') lon: number,
+  async getNearbyCampings(
+    @Query() query: QueryDto,
     @Req() req?: CampingUserRequest
   ) {
+    const { lon, lat } = query;
     const userId = req?.user?.sub;
+    
     if(!userId){
-      return await this.campingService.findNearbyCamping(lon, lat);
+      return await this.campingService.getNearbyCampings(lon, lat);
     }
-    return await this.campingService.findNearbyCamping(lon, lat, userId);
+    return await this.campingService.getNearbyCampings(lon, lat, userId);
   }
   @Get('lists')
   @UseGuards(CampingJwtAuthGuard)
@@ -65,7 +61,7 @@ export class CampingController {
     name: 'limit',
     description: '최대 조회 수',
     example: 10,
-    required: true,
+    required: false,
   })
   @ApiQuery({
     name: 'cursor',
@@ -80,24 +76,31 @@ export class CampingController {
     required: false,
   })
   @ApiQuery({
+    name: 'city',
+    description: '캠핑장의 (시, 군, 구) (선택 사항)',
+    example: '중구',
+    required: false,
+  })
+  @ApiQuery({
     name: 'category',
     description: '캠핑장의 카테고리 (선택 사항)',
     example: '펫',
     required: false,
   })
   @ApiResponse({ status: 200, description: '캠핑장 목록을 반환합니다.' })
-  async findCamping(
-    @Query('limit') limit: number,
+  async getCampings(
+    @Query('limit') limit?: number,
     @Query('cursor') cursor?:number,
     @Query('region') region?: string,
+    @Query('city') city?: string,
     @Query('category') category?: string,
     @Req() req?: CampingUserRequest,
   ) {
     const userId = req?.user?.sub;
     if (!userId) {
-      return await this.campingService.findAllWithDetails(limit, cursor, region, category);
+      return await this.campingService.getAllWithDetails(limit, cursor, region, city, category);
     }
-    return await this.campingService.findAllWithDetails(limit, cursor,region, category, userId);
+    return await this.campingService.getAllWithDetails(limit, cursor, region, city, category, userId);
   }
   @Get('/lists/:contentId')
   @ApiOperation({
@@ -111,7 +114,7 @@ export class CampingController {
     required: true,
   })
   @ApiResponse({ status: 200, description: '특정 캠핑장의 세부 정보를 반환합니다.' })
-  async findOnecamping(@Param() paramDto: CampingParamDto) {
-    return await this.campingService.findOne(paramDto);
+  async getOnecamping(@Param() paramDto: CampingParamDto) {
+    return await this.campingService.getOne(paramDto);
   }
 }

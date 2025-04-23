@@ -11,4 +11,8 @@ export class SocialLoginDto {
   nickname: string;
 
   type: LoginType.KAKAO;
+
+  kakaoAccessToken: string;
+
+  kakaoRefreshToken: string;
 }

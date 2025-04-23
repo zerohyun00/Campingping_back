@@ -3,10 +3,19 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppErrorFilter } from './common/filters/app-error-filter';
+import { MetricsInterceptor } from './metrics/interseptor/metrics.interceptor';
+import { MetricsService } from './metrics/metrics.service';
+import * as Sentry from '@sentry/node';
+import { WebhookInterceptor } from './common/interceptor/webhook-interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+  });
+  app.useGlobalInterceptors(new WebhookInterceptor());
+
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
@@ -17,24 +26,27 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    ignoreGlobalPrefix: false, // 글로벌 프리픽스 적용
+    ignoreGlobalPrefix: false,
   });
   app.enableCors({
-    origin: ['http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: 'https://campingping.com',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'rsc'], // rsc 헤더 허용
+    credentials: true,
   });
-
 
   SwaggerModule.setup('api/doc', app, document);
 
+  app.useGlobalInterceptors(new MetricsInterceptor(new MetricsService()));
 
+  app.useGlobalFilters(new AppErrorFilter());
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // 정의하지 않은 값들은 전부 전달이 안되게 함, dto 에 존재하는값과 존재하지않는 값 구분이 가능
-      forbidNonWhitelisted: true, // whitelist에서 걸리면 에러까지 return
+      whitelist: true,
+      forbidNonWhitelisted: true,
       transformOptions: {
-        enableImplicitConversion: true, // 클래스에 적혀있는 타입스크립트의 타입을 기반으로 입력값을 변경(알아서 바꿔줌 )
+        enableImplicitConversion: true,
       },
     }),
   );

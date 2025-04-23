@@ -13,7 +13,6 @@ import {
   Query,
   Inject,
 } from '@nestjs/common';
-import { CommunityService } from './community.service';
 import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiTags } from '@nestjs/swagger';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';

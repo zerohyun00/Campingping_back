@@ -32,8 +32,10 @@ export class CampingService implements ICampingService{
     const apiurl = 'https://apis.data.go.kr/B551011/GoCamping';
     const numOfRows = 100;
     let pageNo = 1;
-  
-    while (true) {
+    let isboolean = true;
+    let contentIds: string[] = [];
+
+    while (isboolean) {
       const apikey = this.apiKeyManager.getCurrentApiKey();
       const url = `${apiurl}/basedList?serviceKey=${apikey}&numOfRows=${numOfRows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
   
@@ -42,10 +44,17 @@ export class CampingService implements ICampingService{
         const responseBody = response.data?.response?.body;
   
         if (!responseBody || !responseBody.items || responseBody.items === '') {
-          console.log(`처리할 데이터가 없습니다 (페이지: ${pageNo})`);
-
+          //주석
           if (XmlUtils.isXmlResponse(response.data)) {
-            await XmlUtils.handleXmlError(response.data, apikey, this.apiKeyManager);
+            const isXmlResponse = await XmlUtils.handleXmlError(
+              response.data,
+              apikey,
+              this.apiKeyManager,
+            );          
+            if(!isXmlResponse){
+              isboolean = false;
+              break;
+            }
           } else {
             console.error('XML이 아닌 오류 응답:', response.data);
           }
@@ -53,32 +62,32 @@ export class CampingService implements ICampingService{
         }
   
         const campData = responseBody.items.item ?? [];
-        console.log(`현재 페이지: ${pageNo}, 받은 데이터 수: ${campData.length}`);
   
         // 데이터를 즉시 저장
         const entities = campData.map((item) => this.mapToEntity(item));
         await this.saveDataInBatches(entities, 100);
-        console.log(`${campData.length}개의 데이터를 저장했습니다.`);
+        const ids = campData.map((item) => item.contentId);
+        contentIds = [...contentIds, ...ids]; // 기존 contentIds 배열에 추가
         pageNo++;
       } catch (error) {
         console.error('데이터 요청 중 오류 발생:', error.message);
         break;
       }
     }
+    return contentIds;
   }
   async saveDataInBatches(entities: Camping[], batchSize: number): Promise<void> {
     for (let i = 0; i < entities.length; i += batchSize) {
       const batch = entities.slice(i, i + batchSize);
       try {
         await this.campingRepository.saveDataWithTransaction(batch);
-        console.log(`배치 저장 성공: ${batch.length}개`);
       } catch (error) {
         console.error('배치 저장 실패:', error.message, batch);
       }
     }
   }
 
-  mapToEntity(data: CampingType): Camping {
+  private mapToEntity(data: CampingType): Camping {
     const camping = new Camping();
     camping.lineIntro = data.lineIntro ?? null;
     camping.intro = data.intro ?? null;
@@ -116,18 +125,14 @@ export class CampingService implements ICampingService{
 
     return camping;
   }
-
-  async findAllForCron() {
-    return await this.campingRepository.findAllForCron();
-  }
-  async findAllWithDetails(limit: number, cursor?: number, region?: string, category?: string, userId?: string) {
-    return await this.campingRepository.findAllWithDetails(limit, cursor,region, category, userId);
+  async getAllWithDetails(limit?: number, cursor?: number, region?: string, city?: string, category?: string, userId?: string) {
+    return await this.campingRepository.findAllWithDetails(limit, cursor, region, city,category, userId);
   }
 
-  async findOne(paramDto: CampingParamDto) {
+  async getOne(paramDto: CampingParamDto) {
     return await this.campingRepository.findOne(paramDto);
   }
-  async findNearbyCamping(lon: number, lat: number, userId?: string) {
+  async getNearbyCampings(lon: number, lat: number, userId?: string) {
     return await this.campingRepository.findNearbyCamping(lon, lat, userId);
   }
 }
