@@ -19,6 +19,7 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:user": "jest --testPathPattern=src/user --coverage --collectCoverageFrom=src/user/**",
     "migration:generate": "ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js migration:generate",
     "migration:create": "typeorm migration:create ./src/migrations/{name}",
     "migration:run": "typeorm migration:run -d ./src/database/data-source.ts",
@@ -114,7 +115,9 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "roots": [
+      "src"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -122,7 +125,15 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coveragePathIgnorePatterns": [
+      "module.ts",
+      "dto.ts",
+      "entity.ts"
+    ],
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "src/(.*)": "<rootDir>/src/$1"
+    }
   }
 }
