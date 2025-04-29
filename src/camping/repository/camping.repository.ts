@@ -76,6 +76,7 @@ export class CampingRepository {
         )
         .execute();
     });
+    await this.invalidateCampingCache();
   }
 
   async findAllWithDetails(
@@ -158,6 +159,10 @@ export class CampingRepository {
     }
 
     return { result: camping, nextCursor };
+  }
+
+  async invalidateCampingCache() {
+    await this.cacheManager.del(CACHE_KEYS.CAMPING_LIST_ALL);
   }
 
   // 캠핑장 상세 조회
