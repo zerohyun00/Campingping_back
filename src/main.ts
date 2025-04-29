@@ -61,10 +61,9 @@ bootstrap();
 
 async function preWarmCache(campingRepository: CampingRepository) {
   try {
-    console.log('🏕️ Pre-warming /campings/lists cache...');
-    await campingRepository.findAllWithDetails(); // isFetchAll=true로 호출됨
-    console.log('✅ /campings/lists cache pre-warmed successfully!');
+    await campingRepository.findAllWithDetails();
   } catch (error) {
     console.error('❌ Pre-warming failed:', error);
+    setTimeout(() => preWarmCache(campingRepository), 3000);
   }
 }
