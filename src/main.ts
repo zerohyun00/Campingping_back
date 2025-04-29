@@ -8,12 +8,17 @@ import { MetricsInterceptor } from './metrics/interseptor/metrics.interceptor';
 import { MetricsService } from './metrics/metrics.service';
 import * as Sentry from '@sentry/node';
 import { WebhookInterceptor } from './common/interceptor/webhook-interceptor';
+import { CampingRepository } from './camping/repository/camping.repository';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
   });
+
+  const campingRepository = app.get(CampingRepository);
+  await preWarmCache(campingRepository);
+
   app.useGlobalInterceptors(new WebhookInterceptor());
 
   app.setGlobalPrefix('api');
@@ -53,3 +58,12 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 5000);
 }
 bootstrap();
+
+async function preWarmCache(campingRepository: CampingRepository) {
+  try {
+    await campingRepository.findAllWithDetails();
+  } catch (error) {
+    console.error('❌ Pre-warming failed:', error);
+    setTimeout(() => preWarmCache(campingRepository), 3000);
+  }
+}
