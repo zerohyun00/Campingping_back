@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Camping } from '../entities/camping.entity';
 import { Brackets, DataSource, Repository } from 'typeorm';
 import { CampingParamDto } from '../dto/find-camping-param.dto';
@@ -13,18 +13,25 @@ import {
   CommonError,
   CommonErrorStatusCode,
 } from 'src/common/utils/app-error';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { CACHE_KEYS } from 'src/common/constants/cache-keys';
 
 @Injectable()
 export class CampingRepository {
   private readonly repository: Repository<Camping>;
-  constructor(private readonly dataSource: DataSource) {
+
+  constructor(
+    private readonly dataSource: DataSource,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+  ) {
     this.repository = this.dataSource.getRepository(Camping);
   }
+
   // 캠핑장 데이터 저장 트랜잭션
   async saveDataWithTransaction(data: Camping[]) {
     const entityManager = this.dataSource.createEntityManager();
     await entityManager.transaction(async (transactionalEntityManager) => {
-      // `upsert`를 사용하여 데이터를 저장하거나 업데이트
       await transactionalEntityManager
         .createQueryBuilder()
         .insert()
@@ -70,6 +77,7 @@ export class CampingRepository {
         .execute();
     });
   }
+
   async findAllWithDetails(
     limit?: number,
     cursor?: number,
@@ -78,6 +86,16 @@ export class CampingRepository {
     category?: string,
     userId?: string,
   ) {
+    const isFetchAll = !region && !city && !category && !cursor;
+    const cacheKey = CACHE_KEYS.CAMPING_LIST_ALL;
+
+    if (isFetchAll) {
+      const cached = await this.cacheManager.get<string>(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+
     const queryBuilder = this.repository
       .createQueryBuilder('camping')
       .select([
@@ -93,6 +111,7 @@ export class CampingRepository {
         'camping.sigunguNm AS sigunguNm',
         'ST_AsGeoJSON(camping.location) AS location',
       ]);
+
     if (region) {
       queryBuilder.andWhere('camping.doNm ILIKE :region', {
         region: `%${region}%`,
@@ -123,31 +142,25 @@ export class CampingRepository {
     if (cursor) {
       queryBuilder.andWhere('camping.id > :cursor', { cursor });
     }
-    if (userId) {
-      queryBuilder
-        .leftJoinAndSelect(
-          'favorite',
-          'favorite',
-          'camping.contentId = favorite.contentId AND favorite.user = :userId',
-          { userId },
-        )
-        .addSelect('favorite.status', 'favorite')
-        .orderBy('CASE WHEN favorite.status = true THEN 1 ELSE 2 END', 'ASC');
-    }
+
     queryBuilder.addOrderBy('camping.contentId', 'ASC');
     queryBuilder.limit(limit && limit > 0 ? limit : 10);
-
-    // 레디스를 이용한 캐싱
-    queryBuilder.cache(true);
 
     const result = await queryBuilder.getRawMany();
     const nextCursor = result.length > 0 ? result[result.length - 1].id : null;
     const camping = mapCampingListData(result);
-    return {
-      result: camping,
-      nextCursor,
-    };
+
+    if (isFetchAll) {
+      await this.cacheManager.set(
+        cacheKey,
+        JSON.stringify({ result: camping, nextCursor }),
+      );
+    }
+
+    return { result: camping, nextCursor };
   }
+
+  // 캠핑장 상세 조회
   async findOne(paramDto: CampingParamDto) {
     const query = this.repository
       .createQueryBuilder('camping')
@@ -216,6 +229,8 @@ export class CampingRepository {
 
     return { ...campingData, images };
   }
+
+  // 주변 캠핑장 조회
   async findNearbyCamping(
     lon: number,
     lat: number,
@@ -240,6 +255,7 @@ export class CampingRepository {
         '(ST_Distance(camping.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) * 111000) <= :radius',
       )
       .andWhere('camping.deletedAt IS NULL');
+
     if (userId) {
       query
         .leftJoinAndSelect(
