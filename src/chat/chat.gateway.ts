@@ -45,7 +45,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = client.data.user;
     if (user) {
       this.chatService.removeClient(user.sub);
-      console.log(`[DISCONNECTED] User ${user.sub} has disconnected.`);
     } else {
       console.error(
         '[DISCONNECT ERROR] 인증되지 않은 사용자가 연결을 끊었습니다.',
@@ -84,7 +83,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.chatService.registerClient(payload.sub, client);
       await this.chatService.joinRooms(payload, client);
 
-      console.log(`[CONNECTED] User ${payload.sub} has connected.`);
     } catch (error) {
       console.error(`[ERROR] Connection failed: ${error.message}`);
       client.disconnect();
@@ -138,7 +136,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message: `Room with ID ${chatRoom.id} created successfully.`,
     });
 
-    console.log(`[INFO] Room ${chatRoom.id} created by User ${payload.sub}`);
   }
 
   @SubscribeMessage('getChatHistory')
