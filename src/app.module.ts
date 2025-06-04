@@ -69,7 +69,7 @@ import { WebhookInterceptor } from './common/interceptor/webhook-interceptor';
           store: ioRedisStore,
           host: redisHost,
           port: redisPort,
-          ttl: 43200,
+          ttl: 86400,
         };
       },
       inject: [ConfigService],
