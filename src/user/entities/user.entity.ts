@@ -22,6 +22,8 @@ export enum Role {
 export enum LoginType {
   NORMAL = 'NORMAL',
   KAKAO = 'KAKAO',
+  GOOGLE = 'GOOGLE',
+  NAVER = 'NAVER',
 }
 
 export interface PushSubscriptions {
