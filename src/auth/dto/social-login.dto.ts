@@ -1,4 +1,4 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsString, IsEnum, IsOptional } from 'class-validator';
 import { emailValidationMessage } from 'src/common/validation-message/email-validation.message';
 import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
 import { LoginType } from 'src/user/entities/user.entity';
@@ -10,9 +10,30 @@ export class SocialLoginDto {
   @IsString({ message: stringValidationMessage })
   nickname: string;
 
-  type: LoginType.KAKAO;
+  @IsEnum(LoginType)
+  type: LoginType;
 
-  kakaoAccessToken: string;
+  @IsOptional()
+  @IsString()
+  kakaoAccessToken?: string;
 
-  kakaoRefreshToken: string;
+  @IsOptional()
+  @IsString()
+  kakaoRefreshToken?: string;
+
+  @IsOptional()
+  @IsString()
+  googleAccessToken?: string;
+
+  @IsOptional()
+  @IsString()
+  googleRefreshToken?: string;
+
+  @IsOptional()
+  @IsString()
+  naverAccessToken?: string;
+
+  @IsOptional()
+  @IsString()
+  naverRefreshToken?: string;
 }
